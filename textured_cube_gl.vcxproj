@@ -115,6 +115,24 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="main.cc" />
+    <ClCompile Include="Model.cc" />
+    <ClCompile Include="Program.cc" />
+    <ClCompile Include="Scene.cc" />
+    <ClCompile Include="Texture2D.cc" />
+    <ClCompile Include="VertexFormat.cc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="config.hh" />
+    <ClInclude Include="Model.hh" />
+    <ClInclude Include="Program.hh" />
+    <ClInclude Include="Scene.hh" />
+    <ClInclude Include="Texture2D.hh" />
+    <ClInclude Include="VertexFormat.hh" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="first_pass.frag" />
+    <None Include="first_pass.vert" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
