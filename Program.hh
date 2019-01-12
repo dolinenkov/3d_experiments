@@ -4,6 +4,13 @@
 class Program
 {
 public:
+    struct Attachment
+    {
+        GLint   index;
+        GLenum  type;
+        GLint   size;
+    };
+
     Program(GLuint id);
 
     void use();
@@ -24,7 +31,19 @@ public:
 
     void setTexture(const char * name, int unit);
 
+    void _loadActiveAttributes();
+    void _loadActiveUniforms();
+
+    const char * _getAttributeNameByType(GLenum type) const;
+    const char * _getUniformNameByType(GLenum type) const;
+
+
     GLuint id;
+
+    map<string, Attachment> activeAttribs;
+    map<string, Attachment> activeUniforms;
+
+
 };
 
 

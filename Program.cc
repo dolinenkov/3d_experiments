@@ -2,6 +2,8 @@
 
 Program::Program(GLuint id): id(id)
 {
+    _loadActiveAttributes();
+    _loadActiveUniforms();
 }
 
 void Program::use()
@@ -11,24 +13,16 @@ void Program::use()
 
 GLint Program::findAttribute(const char * name)
 {
-    GLint loc = -1;
-    if (id > 0)
-    {
-        loc = glGetAttribLocation(id, name); gl_bugcheck();
-        //assert(loc != -1);
-    }
-    return loc;
+    auto it = activeAttribs.find(name);
+    assert(it != activeAttribs.end());
+    return it != activeAttribs.end() ? it->second.index : -1;
 }
 
 GLint Program::findUniform(const char * name)
 {
-    GLint loc = -1;
-    if (id > 0)
-    {
-        loc = glGetUniformLocation(id, name); gl_bugcheck();
-        assert(loc != -1);
-    }
-    return loc;
+    auto it = activeUniforms.find(name);
+    assert(it != activeUniforms.end());
+    return it != activeUniforms.end() ? it->second.index : -1;
 }
 
 void Program::setFloat(const char * name, float f)
@@ -60,6 +54,217 @@ void Program::setTexture(const char * name, int unit)
 {
     glUniform1i(findUniform(name), unit); gl_bugcheck();
 }
+
+void Program::_loadActiveAttributes()
+{
+    if (id > 0)
+    {
+        GLint count = 0;
+        glGetProgramiv(id, GL_ACTIVE_ATTRIBUTES, &count);
+
+        GLint maxLength = 0;
+        glGetProgramiv(id, GL_ACTIVE_ATTRIBUTE_MAX_LENGTH, &maxLength);
+
+        vector<GLchar> buf(maxLength + 1);
+        for (GLint i = 0; i < count; ++i)
+        {
+            GLsizei len = 0;
+            GLsizei size = 0;
+            GLenum type = 0;
+            glGetActiveAttrib(id, i, maxLength, &len, &size, &type, buf.data());
+
+            activeAttribs.insert({ string(buf.data(), len), {i, type, size} });
+            SDL_Log("attribute (%d:%s) : %s, %d\n", i, buf.data(), _getAttributeNameByType(type), size);
+        }
+    }
+}
+
+void Program::_loadActiveUniforms()
+{
+    if (id > 0)
+    {
+        GLint count = 0;
+        glGetProgramiv(id, GL_ACTIVE_UNIFORMS, &count);
+
+        GLint maxLength = 0;
+        glGetProgramiv(id, GL_ACTIVE_UNIFORM_MAX_LENGTH, &maxLength);
+
+        vector<GLchar> buf(maxLength + 1);
+        for (GLint i = 0; i < count; ++i)
+        {
+            GLsizei len = 0;
+            GLsizei size = 0;
+            GLenum type = 0;
+            glGetActiveUniform(id, i, maxLength, &len, &size, &type, buf.data());
+
+            activeUniforms.insert({ string(buf.data(), len), {i, type, size} });
+            SDL_Log("uniform (%d:%s) : %s, %d\n", i, buf.data(), _getUniformNameByType(type), size);
+        }
+    }
+}
+
+#define _CASE_TO_STR(x) case x: return #x;
+
+const char * Program::_getAttributeNameByType(GLenum type) const
+{
+    switch (type)
+    {
+    _CASE_TO_STR(GL_FLOAT);
+    _CASE_TO_STR(GL_FLOAT_VEC2);
+    _CASE_TO_STR(GL_FLOAT_VEC3);
+    _CASE_TO_STR(GL_FLOAT_VEC4);
+    _CASE_TO_STR(GL_FLOAT_MAT2);
+    _CASE_TO_STR(GL_FLOAT_MAT3);
+    _CASE_TO_STR(GL_FLOAT_MAT4);
+    _CASE_TO_STR(GL_FLOAT_MAT2x3);
+    _CASE_TO_STR(GL_FLOAT_MAT2x4);
+    _CASE_TO_STR(GL_FLOAT_MAT3x2);
+    _CASE_TO_STR(GL_FLOAT_MAT3x4);
+    _CASE_TO_STR(GL_FLOAT_MAT4x2);
+    _CASE_TO_STR(GL_FLOAT_MAT4x3);
+    _CASE_TO_STR(GL_INT);
+    _CASE_TO_STR(GL_INT_VEC2);
+    _CASE_TO_STR(GL_INT_VEC3);
+    _CASE_TO_STR(GL_INT_VEC4);
+    _CASE_TO_STR(GL_UNSIGNED_INT);
+    _CASE_TO_STR(GL_UNSIGNED_INT_VEC2);
+    _CASE_TO_STR(GL_UNSIGNED_INT_VEC3);
+    _CASE_TO_STR(GL_UNSIGNED_INT_VEC4);
+    _CASE_TO_STR(GL_DOUBLE);
+    _CASE_TO_STR(GL_DOUBLE_VEC2);
+    _CASE_TO_STR(GL_DOUBLE_VEC3);
+    _CASE_TO_STR(GL_DOUBLE_VEC4);
+    _CASE_TO_STR(GL_DOUBLE_MAT2);
+    _CASE_TO_STR(GL_DOUBLE_MAT3);
+    _CASE_TO_STR(GL_DOUBLE_MAT4);
+    _CASE_TO_STR(GL_DOUBLE_MAT2x3);
+    _CASE_TO_STR(GL_DOUBLE_MAT2x4);
+    _CASE_TO_STR(GL_DOUBLE_MAT3x2);
+    _CASE_TO_STR(GL_DOUBLE_MAT3x4);
+    _CASE_TO_STR(GL_DOUBLE_MAT4x2);
+    _CASE_TO_STR(GL_DOUBLE_MAT4x3);
+    default:
+        break;
+    }
+    return "";
+}
+
+const char * Program::_getUniformNameByType(GLenum type) const
+{
+    switch (type)
+    {
+    _CASE_TO_STR(GL_FLOAT);
+    _CASE_TO_STR(GL_FLOAT_VEC2);
+    _CASE_TO_STR(GL_FLOAT_VEC3);
+    _CASE_TO_STR(GL_FLOAT_VEC4);
+    _CASE_TO_STR(GL_DOUBLE);
+    _CASE_TO_STR(GL_DOUBLE_VEC2);
+    _CASE_TO_STR(GL_DOUBLE_VEC3);
+    _CASE_TO_STR(GL_DOUBLE_VEC4);
+    _CASE_TO_STR(GL_INT);
+    _CASE_TO_STR(GL_INT_VEC2);
+    _CASE_TO_STR(GL_INT_VEC3);
+    _CASE_TO_STR(GL_INT_VEC4);
+    _CASE_TO_STR(GL_UNSIGNED_INT);
+    _CASE_TO_STR(GL_UNSIGNED_INT_VEC2);
+    _CASE_TO_STR(GL_UNSIGNED_INT_VEC3);
+    _CASE_TO_STR(GL_UNSIGNED_INT_VEC4);
+    _CASE_TO_STR(GL_BOOL);
+    _CASE_TO_STR(GL_BOOL_VEC2);
+    _CASE_TO_STR(GL_BOOL_VEC3);
+    _CASE_TO_STR(GL_BOOL_VEC4);
+    _CASE_TO_STR(GL_FLOAT_MAT2);
+    _CASE_TO_STR(GL_FLOAT_MAT3);
+    _CASE_TO_STR(GL_FLOAT_MAT4);
+    _CASE_TO_STR(GL_FLOAT_MAT2x3);
+    _CASE_TO_STR(GL_FLOAT_MAT2x4);
+    _CASE_TO_STR(GL_FLOAT_MAT3x2);
+    _CASE_TO_STR(GL_FLOAT_MAT3x4);
+    _CASE_TO_STR(GL_FLOAT_MAT4x2);
+    _CASE_TO_STR(GL_FLOAT_MAT4x3);
+    _CASE_TO_STR(GL_DOUBLE_MAT2);
+    _CASE_TO_STR(GL_DOUBLE_MAT3);
+    _CASE_TO_STR(GL_DOUBLE_MAT4);
+    _CASE_TO_STR(GL_DOUBLE_MAT2x3);
+    _CASE_TO_STR(GL_DOUBLE_MAT2x4);
+    _CASE_TO_STR(GL_DOUBLE_MAT3x2);
+    _CASE_TO_STR(GL_DOUBLE_MAT3x4);
+    _CASE_TO_STR(GL_DOUBLE_MAT4x2);
+    _CASE_TO_STR(GL_DOUBLE_MAT4x3);
+    _CASE_TO_STR(GL_SAMPLER_1D);
+    _CASE_TO_STR(GL_SAMPLER_2D);
+    _CASE_TO_STR(GL_SAMPLER_3D);
+    _CASE_TO_STR(GL_SAMPLER_CUBE);
+    _CASE_TO_STR(GL_SAMPLER_1D_SHADOW);
+    _CASE_TO_STR(GL_SAMPLER_2D_SHADOW);
+    _CASE_TO_STR(GL_SAMPLER_1D_ARRAY);
+    _CASE_TO_STR(GL_SAMPLER_2D_ARRAY);
+    _CASE_TO_STR(GL_SAMPLER_1D_ARRAY_SHADOW);
+    _CASE_TO_STR(GL_SAMPLER_2D_ARRAY_SHADOW);
+    _CASE_TO_STR(GL_SAMPLER_2D_MULTISAMPLE);
+    _CASE_TO_STR(GL_SAMPLER_2D_MULTISAMPLE_ARRAY);
+    _CASE_TO_STR(GL_SAMPLER_CUBE_SHADOW);
+    _CASE_TO_STR(GL_SAMPLER_BUFFER);
+    _CASE_TO_STR(GL_SAMPLER_2D_RECT);
+    _CASE_TO_STR(GL_SAMPLER_2D_RECT_SHADOW);
+    _CASE_TO_STR(GL_INT_SAMPLER_1D);
+    _CASE_TO_STR(GL_INT_SAMPLER_2D);
+    _CASE_TO_STR(GL_INT_SAMPLER_3D);
+    _CASE_TO_STR(GL_INT_SAMPLER_CUBE);
+    _CASE_TO_STR(GL_INT_SAMPLER_1D_ARRAY);
+    _CASE_TO_STR(GL_INT_SAMPLER_2D_ARRAY);
+    _CASE_TO_STR(GL_INT_SAMPLER_2D_MULTISAMPLE);
+    _CASE_TO_STR(GL_INT_SAMPLER_2D_MULTISAMPLE_ARRAY);
+    _CASE_TO_STR(GL_INT_SAMPLER_BUFFER);
+    _CASE_TO_STR(GL_INT_SAMPLER_2D_RECT);
+    _CASE_TO_STR(GL_UNSIGNED_INT_SAMPLER_1D);
+    _CASE_TO_STR(GL_UNSIGNED_INT_SAMPLER_2D);
+    _CASE_TO_STR(GL_UNSIGNED_INT_SAMPLER_3D);
+    _CASE_TO_STR(GL_UNSIGNED_INT_SAMPLER_CUBE);
+    _CASE_TO_STR(GL_UNSIGNED_INT_SAMPLER_1D_ARRAY);
+    _CASE_TO_STR(GL_UNSIGNED_INT_SAMPLER_2D_ARRAY);
+    _CASE_TO_STR(GL_UNSIGNED_INT_SAMPLER_2D_MULTISAMPLE);
+    _CASE_TO_STR(GL_UNSIGNED_INT_SAMPLER_2D_MULTISAMPLE_ARRAY);
+    _CASE_TO_STR(GL_UNSIGNED_INT_SAMPLER_BUFFER);
+    _CASE_TO_STR(GL_UNSIGNED_INT_SAMPLER_2D_RECT);
+    _CASE_TO_STR(GL_IMAGE_1D);
+    _CASE_TO_STR(GL_IMAGE_2D);
+    _CASE_TO_STR(GL_IMAGE_3D);
+    _CASE_TO_STR(GL_IMAGE_2D_RECT);
+    _CASE_TO_STR(GL_IMAGE_CUBE);
+    _CASE_TO_STR(GL_IMAGE_BUFFER);
+    _CASE_TO_STR(GL_IMAGE_1D_ARRAY);
+    _CASE_TO_STR(GL_IMAGE_2D_ARRAY);
+    _CASE_TO_STR(GL_IMAGE_2D_MULTISAMPLE);
+    _CASE_TO_STR(GL_IMAGE_2D_MULTISAMPLE_ARRAY);
+    _CASE_TO_STR(GL_INT_IMAGE_1D);
+    _CASE_TO_STR(GL_INT_IMAGE_2D);
+    _CASE_TO_STR(GL_INT_IMAGE_3D);
+    _CASE_TO_STR(GL_INT_IMAGE_2D_RECT);
+    _CASE_TO_STR(GL_INT_IMAGE_CUBE);
+    _CASE_TO_STR(GL_INT_IMAGE_BUFFER);
+    _CASE_TO_STR(GL_INT_IMAGE_1D_ARRAY);
+    _CASE_TO_STR(GL_INT_IMAGE_2D_ARRAY);
+    _CASE_TO_STR(GL_INT_IMAGE_2D_MULTISAMPLE);
+    _CASE_TO_STR(GL_INT_IMAGE_2D_MULTISAMPLE_ARRAY);
+    _CASE_TO_STR(GL_UNSIGNED_INT_IMAGE_1D);
+    _CASE_TO_STR(GL_UNSIGNED_INT_IMAGE_2D);
+    _CASE_TO_STR(GL_UNSIGNED_INT_IMAGE_3D);
+    _CASE_TO_STR(GL_UNSIGNED_INT_IMAGE_2D_RECT);
+    _CASE_TO_STR(GL_UNSIGNED_INT_IMAGE_CUBE);
+    _CASE_TO_STR(GL_UNSIGNED_INT_IMAGE_BUFFER);
+    _CASE_TO_STR(GL_UNSIGNED_INT_IMAGE_1D_ARRAY);
+    _CASE_TO_STR(GL_UNSIGNED_INT_IMAGE_2D_ARRAY);
+    _CASE_TO_STR(GL_UNSIGNED_INT_IMAGE_2D_MULTISAMPLE);
+    _CASE_TO_STR(GL_UNSIGNED_INT_IMAGE_2D_MULTISAMPLE_ARRAY);
+    _CASE_TO_STR(GL_UNSIGNED_INT_ATOMIC_COUNTER);
+    default:
+    break;
+    }
+    return "";
+}
+
+#undef _CASE_TO_STR
 
 ProgramBuilder::ProgramBuilder()
 {
