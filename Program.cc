@@ -60,10 +60,10 @@ void Program::_loadActiveAttributes()
     if (id > 0)
     {
         GLint count = 0;
-        glGetProgramiv(id, GL_ACTIVE_ATTRIBUTES, &count);
+        glGetProgramiv(id, GL_ACTIVE_ATTRIBUTES, &count); gl_bugcheck();
 
         GLint maxLength = 0;
-        glGetProgramiv(id, GL_ACTIVE_ATTRIBUTE_MAX_LENGTH, &maxLength);
+        glGetProgramiv(id, GL_ACTIVE_ATTRIBUTE_MAX_LENGTH, &maxLength); gl_bugcheck();
 
         vector<GLchar> buf(maxLength + 1);
         for (GLint i = 0; i < count; ++i)
@@ -71,7 +71,7 @@ void Program::_loadActiveAttributes()
             GLsizei len = 0;
             GLsizei size = 0;
             GLenum type = 0;
-            glGetActiveAttrib(id, i, maxLength, &len, &size, &type, buf.data());
+            glGetActiveAttrib(id, i, maxLength, &len, &size, &type, buf.data()); gl_bugcheck();
 
             activeAttribs.insert({ string(buf.data(), len), {i, type, size} });
             SDL_Log("attribute (%d:%s) : %s, %d\n", i, buf.data(), _getAttributeNameByType(type), size);
@@ -84,10 +84,10 @@ void Program::_loadActiveUniforms()
     if (id > 0)
     {
         GLint count = 0;
-        glGetProgramiv(id, GL_ACTIVE_UNIFORMS, &count);
+        glGetProgramiv(id, GL_ACTIVE_UNIFORMS, &count); gl_bugcheck();
 
         GLint maxLength = 0;
-        glGetProgramiv(id, GL_ACTIVE_UNIFORM_MAX_LENGTH, &maxLength);
+        glGetProgramiv(id, GL_ACTIVE_UNIFORM_MAX_LENGTH, &maxLength); gl_bugcheck();
 
         vector<GLchar> buf(maxLength + 1);
         for (GLint i = 0; i < count; ++i)
@@ -95,7 +95,7 @@ void Program::_loadActiveUniforms()
             GLsizei len = 0;
             GLsizei size = 0;
             GLenum type = 0;
-            glGetActiveUniform(id, i, maxLength, &len, &size, &type, buf.data());
+            glGetActiveUniform(id, i, maxLength, &len, &size, &type, buf.data()); gl_bugcheck();
 
             activeUniforms.insert({ string(buf.data(), len), {i, type, size} });
             SDL_Log("uniform (%d:%s) : %s, %d\n", i, buf.data(), _getUniformNameByType(type), size);

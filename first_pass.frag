@@ -54,14 +54,19 @@ void main()
     vec3 diffuseComponent = max(dot(lightDirection, normal), 0.0) * u_Light.intensityDiffuse * u_Light.color;
 
     vec3 reflectionDirection = normalize(-lightDirection);
-    vec3 viewDirection = u_Camera.position;
+    vec3 viewDirection = normalize(u_Camera.position);
 
-    int factor = int(round(2 * u_Material.shininess));
-    vec3 specularComponent = pow(max(dot(reflectionDirection, viewDirection), factor), 0.0) * u_Light.intensitySpecular * u_Light.color;
+    float shineFactor = pow(max(dot(reflectionDirection, viewDirection), 0.0), 2.0 * u_Material.shininess);
+    vec3 specularComponent = shineFactor * u_Light.intensitySpecular * u_Light.color;
+
+    specularComponent = specularComponent * 0.01;
+
+    o_FragmentColor = vec4((specularColor * specularComponent) + (diffuseColor * (ambientComponent + diffuseComponent)), 1.0);
+
 
     //
 
-    vec3 finalColor = (diffuseColor * (ambientComponent + diffuseComponent)) + (specularColor * specularComponent);
+    //vec3 finalColor = (diffuseColor * (ambientComponent + diffuseComponent)) + (specularColor * specularComponent);
 
-    o_FragmentColor = vec4(finalColor, 1.0);
+//    o_FragmentColor = vec4(diffuseColor.r * ambientComponent.r, diffuseColor.g * diffuseComponent.g, specularColor.b * specularComponent.b, 1.0);
 }

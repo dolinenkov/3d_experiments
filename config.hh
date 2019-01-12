@@ -35,6 +35,7 @@ using ::glm::radians;
 using ::glm::inverse;
 using ::glm::transpose;
 
+
 #include <SOIL/SOIL.h>
 
 
@@ -46,12 +47,14 @@ using ::glm::transpose;
 #include <vector>
 #include <string>
 #include <stack>
+#include <map>
 #include <memory>
 #include <bitset>
 
 using ::std::vector;
 using ::std::string;
 using ::std::stack;
+using ::std::map;
 using ::std::make_unique;
 using ::std::shared_ptr;
 using ::std::make_shared;

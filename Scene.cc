@@ -28,12 +28,13 @@ Scene::Scene(): mode(false)
     cameraPosition = vec3(0.0f, 0.0f, -10.0f);
     cameraDirection = vec3(0.0f, 0.0f, 1.0f);
 
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f); gl_bugcheck();
+    glClearColor(0.0f, 0.0f, 0.0f, 0.0f); gl_bugcheck();
 
     glEnable(GL_DEPTH_TEST);
     //glEnable(GL_CULL_FACE);
     //glCullFace(GL_BACK);
 
+    mode = true;
     updateMode();
 }
 
@@ -58,7 +59,8 @@ void Scene::draw()
 
     firstPassProgram->setMat4("u_MatrixModelViewProjection", mvp);
     firstPassProgram->setMat4("u_MatrixModel", modelStack.top());
-    firstPassProgram->setMat3("u_MatrixNormal", normalMatrix);
+    //firstPassProgram->setMat3("u_MatrixNormal", normalMatrix);
+    firstPassProgram->setMat3("u_MatrixNormal", mat3());
 
     // camera
 
@@ -66,17 +68,18 @@ void Scene::draw()
 
     // light source
 
-    firstPassProgram->setVec3("u_Light.position", vec3(10.0f, -2.0f, 2.0f));
+    //firstPassProgram->setVec3("u_Light.position", vec3(10.0f, -2.0f, 2.0f));
+    firstPassProgram->setVec3("u_Light.position", -cameraPosition);
 
     firstPassProgram->setVec3("u_Light.color", vec3(1.0f, 1.0f, 1.0f));
 
-    firstPassProgram->setFloat("u_Light.intensityAmbient", 0.0f);
-    firstPassProgram->setFloat("u_Light.intensityDiffuse", 0.3f);
-    firstPassProgram->setFloat("u_Light.intensitySpecular", 1.0f);
+    firstPassProgram->setFloat("u_Light.intensityAmbient", 0.2f);
+    firstPassProgram->setFloat("u_Light.intensityDiffuse", 1.0f);
+    firstPassProgram->setFloat("u_Light.intensitySpecular", 0.5f);
 
     // material
 
-    firstPassProgram->setFloat("u_Material.shininess", 0.3f);
+    firstPassProgram->setFloat("u_Material.shininess", 1.0f);
     textureDiffuse->use(0);
     firstPassProgram->setTexture("u_Material.textureDiffuse", 0);
     textureSpecular->use(1);
