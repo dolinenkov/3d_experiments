@@ -1,8 +1,11 @@
 #pragma once
+#include "Camera.hh"
 #include "Program.hh"
 #include "Texture2D.hh"
 #include "Model.hh"
 #include "VertexFormat.hh"
+#include "MatrixStack.hh"
+
 
 class Scene
 {
@@ -27,13 +30,9 @@ private:
 private:
     bool mode;
 
-    vec3 cameraPosition;
-    vec3 cameraDirection;
-    float cameraAngles[2];
+    MatrixStackSet matrixStackSet;
 
-    stack<mat4> modelStack;
-    stack<mat4> viewStack;
-    stack<mat4> projectionStack;
+    shared_ptr<Camera> camera;
 
     shared_ptr<Program> firstPassProgram;
     shared_ptr<Texture2D> textureDiffuse;

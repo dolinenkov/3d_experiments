@@ -29,6 +29,8 @@ using ::glm::mat3;
 using ::glm::mat4;
 using ::glm::perspective;
 using ::glm::lookAt;
+using ::glm::translate;
+using ::glm::rotate;
 using ::glm::scale;
 using ::glm::value_ptr;
 using ::glm::radians;

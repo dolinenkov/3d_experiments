@@ -1,23 +1,96 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="main.cc" />
-    <ClCompile Include="Scene.cc" />
-    <ClCompile Include="Program.cc" />
-    <ClCompile Include="Texture2D.cc" />
-    <ClCompile Include="VertexFormat.cc" />
-    <ClCompile Include="Model.cc" />
+    <ClCompile Include="main.cc">
+      <Filter>sources</Filter>
+    </ClCompile>
+    <ClCompile Include="Model.cc">
+      <Filter>sources</Filter>
+    </ClCompile>
+    <ClCompile Include="Program.cc">
+      <Filter>sources</Filter>
+    </ClCompile>
+    <ClCompile Include="Scene.cc">
+      <Filter>sources</Filter>
+    </ClCompile>
+    <ClCompile Include="Texture2D.cc">
+      <Filter>sources</Filter>
+    </ClCompile>
+    <ClCompile Include="VertexFormat.cc">
+      <Filter>sources</Filter>
+    </ClCompile>
+    <ClCompile Include="Camera.cc">
+      <Filter>sources</Filter>
+    </ClCompile>
+    <ClCompile Include="MatrixStack.cc">
+      <Filter>sources</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Scene.hh" />
-    <ClInclude Include="config.hh" />
-    <ClInclude Include="Program.hh" />
-    <ClInclude Include="Texture2D.hh" />
-    <ClInclude Include="VertexFormat.hh" />
-    <ClInclude Include="Model.hh" />
+    <ClInclude Include="Camera.hh">
+      <Filter>sources</Filter>
+    </ClInclude>
+    <ClInclude Include="config.hh">
+      <Filter>sources</Filter>
+    </ClInclude>
+    <ClInclude Include="Model.hh">
+      <Filter>sources</Filter>
+    </ClInclude>
+    <ClInclude Include="Program.hh">
+      <Filter>sources</Filter>
+    </ClInclude>
+    <ClInclude Include="Scene.hh">
+      <Filter>sources</Filter>
+    </ClInclude>
+    <ClInclude Include="Texture2D.hh">
+      <Filter>sources</Filter>
+    </ClInclude>
+    <ClInclude Include="VertexFormat.hh">
+      <Filter>sources</Filter>
+    </ClInclude>
+    <ClInclude Include="MatrixStack.hh">
+      <Filter>sources</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="first_pass.frag" />
-    <None Include="first_pass.vert" />
+    <None Include="first_pass.frag">
+      <Filter>resources\shaders</Filter>
+    </None>
+    <None Include="first_pass.vert">
+      <Filter>resources\shaders</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="container2.png">
+      <Filter>resources\textures</Filter>
+    </Image>
+    <Image Include="container2_specular.png">
+      <Filter>resources\textures</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <Object Include="cube.obj">
+      <Filter>resources\models</Filter>
+    </Object>
+    <Object Include="sphere.obj">
+      <Filter>resources\models</Filter>
+    </Object>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="sources">
+      <UniqueIdentifier>{ee4d70a8-c056-4ea4-a811-5263d13cd103}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="resources">
+      <UniqueIdentifier>{8f6de72e-0a79-4197-a81a-e48cf2e8acd9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="resources\models">
+      <UniqueIdentifier>{4270ccaa-d249-4cab-9357-be8d3f1b22a4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="resources\textures">
+      <UniqueIdentifier>{dc2e0031-8ae6-4c4d-8857-cae4d85583cb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="resources\shaders">
+      <UniqueIdentifier>{7b773370-d93a-475e-a0b3-b4083e7d0c0e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
 </Project>

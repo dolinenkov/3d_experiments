@@ -2,6 +2,13 @@
 #include "config.hh"
 
 
+//
+
+
+
+//
+
+
 Scene::Scene(): mode(false)
 {
     ProgramBuilder builder;
@@ -19,14 +26,14 @@ Scene::Scene(): mode(false)
     textureSpecular = loader.load();
 
     sphereModel = make_shared<Model>();
-    //sphereModel->loadFromFile("sphere.obj");
-    sphereModel->loadFromFile("cube.obj");
+    sphereModel->loadFromFile("sphere.obj");
+    //sphereModel->loadFromFile("cube.obj");
 
     format = make_shared<VertexFormat>();
     format->init(firstPassProgram);
 
-    cameraPosition = vec3(0.0f, 0.0f, -10.0f);
-    cameraDirection = vec3(0.0f, 0.0f, 1.0f);
+    camera = make_shared<Camera>();
+    camera->setPosition(vec3(0.0f, 0.0f, 10.0f));
 
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f); gl_bugcheck();
 
@@ -34,8 +41,12 @@ Scene::Scene(): mode(false)
     //glEnable(GL_CULL_FACE);
     //glCullFace(GL_BACK);
 
-    mode = true;
+    mode = false;
     updateMode();
+
+
+    matrixStackSet.getProjectionMatrixStack().push(perspective(radians(60.0f), 1.5f, 0.1f, 100.0f));
+    matrixStackSet.getModelMatrixStack().push(mat4());
 }
 
 Scene::~Scene()
@@ -44,38 +55,33 @@ Scene::~Scene()
 
 void Scene::draw()
 {
-    cameraDirection = vec3(cosf(radians(cameraAngles[0])), 0.0f, cosf(radians(cameraAngles[1])));
+    matrixStackSet.getViewMatrixStack().push(camera->getViewMatrix());
+    const auto & matrixGroup = matrixStackSet.getMatrixGroup();
 
-    projectionStack.push(perspective(radians(60.0f), 1.5f, 0.1f, 100.0f));
-    viewStack.push(lookAt(cameraPosition, cameraPosition + cameraDirection, vec3(0.0f, 1.0f, 0.0f)));
-    modelStack.push(mat4());
-
-    mat3 normalMatrix(transpose(inverse(modelStack.top())));
+    SDL_Log("camera: %f, %f, %f\n", camera->getPosition().x, camera->getPosition().y, camera->getPosition().z);
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); gl_bugcheck();
 
-    mat4 mvp = projectionStack.top() * viewStack.top() * modelStack.top();
     firstPassProgram->use();
 
-    firstPassProgram->setMat4("u_MatrixModelViewProjection", mvp);
-    firstPassProgram->setMat4("u_MatrixModel", modelStack.top());
-    //firstPassProgram->setMat3("u_MatrixNormal", normalMatrix);
-    firstPassProgram->setMat3("u_MatrixNormal", mat3());
+    firstPassProgram->setMat4("u_MatrixModelViewProjection", matrixGroup.modelViewProjectionMatrix);
+    firstPassProgram->setMat4("u_MatrixModel", matrixGroup.modelMatrix);
+    firstPassProgram->setMat3("u_MatrixNormal", matrixGroup.normalMatrix);
 
     // camera
 
-    firstPassProgram->setVec3("u_Camera.position", cameraPosition);
+    firstPassProgram->setVec3("u_Camera.position", camera->getPosition());
 
     // light source
 
     //firstPassProgram->setVec3("u_Light.position", vec3(10.0f, -2.0f, 2.0f));
-    firstPassProgram->setVec3("u_Light.position", -cameraPosition);
+    firstPassProgram->setVec3("u_Light.position", -camera->getPosition());
 
     firstPassProgram->setVec3("u_Light.color", vec3(1.0f, 1.0f, 1.0f));
 
     firstPassProgram->setFloat("u_Light.intensityAmbient", 0.2f);
     firstPassProgram->setFloat("u_Light.intensityDiffuse", 1.0f);
-    firstPassProgram->setFloat("u_Light.intensitySpecular", 0.5f);
+    firstPassProgram->setFloat("u_Light.intensitySpecular", 0.0f);
 
     // material
 
@@ -88,31 +94,26 @@ void Scene::draw()
 
     format->activate();
 
+    sphereModel->getModelMatrix();
+
     sphereModel->draw();
 
-    while (!projectionStack.empty())
-        projectionStack.pop();
-
-    while (!viewStack.empty())
-        viewStack.pop();
-
-    while (!modelStack.empty())
-        modelStack.pop();
+    matrixStackSet.getViewMatrixStack().pop();
 }
 
 void Scene::moveX(bool _positive)
 {
-    cameraPosition.x += 0.1f * (_positive ? 1.0f : -1.0f);
+    camera->moveRight(0.1f * (_positive ? 1.0f : -1.0f));
 }
 
 void Scene::moveY(bool _positive)
 {
-    cameraPosition.y += 0.1f * (_positive ? 1.0f : -1.0f);
+    camera->moveUp(0.1f * (_positive ? 1.0f : -1.0f));
 }
 
 void Scene::moveZ(bool _positive)
 {
-    cameraPosition.z += 0.1f * (_positive ? 1.0f : -1.0f);
+    camera->moveForward(0.1f * (_positive ? 1.0f : -1.0f));
 }
 
 void Scene::rotateX(float _d)

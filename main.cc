@@ -85,14 +85,14 @@ int main(int, char *[])
                     }
 
                     if (keyboard.states[SDL_SCANCODE_W])
-                        scene->moveX(true);
+                        scene->moveZ(true);
                     if (keyboard.states[SDL_SCANCODE_S])
-                        scene->moveX(false);
+                        scene->moveZ(false);
 
                     if (keyboard.states[SDL_SCANCODE_A])
-                        scene->moveZ(false);
+                        scene->moveX(false);
                     if (keyboard.states[SDL_SCANCODE_D])
-                        scene->moveZ(true);
+                        scene->moveX(true);
 
                     if (keyboard.states[SDL_SCANCODE_Q])
                         scene->moveY(true);

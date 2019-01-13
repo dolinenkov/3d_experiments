@@ -9,10 +9,10 @@ struct Vertice
     float texture[3];
 };
 
+// Simple wrapper for OpenGL vertex array object
 class VertexFormat
 {
 public:
-
     VertexFormat();
 
     ~VertexFormat();
@@ -21,5 +21,6 @@ public:
 
     void activate();
 
+private:
     GLuint arrayObject;
 };
