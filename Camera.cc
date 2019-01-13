@@ -28,8 +28,6 @@ void Camera::setEulerAngles(float pitch, float yaw)
 {
     if (pitch != _eulerAngles[0] || yaw != _eulerAngles[1])
     {
-        SDL_Log("%f, %f\n", glm::degrees(_eulerAngles[0]), glm::degrees(_eulerAngles[1]));
-
         _needUpdateViewMatrix = true;
         _eulerAngles = { pitch, yaw };
         _frontDirection = _getDirectionFromEulerAngles(_eulerAngles);
@@ -104,7 +102,7 @@ void Camera::turnRight(float angle)
 
 void Camera::turnUp(float angle)
 {
-    setEulerAngles(_eulerAngles[0] + angle, _eulerAngles[1]);
+    setEulerAngles(clamp(_eulerAngles[0] + angle, -half_pi<float>(), half_pi<float>()), _eulerAngles[1]);
 }
 
 const mat4 & Camera::getViewMatrix()

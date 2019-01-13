@@ -37,6 +37,8 @@ using ::glm::radians;
 using ::glm::inverse;
 using ::glm::transpose;
 using ::glm::length;
+using ::glm::half_pi;
+using ::glm::clamp;
 
 
 #include <SOIL/SOIL.h>

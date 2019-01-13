@@ -1,6 +1,12 @@
 #pragma once
 #include "config.hh"
 
+/*
+    TODO:
+        fix gimbal lock and teleporting
+        fix cases of normalization of zero length vectors
+*/
+
 class Camera
 {
 public:

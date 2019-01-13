@@ -59,8 +59,6 @@ void Scene::draw()
     matrixStackSet.getViewMatrixStack().push(camera->getViewMatrix());
     const auto & matrixGroup = matrixStackSet.getMatrixGroup();
 
-    //SDL_Log("camera: %f, %f, %f\n", camera->getPosition().x, camera->getPosition().y, camera->getPosition().z);
-
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); gl_bugcheck();
 
     firstPassProgram->use();
