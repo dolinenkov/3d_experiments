@@ -53,30 +53,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="first_pass.frag">
-      <Filter>resources\shaders</Filter>
-    </None>
-    <None Include="first_pass.vert">
-      <Filter>resources\shaders</Filter>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <Image Include="container2.png">
-      <Filter>resources\textures</Filter>
-    </Image>
-    <Image Include="container2_specular.png">
-      <Filter>resources\textures</Filter>
-    </Image>
-  </ItemGroup>
-  <ItemGroup>
-    <Object Include="cube.obj">
-      <Filter>resources\models</Filter>
-    </Object>
-    <Object Include="sphere.obj">
-      <Filter>resources\models</Filter>
-    </Object>
-  </ItemGroup>
-  <ItemGroup>
     <Filter Include="sources">
       <UniqueIdentifier>{ee4d70a8-c056-4ea4-a811-5263d13cd103}</UniqueIdentifier>
     </Filter>
@@ -92,5 +68,29 @@
     <Filter Include="resources\shaders">
       <UniqueIdentifier>{7b773370-d93a-475e-a0b3-b4083e7d0c0e}</UniqueIdentifier>
     </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <Object Include="resources\models\cube.obj">
+      <Filter>resources\models</Filter>
+    </Object>
+    <Object Include="resources\models\sphere.obj">
+      <Filter>resources\models</Filter>
+    </Object>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="resources\shaders\first_pass.frag">
+      <Filter>resources\shaders</Filter>
+    </None>
+    <None Include="resources\shaders\first_pass.vert">
+      <Filter>resources\shaders</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="resources\textures\container2.png">
+      <Filter>resources\textures</Filter>
+    </Image>
+    <Image Include="resources\textures\container2_specular.png">
+      <Filter>resources\textures</Filter>
+    </Image>
   </ItemGroup>
 </Project>
