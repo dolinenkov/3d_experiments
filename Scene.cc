@@ -36,7 +36,6 @@ Scene::Scene()
     //glEnable(GL_CULL_FACE);
     //glCullFace(GL_BACK);
 
-    mode = false;
     updateMode();
 
     matrixStackSet.getProjectionMatrixStack().push(perspective(radians(60.0f), 1.5f, 0.1f, 100.0f));
