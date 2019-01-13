@@ -1,9 +1,9 @@
 #include "Camera.hh"
 
 Camera::Camera()
-    : _frontVector(0.0f, 0.0f, -1.0f)
+    : _eulerAngles(0.0f, 0.0f)
     , _upVector(0.0f, 1.0f, 0.0f)
-    , _frontDirection(_frontVector)
+    , _frontDirection(_getDirectionFromEulerAngles(_eulerAngles))
     , _upDirection(_upVector)
     , _rightDirection(cross(_frontDirection, _upDirection))
     , _needUpdateViewMatrix(true)
@@ -24,20 +24,28 @@ const vec3 & Camera::getPosition() const
     return _position;
 }
 
-void Camera::setFrontVector(const vec3 & frontVector)
+void Camera::setEulerAngles(float pitch, float yaw)
 {
-    if (_frontVector != frontVector)
+    if (pitch != _eulerAngles[0] || yaw != _eulerAngles[1])
     {
+        SDL_Log("%f, %f\n", glm::degrees(_eulerAngles[0]), glm::degrees(_eulerAngles[1]));
+
         _needUpdateViewMatrix = true;
-        _frontVector = frontVector;
-        _frontDirection = normalize(_frontVector);
+        _eulerAngles = { pitch, yaw };
+        _frontDirection = _getDirectionFromEulerAngles(_eulerAngles);
         _rightDirection = cross(_frontDirection, _upDirection);
     }
 }
 
+void Camera::setFrontVector(const vec3 & frontVector)
+{
+    const vec2 eulerAngles = _getEulerAnglesFromDirection(frontVector);
+    setEulerAngles(eulerAngles[0], eulerAngles[1]);
+}
+
 const vec3 & Camera::getFrontVector() const
 {
-    return _frontVector;
+    return _frontDirection;
 }
 
 void Camera::setUpVector(const vec3 & upVector)
@@ -89,12 +97,53 @@ void Camera::moveUp(float distance)
         setPosition(getPosition() + getUpDirection() * distance);
 }
 
+void Camera::turnRight(float angle)
+{
+    setEulerAngles(_eulerAngles[0], _eulerAngles[1] + angle);
+}
+
+void Camera::turnUp(float angle)
+{
+    setEulerAngles(_eulerAngles[0] + angle, _eulerAngles[1]);
+}
+
 const mat4 & Camera::getViewMatrix()
 {
     if (_needUpdateViewMatrix)
     {
         _needUpdateViewMatrix = false;
-        _viewMatrix = lookAt(_position, _position + _frontVector, _upVector);
+        _viewMatrix = lookAt(_position, _position + _frontDirection, _upVector);
     }
     return _viewMatrix;
+}
+
+vec2 Camera::_getEulerAnglesFromDirection(const vec3 & direction)
+{
+    const vec3 ndirection = length(direction) > 0.0f ? normalize(direction) : direction;
+
+    float pitch;
+    if (ndirection.y >= 1.0f)
+        pitch = glm::half_pi<float>();
+    else if (ndirection.y <= -1.0f)
+        pitch = -glm::half_pi<float>();
+    else
+        pitch = asin(ndirection.y);
+
+    float yaw = ndirection.z / cos(pitch);
+    if (yaw >= 1.0f)
+        yaw = glm::half_pi<float>();
+    else if (yaw <= 1.0f)
+        yaw = -glm::half_pi<float>();
+    else
+        yaw = asin(yaw);
+
+    return { pitch, yaw };
+}
+
+vec3 Camera::_getDirectionFromEulerAngles(const vec2 & _eulerAngles)
+{
+    const float x = cos(_eulerAngles[0]) * cos(_eulerAngles[1]);
+    const float y = sin(_eulerAngles[0]);
+    const float z = cos(_eulerAngles[0]) * sin(_eulerAngles[1]);
+    return normalize(vec3(x, y, z));
 }

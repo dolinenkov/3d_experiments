@@ -13,27 +13,28 @@ Scene::Scene(): mode(false)
 {
     ProgramBuilder builder;
 
-    builder.addVertexShaderFromFile("first_pass.vert");
-    builder.addFragmentShaderFromFile("first_pass.frag");
+    builder.addVertexShaderFromFile("resources/shaders/first_pass.vert");
+    builder.addFragmentShaderFromFile("resources/shaders/first_pass.frag");
 
     firstPassProgram = builder.build();
 
     Texture2DLoader loader;
-    loader.setFilename("container2.png");
+    loader.setFilename("resources/textures/container2.png");
     textureDiffuse = loader.load();
 
-    loader.setFilename("container2_specular.png");
+    loader.setFilename("resources/textures/container2_specular.png");
     textureSpecular = loader.load();
 
     sphereModel = make_shared<Model>();
-    sphereModel->loadFromFile("sphere.obj");
+    sphereModel->loadFromFile("resources/models/sphere.obj");
     //sphereModel->loadFromFile("cube.obj");
 
     format = make_shared<VertexFormat>();
     format->init(firstPassProgram);
 
     camera = make_shared<Camera>();
-    camera->setPosition(vec3(0.0f, 0.0f, 10.0f));
+    camera->setPosition(vec3(0.0f, 2.0f, 10.0f));
+    camera->setFrontVector(vec3(0.0f, 0.0f, 0.0f));
 
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f); gl_bugcheck();
 
@@ -58,7 +59,7 @@ void Scene::draw()
     matrixStackSet.getViewMatrixStack().push(camera->getViewMatrix());
     const auto & matrixGroup = matrixStackSet.getMatrixGroup();
 
-    SDL_Log("camera: %f, %f, %f\n", camera->getPosition().x, camera->getPosition().y, camera->getPosition().z);
+    //SDL_Log("camera: %f, %f, %f\n", camera->getPosition().x, camera->getPosition().y, camera->getPosition().z);
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); gl_bugcheck();
 
@@ -81,7 +82,7 @@ void Scene::draw()
 
     firstPassProgram->setFloat("u_Light.intensityAmbient", 0.2f);
     firstPassProgram->setFloat("u_Light.intensityDiffuse", 1.0f);
-    firstPassProgram->setFloat("u_Light.intensitySpecular", 0.0f);
+    firstPassProgram->setFloat("u_Light.intensitySpecular", 1.0f);
 
     // material
 
@@ -90,7 +91,6 @@ void Scene::draw()
     firstPassProgram->setTexture("u_Material.textureDiffuse", 0);
     textureSpecular->use(1);
     firstPassProgram->setTexture("u_Material.textureSpecular", 1);
-
 
     format->activate();
 
@@ -101,35 +101,15 @@ void Scene::draw()
     matrixStackSet.getViewMatrixStack().pop();
 }
 
-void Scene::moveX(bool _positive)
-{
-    camera->moveRight(0.1f * (_positive ? 1.0f : -1.0f));
-}
-
-void Scene::moveY(bool _positive)
-{
-    camera->moveUp(0.1f * (_positive ? 1.0f : -1.0f));
-}
-
-void Scene::moveZ(bool _positive)
-{
-    camera->moveForward(0.1f * (_positive ? 1.0f : -1.0f));
-}
-
-void Scene::rotateX(float _d)
-{
-    //cameraAngles[0] += 720.0f * _d;
-}
-
-void Scene::rotateZ(float _d)
-{
-    //cameraAngles[1] += 720.0f * _d;
-}
-
 void Scene::toggleMode()
 {
     mode = !mode;
     updateMode();
+}
+
+shared_ptr<Camera> Scene::getCamera()
+{
+    return camera;
 }
 
 void Scene::updateMode()

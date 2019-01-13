@@ -15,14 +15,9 @@ public:
 
     void draw();
 
-    void moveX(bool);
-    void moveY(bool);
-    void moveZ(bool);
-
-    void rotateX(float);
-    void rotateZ(float);
-
     void toggleMode();
+
+    shared_ptr<Camera> getCamera();
 
 private:
     void updateMode();

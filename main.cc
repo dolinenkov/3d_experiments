@@ -14,6 +14,9 @@ int main(int, char *[])
 
     if (auto window = SDL_CreateWindow("textured cube (OpenGL 3.3)", 100, 100, 1024, 768, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE))
     {
+        SDL_ShowCursor(SDL_DISABLE);
+        SDL_SetRelativeMouseMode(SDL_TRUE);
+
         SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
         SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
         SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
@@ -28,6 +31,10 @@ int main(int, char *[])
 
         if (auto context = SDL_GL_CreateContext(window))
         {
+            int windowWidth;
+            int windowHeight;
+            SDL_GetWindowSize(window, &windowWidth, &windowHeight);
+
             const auto glewError = glewInit();
             if (glewError != GLEW_NO_ERROR)
             {
@@ -38,7 +45,7 @@ int main(int, char *[])
             {
                 if (GLEW_KHR_debug)
                 {
-                    glDebugMessageCallback([](GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam)
+                    glDebugMessageCallback([](GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar * message, const void * userParam)
                     {
                         SDL_Log("gl debug: %s\n", message);
                     }, nullptr);
@@ -52,10 +59,6 @@ int main(int, char *[])
                 {
                     float rx = 0.0f;
                     float ry = 0.0f;
-
-                    int wx = 0;
-                    int wy = 0;
-                    SDL_GetWindowSize(window, &wx, &wy);
 
                     SDL_PumpEvents();
                     keyboard.released.reset();
@@ -77,33 +80,53 @@ int main(int, char *[])
                                 keyboard.released[event.key.keysym.scancode] = true;
                             keyboard.states[event.key.keysym.scancode] = false;
                         }
-                        else if (event.type == SDL_MOUSEMOTION && wx > 0 && wy > 0)
+                        else if (event.type == SDL_MOUSEMOTION)
                         {
-                            rx += event.motion.xrel / static_cast<float>(wx);
-                            ry += event.motion.yrel / static_cast<float>(wy);
+                            rx += event.motion.xrel;
+                            ry += event.motion.yrel;
+                            SDL_WarpMouseInWindow(window, windowWidth / 2, windowHeight / 2);
+                        }
+                        else if (event.type == SDL_WINDOWEVENT)
+                        {
+                            SDL_GetWindowSize(window, &windowWidth, &windowHeight);
                         }
                     }
 
+                    auto camera = scene->getCamera();
+
                     if (keyboard.states[SDL_SCANCODE_W])
-                        scene->moveZ(true);
+                        camera->moveForward(0.1f);
+
                     if (keyboard.states[SDL_SCANCODE_S])
-                        scene->moveZ(false);
+                        camera->moveForward(-0.1f);
 
                     if (keyboard.states[SDL_SCANCODE_A])
-                        scene->moveX(false);
+                        camera->moveRight(-0.1f);
+
                     if (keyboard.states[SDL_SCANCODE_D])
-                        scene->moveX(true);
+                        camera->moveRight(0.1f);
 
                     if (keyboard.states[SDL_SCANCODE_Q])
-                        scene->moveY(true);
+                        camera->moveUp(-0.1f);
+
                     if (keyboard.states[SDL_SCANCODE_E])
-                        scene->moveY(false);
+                        camera->moveUp(0.1f);
 
                     if (keyboard.released[SDL_SCANCODE_F1])
                         scene->toggleMode();
 
-                    scene->rotateX(rx);
-                    scene->rotateZ(ry);
+                    if (keyboard.released[SDL_SCANCODE_ESCAPE])
+                    {
+                        SDL_Event quitEvent = {};
+                        event.type = SDL_QUIT;
+                        SDL_PushEvent(&event);
+                    }
+
+                    if (rx != 0.0f)
+                        camera->turnRight(rx / static_cast<float>(windowWidth));
+
+                    if (ry != 0.0f)
+                        camera->turnUp(ry / static_cast<float>(windowHeight));
 
                     scene->draw();
 
@@ -113,6 +136,10 @@ int main(int, char *[])
 
             SDL_GL_DeleteContext(context);
         }
+
+        SDL_SetRelativeMouseMode(SDL_FALSE);
+        SDL_ShowCursor(SDL_ENABLE);
+
         SDL_DestroyWindow(window);
     }
 
