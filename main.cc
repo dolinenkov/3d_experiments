@@ -128,7 +128,7 @@ int main(int, char *[])
                         camera->turnRight(rx / static_cast<float>(windowWidth));
 
                     if (ry != 0.0f)
-                        camera->turnUp(ry / static_cast<float>(windowHeight));
+                        camera->turnUp(ry * -1.0f / static_cast<float>(windowHeight));
 
                     scene->draw();
 
