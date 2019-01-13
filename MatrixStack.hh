@@ -82,7 +82,6 @@ private:
 
 //
 
-//#if (__COUNTER__ == 1)
 
 template<class T>
 inline Stack<T>::Stack()
@@ -130,5 +129,3 @@ inline void Stack<T>::shrinkToFit()
 {
     _imp.shrink_to_fit();
 }
-
-//#endif

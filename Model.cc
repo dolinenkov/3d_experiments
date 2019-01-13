@@ -1,8 +1,48 @@
 #include "Model.hh"
-#include <cstdlib>
 
 
-StaticMesh::StaticMesh(): vertexData(0), indexData(0)
+Transformation::Transformation()
+    : dirty(true)
+{
+}
+
+void Transformation::setPosition(vec3 position)
+{
+    if (this->position != position)
+    {
+        dirty = true;
+        this->position = position;
+    }
+}
+
+void Transformation::setScale(vec3 scale)
+{
+    if (this->scale != scale)
+    {
+        dirty = true;
+        this->scale = scale;
+    }
+}
+
+const mat4 & Transformation::getModelMatrix() const
+{
+    if (dirty)
+    {
+        // Transform, rotate, scale
+        modelMatrix = ::glm::scale(translate(mat4(), this->position), this->scale);
+    }
+
+    return modelMatrix;
+}
+
+
+//
+
+
+StaticMesh::StaticMesh()
+    : vertexData(0)
+    , indexData(0)
+    , indexCount(0)
 {
 }
 
@@ -42,7 +82,9 @@ void StaticMesh::draw()
     glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, nullptr); gl_bugcheck();
 }
 
+
 //
+
 
 void Model::loadFromFile(const char * filename)
 {
@@ -78,7 +120,7 @@ void Model::loadFromFile(const char * filename)
                 {
                     vertices[j].texture[0] = mesh->mTextureCoords[0][j].x;
                     vertices[j].texture[1] = mesh->mTextureCoords[0][j].y;
-                    //vertices[j].texture[2] = mesh->mTextureCoords[0][j].z;
+                    vertices[j].texture[2] = mesh->mTextureCoords[0][j].z;
                 }
             }
 

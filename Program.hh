@@ -1,6 +1,7 @@
 #pragma once
 #include "config.hh"
 
+
 class Program
 {
 public:
@@ -11,7 +12,7 @@ public:
         GLint   size;
     };
 
-    Program(GLuint id);
+    explicit Program(GLuint id);
 
     void use();
 
@@ -37,13 +38,9 @@ public:
     const char * _getAttributeNameByType(GLenum type) const;
     const char * _getUniformNameByType(GLenum type) const;
 
-
-    GLuint id;
-
+    GLuint                  id;
     map<string, Attachment> activeAttribs;
     map<string, Attachment> activeUniforms;
-
-
 };
 
 

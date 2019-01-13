@@ -41,8 +41,6 @@ private:
 
     static vec3 _getDirectionFromEulerAngles(const vec2 & _eulerAngles);
 
-    void update();
-
 private:
     vec3 _position;
 

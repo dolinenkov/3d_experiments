@@ -1,5 +1,6 @@
 #include "Camera.hh"
 
+
 Camera::Camera()
     : _eulerAngles(0.0f, 0.0f)
     , _upVector(0.0f, 1.0f, 0.0f)

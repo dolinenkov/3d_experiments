@@ -53,6 +53,8 @@ void main()
     vec3 lightDirection = normalize(v_Position - u_Light.position);
     vec3 diffuseComponent = max(dot(lightDirection, normal), 0.0) * u_Light.intensityDiffuse * u_Light.color;
 
+    //
+
     vec3 reflectionDirection = normalize(-lightDirection);
     vec3 viewDirection = normalize(u_Camera.position);
 
@@ -62,11 +64,4 @@ void main()
     specularComponent = specularComponent * 0.01;
 
     o_FragmentColor = vec4((specularColor * specularComponent) + (diffuseColor * (ambientComponent + diffuseComponent)), 1.0);
-
-
-    //
-
-    //vec3 finalColor = (diffuseColor * (ambientComponent + diffuseComponent)) + (specularColor * specularComponent);
-
-//    o_FragmentColor = vec4(diffuseColor.r * ambientComponent.r, diffuseColor.g * diffuseComponent.g, specularColor.b * specularComponent.b, 1.0);
 }

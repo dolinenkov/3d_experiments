@@ -23,15 +23,15 @@ private:
     void updateMode();
 
 private:
-    bool mode;
+    bool                        mode;
 
-    MatrixStackSet matrixStackSet;
+    MatrixStackSet              matrixStackSet;
 
-    shared_ptr<Camera> camera;
+    shared_ptr<Camera>          camera;
 
-    shared_ptr<Program> firstPassProgram;
-    shared_ptr<Texture2D> textureDiffuse;
-    shared_ptr<Texture2D> textureSpecular;
-    shared_ptr<Model> sphereModel;
-    shared_ptr<VertexFormat> format;
+    shared_ptr<Program>         firstPassProgram;
+    shared_ptr<Texture2D>       textureDiffuse;
+    shared_ptr<Texture2D>       textureSpecular;
+    shared_ptr<Model>           sphereModel;
+    shared_ptr<VertexFormat>    format;
 };

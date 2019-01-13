@@ -1,5 +1,6 @@
 #include "Program.hh"
 
+
 Program::Program(GLuint id): id(id)
 {
     _loadActiveAttributes();
@@ -306,6 +307,7 @@ bool ProgramBuilder::_loadFile(const char * filename, vector<char> & data)
 {
     bool read = false;
     auto file = SDL_RWFromFile(filename, "rb");
+    assert(file != nullptr);
     if (file)
     {
         data.resize(SDL_RWsize(file));

@@ -1,12 +1,14 @@
 #include "config.hh"
 #include "Scene.hh"
 
+
 struct Keyboard
 {
     bitset<SDL_NUM_SCANCODES> states;
 
     bitset<SDL_NUM_SCANCODES> released;
 };
+
 
 int main(int, char *[])
 {

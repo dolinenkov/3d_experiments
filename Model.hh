@@ -3,6 +3,25 @@
 #include "VertexFormat.hh"
 
 
+class Transformation
+{
+public:
+    Transformation();
+
+    void setPosition(vec3 position);
+
+    void setScale(vec3 scale);
+
+    const mat4 & getModelMatrix() const;
+
+private:
+    bool         dirty;
+    vec3         position;
+    vec3         scale;
+    mutable mat4 modelMatrix;
+};
+
+
 struct StaticMesh
 {
     StaticMesh();
@@ -20,7 +39,7 @@ struct StaticMesh
 };
 
 
-class Model
+class Model : public Transformation
 {
 private:
 

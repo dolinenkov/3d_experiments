@@ -2,14 +2,8 @@
 #include "config.hh"
 
 
-//
-
-
-
-//
-
-
-Scene::Scene(): mode(false)
+Scene::Scene()
+    : mode(true)
 {
     ProgramBuilder builder;
 
@@ -19,6 +13,7 @@ Scene::Scene(): mode(false)
     firstPassProgram = builder.build();
 
     Texture2DLoader loader;
+
     loader.setFilename("resources/textures/container2.png");
     textureDiffuse = loader.load();
 
@@ -27,7 +22,6 @@ Scene::Scene(): mode(false)
 
     sphereModel = make_shared<Model>();
     sphereModel->loadFromFile("resources/models/sphere.obj");
-    //sphereModel->loadFromFile("cube.obj");
 
     format = make_shared<VertexFormat>();
     format->init(firstPassProgram);
@@ -44,7 +38,6 @@ Scene::Scene(): mode(false)
 
     mode = false;
     updateMode();
-
 
     matrixStackSet.getProjectionMatrixStack().push(perspective(radians(60.0f), 1.5f, 0.1f, 100.0f));
     matrixStackSet.getModelMatrixStack().push(mat4());
@@ -73,8 +66,7 @@ void Scene::draw()
 
     // light source
 
-    //firstPassProgram->setVec3("u_Light.position", vec3(10.0f, -2.0f, 2.0f));
-    firstPassProgram->setVec3("u_Light.position", -camera->getPosition());
+    firstPassProgram->setVec3("u_Light.position", vec3(0.0f, 100.0f, 0.0f));
 
     firstPassProgram->setVec3("u_Light.color", vec3(1.0f, 1.0f, 1.0f));
 

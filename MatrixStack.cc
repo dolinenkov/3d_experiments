@@ -1,6 +1,8 @@
 #include "MatrixStack.hh"
 
-MatrixStackSet::MatrixStackSet(const MatrixStackSetSettings & settings): needUpdateMatrixGroup(false)
+
+MatrixStackSet::MatrixStackSet(const MatrixStackSetSettings & settings)
+    : needUpdateMatrixGroup(false)
 {
     projectionMatrixStack.reserve(settings.projectionMatrixStackSize);
     viewMatrixStack.reserve(settings.viewMatrixStackSize);

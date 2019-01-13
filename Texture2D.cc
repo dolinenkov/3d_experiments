@@ -85,15 +85,8 @@ GLuint Texture2DLoader::_upload()
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR); gl_bugcheck();
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR); gl_bugcheck();
 
-            //glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
             glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data.data()); gl_bugcheck();
             glGenerateMipmap(GL_TEXTURE_2D); gl_bugcheck();
-
-            //glBindTexture(GL_TEXTURE_2D, 0); gl_bugcheck();
-
-            //glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-            //gl_bugcheck();
-
         }
     }
     return texture;
