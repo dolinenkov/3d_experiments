@@ -120,6 +120,7 @@
     <ClCompile Include="MatrixStack.cc" />
     <ClCompile Include="Model.cc" />
     <ClCompile Include="Program.cc" />
+    <ClCompile Include="Projection.cc" />
     <ClCompile Include="Scene.cc" />
     <ClCompile Include="Texture2D.cc" />
     <ClCompile Include="VertexFormat.cc" />
@@ -130,6 +131,7 @@
     <ClInclude Include="MatrixStack.hh" />
     <ClInclude Include="Model.hh" />
     <ClInclude Include="Program.hh" />
+    <ClInclude Include="Projection.hh" />
     <ClInclude Include="Scene.hh" />
     <ClInclude Include="Texture2D.hh" />
     <ClInclude Include="VertexFormat.hh" />

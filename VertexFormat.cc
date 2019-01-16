@@ -24,7 +24,7 @@ void VertexFormat::init(shared_ptr<Program> program)
         glVertexAttribPointer(positionLoc, sizeof(Vertice::position) / sizeof(Vertice::position[0]), GL_FLOAT, GL_FALSE, sizeof(Vertice), reinterpret_cast<const void *>(offsetof(Vertice, position))); gl_bugcheck();
         glEnableVertexAttribArray(positionLoc); gl_bugcheck();
 
-        const GLint normalLoc = program->findAttribute("a_Normal"); gl_bugcheck();
+        /*const GLint normalLoc = program->findAttribute("a_Normal"); gl_bugcheck();
         assert(normalLoc != -1);
         if (normalLoc != -1)
         {
@@ -38,7 +38,7 @@ void VertexFormat::init(shared_ptr<Program> program)
         {
             glVertexAttribPointer(textureLoc, sizeof(Vertice::texture) / sizeof(Vertice::texture[0]), GL_FLOAT, GL_FALSE, sizeof(Vertice), reinterpret_cast<const void *>(offsetof(Vertice, texture))); gl_bugcheck();
             glEnableVertexAttribArray(textureLoc); gl_bugcheck();
-        }
+        }*/
     }
 }
 

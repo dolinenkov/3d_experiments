@@ -12,43 +12,63 @@ public:
 
     void setScale(vec3 scale);
 
-    const mat4 & getModelMatrix() const;
+    const mat4 & getModelMatrix();
 
 private:
-    bool         dirty;
-    vec3         position;
-    vec3         scale;
-    mutable mat4 modelMatrix;
+    bool _dirty;
+    vec3 _position;
+    vec3 _scale;
+    mat4 _modelMatrix;
 };
 
 
-struct StaticMesh
+class Mesh
 {
-    StaticMesh();
-    ~StaticMesh();
+public:
+    Mesh();
+    ~Mesh();
 
-    void init(const Vertice & firstVertex, size_t vertexCount, const GLuint & firstIndex, size_t indexCount);
+    Mesh(const Mesh &) = delete;
+    Mesh & operator=(const Mesh &) = delete;
+
+    void init(const Vertice * firstVertex, size_t vertexCount, const GLuint * firstIndex, size_t indexCount);
 
     void free();
 
     void draw();
 
-    GLsizei indexCount;
-    GLuint  indexData;
-    GLuint  vertexData;
+private:
+    GLsizei _indexCount;
+    GLuint  _indexData;
+    GLuint  _vertexData;
 };
 
 
 class Model : public Transformation
 {
-private:
-
 public:
     void loadFromFile(const char * filename);
 
     void draw();
 
 private:
-    vector<size_t>      meshDrawOrder;
-    vector<StaticMesh>  meshes;
+    unsigned int _countChildrenMeshes(const aiNode * node) const;
+
+    void _assignMesh(vector<size_t> & meshDrawOrder, size_t & index, const aiNode * node) const;
+
+private:
+    vector<Mesh>   _meshes;
+    vector<size_t> _meshDrawOrder;
+};
+
+
+class Plane
+{
+public:
+    void init();
+
+    void draw();
+
+private:
+    Mesh mesh;
 };

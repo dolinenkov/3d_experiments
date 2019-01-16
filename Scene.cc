@@ -1,9 +1,12 @@
 #include "Scene.hh"
 #include "config.hh"
 
+bool DepthTestEnabled = true;
+bool FaceCullingEnabled = false;
+
 
 Scene::Scene()
-    : mode(true)
+    : mode(false)
 {
     ProgramBuilder builder;
 
@@ -20,26 +23,57 @@ Scene::Scene()
     loader.setFilename("resources/textures/container2_specular.png");
     textureSpecular = loader.load();
 
+
+    plane = make_shared<Plane>();
+    plane->init();
+
+    /*
+    +y вверх
+    +z вдаль
+    +x влево
+    */
+
+    cubeModel = make_shared<Model>();
+    cubeModel->loadFromFile("resources/models/13037_Buckler_Shield_v1_l3.obj");
+    cubeModel->setScale(vec3(0.25f, 0.25f, 0.25f));
+    cubeModel->setPosition(vec3(-1.0f, 0.0f, 5.0f));
+
     sphereModel = make_shared<Model>();
     sphereModel->loadFromFile("resources/models/sphere.obj");
+    sphereModel->setScale(vec3(0.05f, 0.05f, 0.05f));
+    sphereModel->setPosition(vec3(1.0f, 0.0f, 5.0f));
 
     format = make_shared<VertexFormat>();
     format->init(firstPassProgram);
+    format->activate();
+
+    //cubeModel = make_shared<Model>();
+    //cubeModel->loadFromFile("resources/models/cube.obj");
+    //cubeModel->loadFromFile("resources/models/sphere.obj");
+    ////cubeModel->loadFromFile("resources/models/MP_US_Engi.FBX");
+    ////cubeModel->setPosition(vec3(0.0f, 0.0f, 0.0f));
+    ////cubeModel->setScale(vec3(50.0f, 50.0f, 50.0f));
+
+    //sphereModel = make_shared<Model>();
+    //sphereModel->loadFromFile("resources/models/cube.obj");
+
 
     camera = make_shared<Camera>();
-    camera->setPosition(vec3(0.0f, 2.0f, 10.0f));
-    camera->setFrontVector(vec3(0.0f, 0.0f, 0.0f));
+    camera->setPosition(vec3(0.0f, 0.0f, 0.0f));
+    camera->setFrontVector(vec3(0.0f, 0.0f, 1.0f)); // look along +z axis
+
+    projection = make_shared<Projection>();
 
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f); gl_bugcheck();
 
-    glEnable(GL_DEPTH_TEST);
+    (DepthTestEnabled ? glEnable : glDisable)(GL_DEPTH_TEST);
+    (FaceCullingEnabled ? glEnable : glDisable)(GL_CULL_FACE);
+    //glEnable(GL_DEPTH_TEST);
     //glEnable(GL_CULL_FACE);
     //glCullFace(GL_BACK);
 
     updateMode();
 
-    matrixStackSet.getProjectionMatrixStack().push(perspective(radians(60.0f), 1.5f, 0.1f, 100.0f));
-    matrixStackSet.getModelMatrixStack().push(mat4());
 }
 
 Scene::~Scene()
@@ -48,46 +82,24 @@ Scene::~Scene()
 
 void Scene::draw()
 {
-    matrixStackSet.getViewMatrixStack().push(camera->getViewMatrix());
-    const auto & matrixGroup = matrixStackSet.getMatrixGroup();
+    auto transformProjection = matrixStackSet.transformProjection(projection->getProjectionMatrix());
+    auto transformView = matrixStackSet.transformView(camera->getViewMatrix());
+    auto transformModel = matrixStackSet.transformModel(mat4());
+
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); gl_bugcheck();
 
     firstPassProgram->use();
 
-    firstPassProgram->setMat4("u_MatrixModelViewProjection", matrixGroup.modelViewProjectionMatrix);
-    firstPassProgram->setMat4("u_MatrixModel", matrixGroup.modelMatrix);
-    firstPassProgram->setMat3("u_MatrixNormal", matrixGroup.normalMatrix);
-
-    // camera
-
-    firstPassProgram->setVec3("u_Camera.position", camera->getPosition());
-
-    // light source
-
-    firstPassProgram->setVec3("u_Light.position", vec3(0.0f, 100.0f, 0.0f));
-
-    firstPassProgram->setVec3("u_Light.color", vec3(1.0f, 1.0f, 1.0f));
-
-    firstPassProgram->setFloat("u_Light.intensityAmbient", 0.2f);
-    firstPassProgram->setFloat("u_Light.intensityDiffuse", 1.0f);
-    firstPassProgram->setFloat("u_Light.intensitySpecular", 1.0f);
-
-    // material
-
-    firstPassProgram->setFloat("u_Material.shininess", 1.0f);
-    textureDiffuse->use(0);
-    firstPassProgram->setTexture("u_Material.textureDiffuse", 0);
-    textureSpecular->use(1);
-    firstPassProgram->setTexture("u_Material.textureSpecular", 1);
+    format->activate();
+    updateUniforms();
+    plane->draw();
 
     format->activate();
+    drawModel(*cubeModel);
 
-    sphereModel->getModelMatrix();
-
-    sphereModel->draw();
-
-    matrixStackSet.getViewMatrixStack().pop();
+    format->activate();
+    drawModel(*sphereModel);
 }
 
 void Scene::toggleMode()
@@ -101,7 +113,55 @@ shared_ptr<Camera> Scene::getCamera()
     return camera;
 }
 
+void Scene::updateViewport(int width, int height)
+{
+    if (width > 0 && height > 0)
+    {
+        projection->makePerspective(60.0, static_cast<float>(width) / static_cast<float>(height), 0.01f, 100.0f);
+        glViewport(0, 0, width, height);
+    }
+}
+
 void Scene::updateMode()
 {
     glPolygonMode(GL_FRONT_AND_BACK, mode ? GL_FILL : GL_LINE); gl_bugcheck();
+}
+
+void Scene::updateUniforms()
+{
+    const auto & matrixGroup = matrixStackSet.getMatrixGroup();
+
+    firstPassProgram->setMat4("u_MatrixModelViewProjection", matrixGroup.modelViewProjectionMatrix);
+    //firstPassProgram->setMat4("u_MatrixModel", matrixGroup.modelMatrix);
+    //firstPassProgram->setMat3("u_MatrixNormal", matrixGroup.normalMatrix);
+
+    //// camera
+
+    //firstPassProgram->setVec3("u_Camera.position", camera->getPosition());
+
+    //// light source
+
+    //firstPassProgram->setVec3("u_Light.position", vec3(0.0f, 0.0f, 1.0f));
+
+    //firstPassProgram->setVec3("u_Light.color", vec3(1.0f, 1.0f, 1.0f));
+
+    //firstPassProgram->setFloat("u_Light.intensityAmbient", 1.0f);
+    //firstPassProgram->setFloat("u_Light.intensityDiffuse", 0.0f);
+    //firstPassProgram->setFloat("u_Light.intensitySpecular", 0.0f);
+
+    //// material
+
+    //firstPassProgram->setFloat("u_Material.shininess", 1.0f);
+    //textureDiffuse->use(0);
+    //firstPassProgram->setTexture("u_Material.textureDiffuse", 0);
+    //textureSpecular->use(1);
+    //firstPassProgram->setTexture("u_Material.textureSpecular", 1);
+}
+
+void Scene::drawModel(Model & model)
+{
+    auto transformModel = matrixStackSet.transformModel(model.getModelMatrix(), true);
+
+    updateUniforms();
+    model.draw();
 }

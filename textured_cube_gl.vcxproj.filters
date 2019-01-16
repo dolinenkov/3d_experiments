@@ -25,6 +25,9 @@
     <ClCompile Include="MatrixStack.cc">
       <Filter>sources</Filter>
     </ClCompile>
+    <ClCompile Include="Projection.cc">
+      <Filter>sources</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.hh">
@@ -49,6 +52,9 @@
       <Filter>sources</Filter>
     </ClInclude>
     <ClInclude Include="MatrixStack.hh">
+      <Filter>sources</Filter>
+    </ClInclude>
+    <ClInclude Include="Projection.hh">
       <Filter>sources</Filter>
     </ClInclude>
   </ItemGroup>

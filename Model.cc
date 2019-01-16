@@ -2,98 +2,116 @@
 
 
 Transformation::Transformation()
-    : dirty(true)
+    : _dirty(true)
+    , _position(0.0f, 0.0f, 0.0f)
+    , _scale(1.0f, 1.0f, 1.0f)
 {
 }
 
 void Transformation::setPosition(vec3 position)
 {
-    if (this->position != position)
+    if (_position != position)
     {
-        dirty = true;
-        this->position = position;
+        _dirty = true;
+        _position = position;
     }
 }
 
 void Transformation::setScale(vec3 scale)
 {
-    if (this->scale != scale)
+    if (_scale != scale)
     {
-        dirty = true;
-        this->scale = scale;
+        _dirty = true;
+        _scale = scale;
     }
 }
 
-const mat4 & Transformation::getModelMatrix() const
+const mat4 & Transformation::getModelMatrix()
 {
-    if (dirty)
+    if (_dirty)
     {
+        _dirty = false;
         // Transform, rotate, scale
-        modelMatrix = ::glm::scale(translate(mat4(), this->position), this->scale);
+        _modelMatrix = ::glm::scale(translate(mat4(), _position), _scale);
     }
 
-    return modelMatrix;
+    return _modelMatrix;
 }
 
 
 //
 
 
-StaticMesh::StaticMesh()
-    : vertexData(0)
-    , indexData(0)
-    , indexCount(0)
+Mesh::Mesh()
+    : _vertexData(0)
+    , _indexData(0)
+    , _indexCount(0)
 {
 }
 
-StaticMesh::~StaticMesh()
+Mesh::~Mesh()
 {
     free();
 }
 
-void StaticMesh::init(const Vertice & firstVertex, size_t vertexCount, const GLuint & firstIndex, size_t indexCount)
+void Mesh::init(const Vertice * firstVertex, size_t vertexCount, const GLuint * firstIndex, size_t indexCount)
 {
     free();
 
-    GLuint tmp[2];
-    glGenBuffers(2, tmp); gl_bugcheck();
+    _indexCount = indexCount;
+    glGenBuffers(1, &_vertexData); gl_bugcheck();
+    glGenBuffers(1, &_indexData); gl_bugcheck();
 
-    vertexData = tmp[0];
-    indexData = tmp[1];
-    this->indexCount = indexCount;
+    glBindBuffer(GL_ARRAY_BUFFER, _vertexData); gl_bugcheck();
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _indexData); gl_bugcheck();
 
-    glBindBuffer(GL_ARRAY_BUFFER, vertexData); gl_bugcheck();
-    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertice) * vertexCount, addressof(firstVertex), GL_STATIC_DRAW); gl_bugcheck();
+    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertice) * vertexCount, firstVertex, GL_STATIC_DRAW); gl_bugcheck();
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint) * indexCount, firstIndex, GL_STATIC_DRAW); gl_bugcheck();
 
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexData); gl_bugcheck();
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint) * indexCount, addressof(firstIndex), GL_STATIC_DRAW); gl_bugcheck();
 }
 
-void StaticMesh::free()
+void Mesh::free()
 {
-    GLuint tmp[2] = { vertexData, indexData };
-    glDeleteBuffers(2, tmp); gl_bugcheck();
+    if (_vertexData > 0)
+    {
+        glDeleteBuffers(1, &_vertexData); gl_bugcheck();
+    }
+    if (_indexData > 0)
+    {
+        glDeleteBuffers(1, &_indexData); gl_bugcheck();
+    }
 }
 
-void StaticMesh::draw()
+void Mesh::draw()
 {
-    glBindBuffer(GL_ARRAY_BUFFER, vertexData); gl_bugcheck();
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexData); gl_bugcheck();
-    glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, nullptr); gl_bugcheck();
+    glBindBuffer(GL_ARRAY_BUFFER, _vertexData); gl_bugcheck();
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _indexData); gl_bugcheck();
+
+    glDrawElements(GL_TRIANGLES, _indexCount, GL_UNSIGNED_INT, nullptr); gl_bugcheck();
+
+    glBindBuffer(GL_ARRAY_BUFFER, 0); gl_bugcheck();
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0); gl_bugcheck();
 }
 
 
 //
+
+
+Assimp::Importer g_Importer;
 
 
 void Model::loadFromFile(const char * filename)
 {
-    Assimp::Importer importer;
+#ifdef _DEBUG
+    g_Importer.SetExtraVerbose(true);
+#endif
 
-    auto scene = importer.ReadFile(filename, aiProcess_Triangulate | aiProcess_FlipUVs);
+    auto scene = g_Importer.ReadFile(filename, aiProcess_Triangulate | aiProcess_FlipUVs);
     if (scene && scene->mRootNode)
     {
-        vector<StaticMesh> staticMeshes(scene->mNumMeshes);
+        assert((scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE) == 0);
+
+        vector<Mesh> meshes(scene->mNumMeshes);
 
         for (unsigned int i = 0; i < scene->mNumMeshes; ++i)
         {
@@ -135,15 +153,83 @@ void Model::loadFromFile(const char * filename)
                 for (unsigned int k = 0; k < mesh->mFaces[j].mNumIndices; ++k)
                     indices[indexCount++] = mesh->mFaces[j].mIndices[k];
 
-            staticMeshes[i].init(vertices[0], vertices.size(), indices[0], indices.size());
+            meshes[i].init(vertices.data(), vertices.size(), indices.data(), indices.size());
         }
 
-        this->meshes.swap(staticMeshes);
+        _meshes = move(meshes);
+
+        vector<size_t> meshDrawOrder(_countChildrenMeshes(scene->mRootNode));
+        size_t index = 0;
+        _assignMesh(meshDrawOrder, index, scene->mRootNode);
+
+        _meshDrawOrder = move(meshDrawOrder);
     }
+
+    auto err = g_Importer.GetErrorString();
+    if (err && strlen(err) > 0)
+        SDL_LogWarn(SDL_LOG_CATEGORY_APPLICATION, "assimp: %s\n", err);
+
+    g_Importer.FreeScene();
 }
 
 void Model::draw()
 {
-    for (auto & mesh : meshes)
-        mesh.draw();
+    for (size_t index : _meshDrawOrder)
+        _meshes[index].draw();
+}
+
+unsigned int Model::_countChildrenMeshes(const aiNode * node) const
+{
+    unsigned int childrenCount = 0;
+    if (node)
+    {
+        childrenCount += node->mNumMeshes;
+
+        for (unsigned int i = 0; i < node->mNumChildren; ++i)
+            childrenCount += _countChildrenMeshes(node->mChildren[i]);
+    }
+
+    return childrenCount;
+}
+
+void Model::_assignMesh(vector<size_t> & meshDrawOrder, size_t & index, const aiNode * node) const
+{
+    if (node)
+    {
+        for (unsigned int i = 0; i < node->mNumMeshes; ++i)
+            meshDrawOrder[index++] = node->mMeshes[i];
+
+        for (unsigned int i = 0; i < node->mNumChildren; ++i)
+            _assignMesh(meshDrawOrder, index, node->mChildren[i]);
+    }
+}
+
+//
+
+void Plane::init()
+{
+    Vertice vertex[6] = 
+    {
+        { {-1.0f, -1.0f, -1.0f}, {0.0f, 0.0f, -1.0f}, {0.0f, 0.0f, 0.0f } },
+        { { 1.0f, -1.0f, -1.0f}, {0.0f, 0.0f, -1.0f}, {0.0f, 0.0f, 0.0f } },
+        { {-1.0f, -1.0f,  1.0f}, {0.0f, 0.0f, -1.0f}, {0.0f, 0.0f, 0.0f } },
+        { { 1.0f, -1.0f, -1.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f } },
+        /*
+        */
+        { {-1.0f, -1.0f,  1.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f } },
+        { { 1.0f,  1.0f, -1.0f}, {0.0f, 0.0f, -1.0f}, {0.0f, 0.0f, 0.0f } }
+    };
+
+    GLuint index[] =
+    {
+        0, 1, 2,
+        1, 2, 3
+    };
+
+    mesh.init(vertex, 4, index, 6);
+}
+
+void Plane::draw()
+{
+    mesh.draw();
 }

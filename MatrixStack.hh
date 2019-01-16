@@ -12,10 +12,14 @@ template<class T>
 class Stack
 {
 public:
+    using Value = T;
+
     Stack();
 
     bool empty() const;
+
     const T & top() const;
+    T & top();
 
     void push(const T & object);
     void pop();
@@ -30,7 +34,34 @@ private:
 };
 
 
-using MatrixStack = Stack<mat4>;
+//using MatrixStack = Stack<mat4>;
+
+
+class MatrixStack
+{
+public:
+    using Value = typename Stack<mat4>::Value;
+
+    explicit MatrixStack(const char * name);
+
+    bool empty() const;
+
+    const Value & top() const;
+    Value & top();
+
+    void push(const Value & object);
+    void pop();
+
+    void clear();
+
+    void reserve(size_t count);
+    void shrintToFit();
+
+private:
+    Stack<mat4>  _imp;
+    const char * _name;
+};
+
 
 
 struct MatrixGroup
@@ -58,25 +89,36 @@ struct MatrixStackSetSettings
 class MatrixStackSet
 {
 public:
+    class TransformationScope;
+
     explicit MatrixStackSet(const MatrixStackSetSettings & settings = MatrixStackSetSettings::defaults());
 
-    const MatrixStack & getProjectionMatrixStack() const;
-    MatrixStack & getProjectionMatrixStack();
-
-    const MatrixStack & getViewMatrixStack() const;
-    MatrixStack & getViewMatrixStack();
-
-    const MatrixStack & getModelMatrixStack() const;
-    MatrixStack & getModelMatrixStack();
+    TransformationScope transformProjection(const mat4 & matrix, bool additive = false);
+    TransformationScope transformView(const mat4 & matrix, bool additive = false);
+    TransformationScope transformModel(const mat4 & matrix, bool additive = false);
 
     const MatrixGroup & getMatrixGroup();
 
 private:
-    MatrixStack projectionMatrixStack;
-    MatrixStack viewMatrixStack;
-    MatrixStack modelMatrixStack;
-    bool        needUpdateMatrixGroup;
-    MatrixGroup matrixGroup;
+    MatrixStack _projectionStack;
+    MatrixStack _viewStack;
+    MatrixStack _modelStack;
+    MatrixGroup _group;
+};
+
+
+class MatrixStackSet::TransformationScope
+{
+public:
+    TransformationScope(MatrixStackSet & matrixStackSet, MatrixStack & matrixStack, const mat4 & matrix, bool additive);
+    ~TransformationScope();
+
+private:
+    void _updateGroup();
+
+private:
+    MatrixStack &    _matrixStack;
+    MatrixStackSet & _matrixStackSet;
 };
 
 
@@ -96,6 +138,12 @@ inline bool Stack<T>::empty() const
 
 template<class T>
 inline const T & Stack<T>::top() const
+{
+    return _imp.back();
+}
+
+template<class T>
+inline T & Stack<T>::top()
 {
     return _imp.back();
 }

@@ -27,6 +27,7 @@ using ::glm::vec3;
 using ::glm::vec4;
 using ::glm::mat3;
 using ::glm::mat4;
+using ::glm::ortho;
 using ::glm::perspective;
 using ::glm::lookAt;
 using ::glm::translate;
@@ -54,6 +55,7 @@ using ::glm::clamp;
 #include <map>
 #include <memory>
 #include <bitset>
+#include <functional>
 
 using ::std::vector;
 using ::std::string;
@@ -63,6 +65,8 @@ using ::std::shared_ptr;
 using ::std::make_shared;
 using ::std::addressof;
 using ::std::bitset;
+using ::std::move;
+using ::std::function;
 
 
 // TODO: move this macro-shit somewhere else
@@ -81,5 +85,8 @@ inline void _check_gl_bugs(const char * file, int line)
     if (err != GL_NO_ERROR)
     {
         SDL_Log("gl bugcheck: at %s, %d : 0x%04x : %s\n", file, line, err, glewGetErrorString(err));
+    #ifdef _MSC_VER
+        __debugbreak();
+    #endif
     }
 }

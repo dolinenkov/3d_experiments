@@ -50,8 +50,13 @@ int main(int, char *[])
                     glDebugMessageCallback([](GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar * message, const void * userParam)
                     {
                         SDL_Log("gl debug: %s\n", message);
+                    #ifdef _MSC_VER
+                        __debugbreak();
+                    #endif
                     }, nullptr);
                 }
+
+                scene->updateViewport(windowWidth, windowHeight);
 
                 Keyboard keyboard;
 
@@ -91,6 +96,7 @@ int main(int, char *[])
                         else if (event.type == SDL_WINDOWEVENT)
                         {
                             SDL_GetWindowSize(window, &windowWidth, &windowHeight);
+                            scene->updateViewport(windowWidth, windowHeight);
                         }
                     }
 
