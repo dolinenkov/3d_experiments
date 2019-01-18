@@ -1,12 +1,13 @@
 #include "Scene.hh"
 #include "config.hh"
 
+
 bool DepthTestEnabled = true;
 bool FaceCullingEnabled = false;
 
 
 Scene::Scene()
-    : mode(false)
+    : mode(true)
 {
     ProgramBuilder builder;
 
@@ -20,47 +21,24 @@ Scene::Scene()
     loader.setFilename("resources/textures/container2.png");
     textureDiffuse = loader.load();
 
-    loader.setFilename("resources/textures/container2_specular.png");
-    textureSpecular = loader.load();
+    firstPassProgram->use();
+    VerticeFormat verticeFormat;
+    verticeFormat.position = firstPassProgram->findAttribute("a_Position");
+    verticeFormat.texture = firstPassProgram->findAttribute("a_Texture");
 
-
-    plane = make_shared<Plane>();
-    plane->init();
-
-    /*
-    +y вверх
-    +z вдаль
-    +x влево
-    */
-
-    cubeModel = make_shared<Model>();
-    cubeModel->loadFromFile("resources/models/13037_Buckler_Shield_v1_l3.obj");
-    cubeModel->setScale(vec3(0.25f, 0.25f, 0.25f));
-    cubeModel->setPosition(vec3(-1.0f, 0.0f, 5.0f));
 
     sphereModel = make_shared<Model>();
-    sphereModel->loadFromFile("resources/models/sphere.obj");
+    sphereModel->loadFromFile("resources/models/sphere.obj", verticeFormat);
+    sphereModel->setPosition(vec3(-1.0f, 0.0f, 5.0f));
     sphereModel->setScale(vec3(0.05f, 0.05f, 0.05f));
-    sphereModel->setPosition(vec3(1.0f, 0.0f, 5.0f));
 
-    format = make_shared<VertexFormat>();
-    format->init(firstPassProgram);
-    format->activate();
-
-    //cubeModel = make_shared<Model>();
-    //cubeModel->loadFromFile("resources/models/cube.obj");
-    //cubeModel->loadFromFile("resources/models/sphere.obj");
-    ////cubeModel->loadFromFile("resources/models/MP_US_Engi.FBX");
-    ////cubeModel->setPosition(vec3(0.0f, 0.0f, 0.0f));
-    ////cubeModel->setScale(vec3(50.0f, 50.0f, 50.0f));
-
-    //sphereModel = make_shared<Model>();
-    //sphereModel->loadFromFile("resources/models/cube.obj");
-
+    cubeModel = make_shared<Model>();
+    cubeModel->loadFromFile("resources/models/cube.obj", verticeFormat);
+    cubeModel->setPosition(vec3(1.0f, 0.0f, 5.0f));
 
     camera = make_shared<Camera>();
     camera->setPosition(vec3(0.0f, 0.0f, 0.0f));
-    camera->setFrontVector(vec3(0.0f, 0.0f, 1.0f)); // look along +z axis
+    camera->setFrontVector(vec3(0.0f, 0.0f, 1.0f)); // look along +z axis, +x is forwarded to the left, +y is forwarded upwards
 
     projection = make_shared<Projection>();
 
@@ -86,20 +64,15 @@ void Scene::draw()
     auto transformView = matrixStackSet.transformView(camera->getViewMatrix());
     auto transformModel = matrixStackSet.transformModel(mat4());
 
-
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); gl_bugcheck();
 
     firstPassProgram->use();
 
-    format->activate();
-    updateUniforms();
-    plane->draw();
+    if (cubeModel)
+        drawModel(*cubeModel);
 
-    format->activate();
-    drawModel(*cubeModel);
-
-    format->activate();
-    drawModel(*sphereModel);
+    if (sphereModel)
+        drawModel(*sphereModel);
 }
 
 void Scene::toggleMode()
@@ -132,30 +105,10 @@ void Scene::updateUniforms()
     const auto & matrixGroup = matrixStackSet.getMatrixGroup();
 
     firstPassProgram->setMat4("u_MatrixModelViewProjection", matrixGroup.modelViewProjectionMatrix);
-    //firstPassProgram->setMat4("u_MatrixModel", matrixGroup.modelMatrix);
-    //firstPassProgram->setMat3("u_MatrixNormal", matrixGroup.normalMatrix);
 
-    //// camera
-
-    //firstPassProgram->setVec3("u_Camera.position", camera->getPosition());
-
-    //// light source
-
-    //firstPassProgram->setVec3("u_Light.position", vec3(0.0f, 0.0f, 1.0f));
-
-    //firstPassProgram->setVec3("u_Light.color", vec3(1.0f, 1.0f, 1.0f));
-
-    //firstPassProgram->setFloat("u_Light.intensityAmbient", 1.0f);
-    //firstPassProgram->setFloat("u_Light.intensityDiffuse", 0.0f);
-    //firstPassProgram->setFloat("u_Light.intensitySpecular", 0.0f);
-
-    //// material
-
-    //firstPassProgram->setFloat("u_Material.shininess", 1.0f);
-    //textureDiffuse->use(0);
-    //firstPassProgram->setTexture("u_Material.textureDiffuse", 0);
-    //textureSpecular->use(1);
-    //firstPassProgram->setTexture("u_Material.textureSpecular", 1);
+    const GLint unit = 0;
+    textureDiffuse->use(unit);
+    firstPassProgram->setTexture("u_DiffuseTexture", unit);
 }
 
 void Scene::drawModel(Model & model)

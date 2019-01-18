@@ -34,9 +34,6 @@ private:
 };
 
 
-//using MatrixStack = Stack<mat4>;
-
-
 class MatrixStack
 {
 public:

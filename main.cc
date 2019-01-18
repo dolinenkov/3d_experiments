@@ -50,9 +50,6 @@ int main(int, char *[])
                     glDebugMessageCallback([](GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar * message, const void * userParam)
                     {
                         SDL_Log("gl debug: %s\n", message);
-                    #ifdef _MSC_VER
-                        __debugbreak();
-                    #endif
                     }, nullptr);
                 }
 

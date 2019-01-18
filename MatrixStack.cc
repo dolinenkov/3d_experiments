@@ -61,10 +61,6 @@ MatrixStack::Value & MatrixStack::top()
 
 void MatrixStack::push(const Value & object)
 {
-    SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Push to '%s':\n", _name);
-    for (size_t i = 0; i < 4; ++i)
-        SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "%4.4f %4.4f %4.4f %4.4f\n", object[i][0], object[i][1], object[i][2], object[i][3]);
-
     _imp.push(object);
 }
 
@@ -123,33 +119,33 @@ MatrixStackSet::TransformationScope::~TransformationScope()
 
 void MatrixStackSet::TransformationScope::_updateGroup()
 {
-    auto & group        = _matrixStackSet._group;
-    auto & model        = _matrixStackSet._modelStack;
-    auto & view         = _matrixStackSet._viewStack;
-    auto & projection   = _matrixStackSet._projectionStack;
+    auto & group            = _matrixStackSet._group;
+    auto & modelStack       = _matrixStackSet._modelStack;
+    auto & viewStack        = _matrixStackSet._viewStack;
+    auto & projectionStack  = _matrixStackSet._projectionStack;
 
-    if (projection.empty())
+    if (projectionStack.empty())
     {
         SDL_LogWarn(SDL_LOG_CATEGORY_APPLICATION, "cannot update matrix group: projection matrix stack is empty\n");
         return;
     }
 
-    if (view.empty())
+    if (viewStack.empty())
     {
         SDL_LogWarn(SDL_LOG_CATEGORY_APPLICATION, "cannot update matrix group: view matrix stack is empty\n");
         return;
     }
 
-    if (model.empty())
+    if (modelStack.empty())
     {
         SDL_LogWarn(SDL_LOG_CATEGORY_APPLICATION, "cannot update matrix group: model matrix stack is empty\n");
         return;
     }
 
-    group.modelMatrix               = model.top();
-    group.modelViewMatrix           = view.top() * group.modelMatrix;
-    group.modelViewProjectionMatrix = projection.top() * group.modelViewMatrix;
-    group.normalMatrix              = transpose(inverse(group.modelMatrix));
+    group.modelMatrix               = modelStack.top();
+    group.modelViewMatrix           = viewStack.top() * group.modelMatrix;
+    group.modelViewProjectionMatrix = projectionStack.top() * group.modelViewMatrix;
+    group.normalMatrix              = mat3(transpose(inverse(group.modelMatrix)));
 }
 
 

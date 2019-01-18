@@ -1,6 +1,7 @@
 #pragma once
 #include "config.hh"
 #include "VertexFormat.hh"
+#include "Mesh.hh"
 
 
 class Transformation
@@ -22,32 +23,10 @@ private:
 };
 
 
-class Mesh
-{
-public:
-    Mesh();
-    ~Mesh();
-
-    Mesh(const Mesh &) = delete;
-    Mesh & operator=(const Mesh &) = delete;
-
-    void init(const Vertice * firstVertex, size_t vertexCount, const GLuint * firstIndex, size_t indexCount);
-
-    void free();
-
-    void draw();
-
-private:
-    GLsizei _indexCount;
-    GLuint  _indexData;
-    GLuint  _vertexData;
-};
-
-
 class Model : public Transformation
 {
 public:
-    void loadFromFile(const char * filename);
+    void loadFromFile(const char * filename, const VerticeFormat & verticeFormat);
 
     void draw();
 
@@ -59,16 +38,4 @@ private:
 private:
     vector<Mesh>   _meshes;
     vector<size_t> _meshDrawOrder;
-};
-
-
-class Plane
-{
-public:
-    void init();
-
-    void draw();
-
-private:
-    Mesh mesh;
 };

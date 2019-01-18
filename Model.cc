@@ -42,70 +42,11 @@ const mat4 & Transformation::getModelMatrix()
 //
 
 
-Mesh::Mesh()
-    : _vertexData(0)
-    , _indexData(0)
-    , _indexCount(0)
-{
-}
-
-Mesh::~Mesh()
-{
-    free();
-}
-
-void Mesh::init(const Vertice * firstVertex, size_t vertexCount, const GLuint * firstIndex, size_t indexCount)
-{
-    free();
-
-    _indexCount = indexCount;
-    glGenBuffers(1, &_vertexData); gl_bugcheck();
-    glGenBuffers(1, &_indexData); gl_bugcheck();
-
-    glBindBuffer(GL_ARRAY_BUFFER, _vertexData); gl_bugcheck();
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _indexData); gl_bugcheck();
-
-    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertice) * vertexCount, firstVertex, GL_STATIC_DRAW); gl_bugcheck();
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint) * indexCount, firstIndex, GL_STATIC_DRAW); gl_bugcheck();
-
-}
-
-void Mesh::free()
-{
-    if (_vertexData > 0)
-    {
-        glDeleteBuffers(1, &_vertexData); gl_bugcheck();
-    }
-    if (_indexData > 0)
-    {
-        glDeleteBuffers(1, &_indexData); gl_bugcheck();
-    }
-}
-
-void Mesh::draw()
-{
-    glBindBuffer(GL_ARRAY_BUFFER, _vertexData); gl_bugcheck();
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _indexData); gl_bugcheck();
-
-    glDrawElements(GL_TRIANGLES, _indexCount, GL_UNSIGNED_INT, nullptr); gl_bugcheck();
-
-    glBindBuffer(GL_ARRAY_BUFFER, 0); gl_bugcheck();
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0); gl_bugcheck();
-}
-
-
-//
-
-
 Assimp::Importer g_Importer;
 
 
-void Model::loadFromFile(const char * filename)
+void Model::loadFromFile(const char * filename, const VerticeFormat & verticeFormat)
 {
-#ifdef _DEBUG
-    g_Importer.SetExtraVerbose(true);
-#endif
-
     auto scene = g_Importer.ReadFile(filename, aiProcess_Triangulate | aiProcess_FlipUVs);
     if (scene && scene->mRootNode)
     {
@@ -153,7 +94,14 @@ void Model::loadFromFile(const char * filename)
                 for (unsigned int k = 0; k < mesh->mFaces[j].mNumIndices; ++k)
                     indices[indexCount++] = mesh->mFaces[j].mIndices[k];
 
-            meshes[i].init(vertices.data(), vertices.size(), indices.data(), indices.size());
+            MeshData meshData;
+            meshData.vertexData = vertices.data();
+            meshData.vertexSize = vertices.size();
+            meshData.indexData = indices.data();
+            meshData.indexSize = indices.size();
+            meshData.format = &verticeFormat;
+
+            meshes[i].init(meshData);
         }
 
         _meshes = move(meshes);
@@ -202,34 +150,4 @@ void Model::_assignMesh(vector<size_t> & meshDrawOrder, size_t & index, const ai
         for (unsigned int i = 0; i < node->mNumChildren; ++i)
             _assignMesh(meshDrawOrder, index, node->mChildren[i]);
     }
-}
-
-//
-
-void Plane::init()
-{
-    Vertice vertex[6] = 
-    {
-        { {-1.0f, -1.0f, -1.0f}, {0.0f, 0.0f, -1.0f}, {0.0f, 0.0f, 0.0f } },
-        { { 1.0f, -1.0f, -1.0f}, {0.0f, 0.0f, -1.0f}, {0.0f, 0.0f, 0.0f } },
-        { {-1.0f, -1.0f,  1.0f}, {0.0f, 0.0f, -1.0f}, {0.0f, 0.0f, 0.0f } },
-        { { 1.0f, -1.0f, -1.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f } },
-        /*
-        */
-        { {-1.0f, -1.0f,  1.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f } },
-        { { 1.0f,  1.0f, -1.0f}, {0.0f, 0.0f, -1.0f}, {0.0f, 0.0f, 0.0f } }
-    };
-
-    GLuint index[] =
-    {
-        0, 1, 2,
-        1, 2, 3
-    };
-
-    mesh.init(vertex, 4, index, 6);
-}
-
-void Plane::draw()
-{
-    mesh.draw();
 }

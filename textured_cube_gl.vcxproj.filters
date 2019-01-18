@@ -16,9 +16,6 @@
     <ClCompile Include="Texture2D.cc">
       <Filter>sources</Filter>
     </ClCompile>
-    <ClCompile Include="VertexFormat.cc">
-      <Filter>sources</Filter>
-    </ClCompile>
     <ClCompile Include="Camera.cc">
       <Filter>sources</Filter>
     </ClCompile>
@@ -26,6 +23,9 @@
       <Filter>sources</Filter>
     </ClCompile>
     <ClCompile Include="Projection.cc">
+      <Filter>sources</Filter>
+    </ClCompile>
+    <ClCompile Include="Mesh.cc">
       <Filter>sources</Filter>
     </ClCompile>
   </ItemGroup>
@@ -55,6 +55,9 @@
       <Filter>sources</Filter>
     </ClInclude>
     <ClInclude Include="Projection.hh">
+      <Filter>sources</Filter>
+    </ClInclude>
+    <ClInclude Include="Mesh.hh">
       <Filter>sources</Filter>
     </ClInclude>
   </ItemGroup>

@@ -2,6 +2,7 @@
 #include "config.hh"
 #include "Program.hh"
 
+
 struct Vertice
 {
     float position[3];
@@ -9,18 +10,12 @@ struct Vertice
     float texture[3];
 };
 
-// Simple wrapper for OpenGL vertex array object
-class VertexFormat
+
+struct VerticeFormat
 {
-public:
-    VertexFormat();
+    static constexpr GLint NOT_PRESENT = -1;
 
-    ~VertexFormat();
-
-    void init(shared_ptr<Program> program);
-
-    void activate();
-
-private:
-    GLuint arrayObject;
+    GLint position = NOT_PRESENT;
+    GLint normal   = NOT_PRESENT;
+    GLint texture  = NOT_PRESENT;
 };

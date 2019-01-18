@@ -1,5 +1,6 @@
 #include "Projection.hh"
 
+
 Projection::Projection()
     : _isDirty(false)
     , _isPerspective(false)

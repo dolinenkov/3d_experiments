@@ -118,17 +118,18 @@
     <ClCompile Include="Camera.cc" />
     <ClCompile Include="main.cc" />
     <ClCompile Include="MatrixStack.cc" />
+    <ClCompile Include="Mesh.cc" />
     <ClCompile Include="Model.cc" />
     <ClCompile Include="Program.cc" />
     <ClCompile Include="Projection.cc" />
     <ClCompile Include="Scene.cc" />
     <ClCompile Include="Texture2D.cc" />
-    <ClCompile Include="VertexFormat.cc" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.hh" />
     <ClInclude Include="config.hh" />
     <ClInclude Include="MatrixStack.hh" />
+    <ClInclude Include="Mesh.hh" />
     <ClInclude Include="Model.hh" />
     <ClInclude Include="Program.hh" />
     <ClInclude Include="Projection.hh" />
