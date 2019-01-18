@@ -5,6 +5,7 @@ namespace xrndr
 
 Program::Program(GLuint id) : id(id)
 {
+    SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "shader program (%d)\n", id);
     _loadActiveAttributes();
     _loadActiveUniforms();
 }
@@ -77,7 +78,7 @@ void Program::_loadActiveAttributes()
             glGetActiveAttrib(id, i, maxLength, &len, &size, &type, buf.data()); gl_bugcheck();
 
             activeAttribs.insert({ string(buf.data(), len), {i, type, size} });
-            SDL_Log("attribute (%d:%s) : %s, %d\n", i, buf.data(), _getAttributeNameByType(type), size);
+            SDL_Log("%10s (%40s:%2d) : %10s, %2d\n", "attribute", buf.data(), i, _getAttributeNameByType(type), size);
         }
     }
 }
@@ -101,7 +102,7 @@ void Program::_loadActiveUniforms()
             glGetActiveUniform(id, i, maxLength, &len, &size, &type, buf.data()); gl_bugcheck();
 
             activeUniforms.insert({ string(buf.data(), len), {i, type, size} });
-            SDL_Log("uniform (%d:%s) : %s, %d\n", i, buf.data(), _getUniformNameByType(type), size);
+            SDL_Log("%10s (%40s:%2d) : %10s, %2d\n", "uniform", buf.data(), i, _getUniformNameByType(type), size);
         }
     }
 }
