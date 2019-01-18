@@ -6,6 +6,7 @@
 #include <xrndr/Model.hh>
 #include <xrndr/VertexFormat.hh>
 #include <xrndr/MatrixStack.hh>
+#include <xrndr/Light.hh>
 
 
 namespace xrndr
@@ -26,11 +27,15 @@ public:
     void updateViewport(int width, int height);
 
 private:
-    void updateMode();
+    void _doGeometryPass();
 
-    void updateUniforms();
+    void _doDebugPass();
 
-    void drawModel(Model & model);
+    void _drawModel(Model & model);
+
+    void _drawLight(Light & light, Model & model);
+
+    void _updateMode();
 
 private:
     bool                        mode;
@@ -40,9 +45,13 @@ private:
     shared_ptr<Camera>          camera;
 
     shared_ptr<Program>         firstPassProgram;
+    shared_ptr<Program>         nontexturedGeometryProgram;
 
     shared_ptr<Texture2D>       textureDiffuse;
 
+    shared_ptr<Light>           light;
+
+    shared_ptr<Model>           lightModel;
     shared_ptr<Model>           sphereModel;
     shared_ptr<Model>           cubeModel;
 };

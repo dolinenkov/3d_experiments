@@ -35,6 +35,12 @@
     <None Include="resources\shaders\first_pass.vert">
       <Filter>resources\shaders</Filter>
     </None>
+    <None Include="resources\shaders\nontextured_geometry.frag">
+      <Filter>resources\shaders</Filter>
+    </None>
+    <None Include="resources\shaders\nontextured_geometry.vert">
+      <Filter>resources\shaders</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Image Include="resources\textures\container2.png">
@@ -102,6 +108,9 @@
       <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="include\xrndr\VertexFormat.hh">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\xrndr\Light.hh">
       <Filter>include</Filter>
     </ClInclude>
   </ItemGroup>
