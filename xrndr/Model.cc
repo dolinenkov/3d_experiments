@@ -1,5 +1,7 @@
-#include "Model.hh"
+#include <xrndr/Model.hh>
 
+namespace xrndr
+{
 
 Transformation::Transformation()
     : _dirty(true)
@@ -150,4 +152,6 @@ void Model::_assignMesh(vector<size_t> & meshDrawOrder, size_t & index, const ai
         for (unsigned int i = 0; i < node->mNumChildren; ++i)
             _assignMesh(meshDrawOrder, index, node->mChildren[i]);
     }
+}
+
 }

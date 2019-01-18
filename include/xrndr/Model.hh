@@ -1,8 +1,11 @@
 #pragma once
-#include "config.hh"
-#include "VertexFormat.hh"
-#include "Mesh.hh"
+#include <xrndr/config.hh>
+#include <xrndr/VertexFormat.hh>
+#include <xrndr/Mesh.hh>
 
+
+namespace xrndr
+{
 
 class Transformation
 {
@@ -39,3 +42,5 @@ private:
     vector<Mesh>   _meshes;
     vector<size_t> _meshDrawOrder;
 };
+
+}

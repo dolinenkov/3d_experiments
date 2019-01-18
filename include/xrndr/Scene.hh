@@ -1,12 +1,15 @@
 #pragma once
-#include "Camera.hh"
-#include "Program.hh"
-#include "Texture2D.hh"
-#include "Model.hh"
-#include "VertexFormat.hh"
-#include "MatrixStack.hh"
-#include "Projection.hh"
+#include <xrndr/Camera.hh>
+#include <xrndr/Program.hh>
+#include <xrndr/Projection.hh>
+#include <xrndr/Texture2D.hh>
+#include <xrndr/Model.hh>
+#include <xrndr/VertexFormat.hh>
+#include <xrndr/MatrixStack.hh>
 
+
+namespace xrndr
+{
 
 class Scene
 {
@@ -43,3 +46,5 @@ private:
     shared_ptr<Model>           sphereModel;
     shared_ptr<Model>           cubeModel;
 };
+
+}

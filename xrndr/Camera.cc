@@ -1,5 +1,7 @@
-#include "Camera.hh"
+#include <xrndr/Camera.hh>
 
+namespace xrndr
+{
 
 Camera::Camera()
     : _eulerAngles(0.0f, 0.0f)
@@ -145,4 +147,6 @@ vec3 Camera::_getDirectionFromEulerAngles(const vec2 & _eulerAngles)
     const float y = sin(_eulerAngles[0]);
     const float z = cos(_eulerAngles[0]) * sin(_eulerAngles[1]);
     return normalize(vec3(x, y, z));
+}
+
 }

@@ -1,6 +1,8 @@
 #pragma once
-#include "config.hh"
+#include <xrndr/config.hh>
 
+namespace xrndr
+{
 
 class Projection
 {
@@ -36,3 +38,5 @@ private:
         } ortho;
     };
 };
+
+}

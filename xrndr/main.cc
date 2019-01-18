@@ -1,12 +1,12 @@
-#include "config.hh"
-#include "Scene.hh"
+#include <xrndr/config.hh>
+#include <xrndr/Scene.hh>
 
 
 struct Keyboard
 {
-    bitset<SDL_NUM_SCANCODES> states;
+    xrndr::bitset<SDL_NUM_SCANCODES> states;
 
-    bitset<SDL_NUM_SCANCODES> released;
+    xrndr::bitset<SDL_NUM_SCANCODES> released;
 };
 
 
@@ -43,7 +43,7 @@ int main(int, char *[])
                 SDL_Log("glew init: %s\n", glewGetErrorString(glewError));
             }
             else
-            if (auto scene = std::make_unique<Scene>())
+            if (auto scene = xrndr::make_unique<xrndr::Scene>())
             {
                 if (GLEW_KHR_debug)
                 {

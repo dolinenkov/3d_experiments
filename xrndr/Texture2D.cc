@@ -1,5 +1,7 @@
-#include "Texture2D.hh"
+#include <xrndr/Texture2D.hh>
 
+namespace xrndr
+{
 
 Texture2D::Texture2D(GLuint name) : name(name)
 {
@@ -20,7 +22,7 @@ void Texture2D::use(int unit)
 }
 
 
-Texture2DLoader::Texture2DLoader(): width(0), height(0), isSRGB(false)
+Texture2DLoader::Texture2DLoader() : width(0), height(0), isSRGB(false)
 {
 }
 
@@ -90,4 +92,6 @@ GLuint Texture2DLoader::_upload()
         }
     }
     return texture;
+}
+
 }

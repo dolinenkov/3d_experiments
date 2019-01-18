@@ -1,5 +1,9 @@
 #pragma once
-#include "config.hh"
+#include <xrndr/config.hh>
+
+
+namespace xrndr
+{
 
 class Texture2D
 {
@@ -38,3 +42,5 @@ private:
     uint32_t     height;
     bool         isSRGB;
 };
+
+}

@@ -1,6 +1,7 @@
-#include "Scene.hh"
-#include "config.hh"
+#include <xrndr/Scene.hh>
 
+namespace xrndr
+{
 
 bool DepthTestEnabled = true;
 bool FaceCullingEnabled = false;
@@ -117,4 +118,6 @@ void Scene::drawModel(Model & model)
 
     updateUniforms();
     model.draw();
+}
+
 }

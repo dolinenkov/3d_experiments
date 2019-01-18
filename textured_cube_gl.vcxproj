@@ -76,6 +76,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>include/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -84,6 +85,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>include/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -94,6 +96,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>include/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -108,35 +111,13 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>include/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClCompile Include="Camera.cc" />
-    <ClCompile Include="main.cc" />
-    <ClCompile Include="MatrixStack.cc" />
-    <ClCompile Include="Mesh.cc" />
-    <ClCompile Include="Model.cc" />
-    <ClCompile Include="Program.cc" />
-    <ClCompile Include="Projection.cc" />
-    <ClCompile Include="Scene.cc" />
-    <ClCompile Include="Texture2D.cc" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="Camera.hh" />
-    <ClInclude Include="config.hh" />
-    <ClInclude Include="MatrixStack.hh" />
-    <ClInclude Include="Mesh.hh" />
-    <ClInclude Include="Model.hh" />
-    <ClInclude Include="Program.hh" />
-    <ClInclude Include="Projection.hh" />
-    <ClInclude Include="Scene.hh" />
-    <ClInclude Include="Texture2D.hh" />
-    <ClInclude Include="VertexFormat.hh" />
-  </ItemGroup>
   <ItemGroup>
     <Object Include="resources\models\cube.obj">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
@@ -202,6 +183,29 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
     </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="xrndr\Camera.cc" />
+    <ClCompile Include="xrndr\main.cc" />
+    <ClCompile Include="xrndr\MatrixStack.cc" />
+    <ClCompile Include="xrndr\Mesh.cc" />
+    <ClCompile Include="xrndr\Model.cc" />
+    <ClCompile Include="xrndr\Program.cc" />
+    <ClCompile Include="xrndr\Projection.cc" />
+    <ClCompile Include="xrndr\Scene.cc" />
+    <ClCompile Include="xrndr\Texture2D.cc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\xrndr\Camera.hh" />
+    <ClInclude Include="include\xrndr\config.hh" />
+    <ClInclude Include="include\xrndr\MatrixStack.hh" />
+    <ClInclude Include="include\xrndr\Mesh.hh" />
+    <ClInclude Include="include\xrndr\Model.hh" />
+    <ClInclude Include="include\xrndr\Program.hh" />
+    <ClInclude Include="include\xrndr\Projection.hh" />
+    <ClInclude Include="include\xrndr\Scene.hh" />
+    <ClInclude Include="include\xrndr\Texture2D.hh" />
+    <ClInclude Include="include\xrndr\VertexFormat.hh" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

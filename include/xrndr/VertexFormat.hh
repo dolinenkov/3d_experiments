@@ -1,6 +1,5 @@
 #pragma once
-#include "config.hh"
-#include "Program.hh"
+#include <xrndr/config.hh>
 
 
 struct Vertice

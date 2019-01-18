@@ -1,5 +1,7 @@
-#include "Mesh.hh"
+#include <xrndr/Mesh.hh>
 
+namespace xrndr
+{
 
 Mesh::Mesh()
     : _vertexArrayObject(0)
@@ -119,4 +121,6 @@ void Mesh::draw()
         glBindVertexArray(_vertexArrayObject); gl_bugcheck();
         glDrawElements(GL_TRIANGLES, _indexCount, GL_UNSIGNED_INT, nullptr); gl_bugcheck();
     }
+}
+
 }

@@ -22,6 +22,9 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+namespace xrndr
+{
+
 using ::glm::vec2;
 using ::glm::vec3;
 using ::glm::vec4;
@@ -41,6 +44,8 @@ using ::glm::length;
 using ::glm::half_pi;
 using ::glm::clamp;
 
+}
+
 
 #include <SOIL/SOIL.h>
 
@@ -57,6 +62,9 @@ using ::glm::clamp;
 #include <bitset>
 #include <functional>
 
+namespace xrndr
+{
+
 using ::std::vector;
 using ::std::string;
 using ::std::map;
@@ -68,16 +76,21 @@ using ::std::bitset;
 using ::std::move;
 using ::std::function;
 
+}
+
 
 // TODO: move this macro-shit somewhere else
 
 
 #ifdef _DEBUG
-#define gl_bugcheck() _check_gl_bugs(__FILE__, __LINE__)
+#define gl_bugcheck() ::xrndr::_check_gl_bugs(__FILE__, __LINE__)
 #else
 #define gl_bugcheck()
 #endif
 
+
+namespace xrndr
+{
 
 inline void _check_gl_bugs(const char * file, int line)
 {
@@ -89,4 +102,6 @@ inline void _check_gl_bugs(const char * file, int line)
         __debugbreak();
     #endif
     }
+}
+
 }

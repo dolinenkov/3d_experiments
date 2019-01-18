@@ -1,7 +1,10 @@
 #pragma once
-#include "config.hh"
-#include "VertexFormat.hh"
+#include <xrndr/config.hh>
+#include <xrndr/VertexFormat.hh>
 
+
+namespace xrndr
+{
 
 struct MeshData
 {
@@ -42,3 +45,5 @@ private:
     GLuint  _indexBufferObject;
     GLsizei _indexCount;
 };
+
+}

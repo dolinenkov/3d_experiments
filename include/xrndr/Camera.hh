@@ -1,5 +1,8 @@
 #pragma once
-#include "config.hh"
+#include <xrndr/config.hh>
+
+namespace xrndr
+{
 
 /*
     TODO:
@@ -54,3 +57,5 @@ private:
     bool _needUpdateViewMatrix;
     mat4 _viewMatrix;
 };
+
+}

@@ -1,67 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="main.cc">
-      <Filter>sources</Filter>
-    </ClCompile>
-    <ClCompile Include="Model.cc">
-      <Filter>sources</Filter>
-    </ClCompile>
-    <ClCompile Include="Program.cc">
-      <Filter>sources</Filter>
-    </ClCompile>
-    <ClCompile Include="Scene.cc">
-      <Filter>sources</Filter>
-    </ClCompile>
-    <ClCompile Include="Texture2D.cc">
-      <Filter>sources</Filter>
-    </ClCompile>
-    <ClCompile Include="Camera.cc">
-      <Filter>sources</Filter>
-    </ClCompile>
-    <ClCompile Include="MatrixStack.cc">
-      <Filter>sources</Filter>
-    </ClCompile>
-    <ClCompile Include="Projection.cc">
-      <Filter>sources</Filter>
-    </ClCompile>
-    <ClCompile Include="Mesh.cc">
-      <Filter>sources</Filter>
-    </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="Camera.hh">
-      <Filter>sources</Filter>
-    </ClInclude>
-    <ClInclude Include="config.hh">
-      <Filter>sources</Filter>
-    </ClInclude>
-    <ClInclude Include="Model.hh">
-      <Filter>sources</Filter>
-    </ClInclude>
-    <ClInclude Include="Program.hh">
-      <Filter>sources</Filter>
-    </ClInclude>
-    <ClInclude Include="Scene.hh">
-      <Filter>sources</Filter>
-    </ClInclude>
-    <ClInclude Include="Texture2D.hh">
-      <Filter>sources</Filter>
-    </ClInclude>
-    <ClInclude Include="VertexFormat.hh">
-      <Filter>sources</Filter>
-    </ClInclude>
-    <ClInclude Include="MatrixStack.hh">
-      <Filter>sources</Filter>
-    </ClInclude>
-    <ClInclude Include="Projection.hh">
-      <Filter>sources</Filter>
-    </ClInclude>
-    <ClInclude Include="Mesh.hh">
-      <Filter>sources</Filter>
-    </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
     <Filter Include="sources">
       <UniqueIdentifier>{ee4d70a8-c056-4ea4-a811-5263d13cd103}</UniqueIdentifier>
     </Filter>
@@ -76,6 +15,9 @@
     </Filter>
     <Filter Include="resources\shaders">
       <UniqueIdentifier>{7b773370-d93a-475e-a0b3-b4083e7d0c0e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include">
+      <UniqueIdentifier>{70c58a74-0044-47e5-a8ac-d0a8c799d675}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -101,5 +43,66 @@
     <Image Include="resources\textures\container2_specular.png">
       <Filter>resources\textures</Filter>
     </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="xrndr\Camera.cc">
+      <Filter>sources</Filter>
+    </ClCompile>
+    <ClCompile Include="xrndr\main.cc">
+      <Filter>sources</Filter>
+    </ClCompile>
+    <ClCompile Include="xrndr\MatrixStack.cc">
+      <Filter>sources</Filter>
+    </ClCompile>
+    <ClCompile Include="xrndr\Mesh.cc">
+      <Filter>sources</Filter>
+    </ClCompile>
+    <ClCompile Include="xrndr\Model.cc">
+      <Filter>sources</Filter>
+    </ClCompile>
+    <ClCompile Include="xrndr\Program.cc">
+      <Filter>sources</Filter>
+    </ClCompile>
+    <ClCompile Include="xrndr\Projection.cc">
+      <Filter>sources</Filter>
+    </ClCompile>
+    <ClCompile Include="xrndr\Scene.cc">
+      <Filter>sources</Filter>
+    </ClCompile>
+    <ClCompile Include="xrndr\Texture2D.cc">
+      <Filter>sources</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\xrndr\Camera.hh">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\xrndr\config.hh">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\xrndr\MatrixStack.hh">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\xrndr\Mesh.hh">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\xrndr\Model.hh">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\xrndr\Program.hh">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\xrndr\Projection.hh">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\xrndr\Scene.hh">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\xrndr\Texture2D.hh">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\xrndr\VertexFormat.hh">
+      <Filter>include</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

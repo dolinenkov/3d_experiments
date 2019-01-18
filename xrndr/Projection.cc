@@ -1,5 +1,7 @@
-#include "Projection.hh"
+#include <xrndr/Projection.hh>
 
+namespace xrndr
+{
 
 Projection::Projection()
     : _isDirty(false)
@@ -50,4 +52,6 @@ const mat4 & Projection::getProjectionMatrix()
     }
 
     return _projectionMatrix;
+}
+
 }

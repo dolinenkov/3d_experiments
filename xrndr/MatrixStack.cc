@@ -1,5 +1,7 @@
-#include "MatrixStack.hh"
+#include <xrndr/MatrixStack.hh>
 
+namespace xrndr
+{
 
 MatrixStackSet::MatrixStackSet(const MatrixStackSetSettings & settings)
     : _projectionStack("projection")
@@ -119,10 +121,10 @@ MatrixStackSet::TransformationScope::~TransformationScope()
 
 void MatrixStackSet::TransformationScope::_updateGroup()
 {
-    auto & group            = _matrixStackSet._group;
-    auto & modelStack       = _matrixStackSet._modelStack;
-    auto & viewStack        = _matrixStackSet._viewStack;
-    auto & projectionStack  = _matrixStackSet._projectionStack;
+    auto & group = _matrixStackSet._group;
+    auto & modelStack = _matrixStackSet._modelStack;
+    auto & viewStack = _matrixStackSet._viewStack;
+    auto & projectionStack = _matrixStackSet._projectionStack;
 
     if (projectionStack.empty())
     {
@@ -142,10 +144,10 @@ void MatrixStackSet::TransformationScope::_updateGroup()
         return;
     }
 
-    group.modelMatrix               = modelStack.top();
-    group.modelViewMatrix           = viewStack.top() * group.modelMatrix;
+    group.modelMatrix = modelStack.top();
+    group.modelViewMatrix = viewStack.top() * group.modelMatrix;
     group.modelViewProjectionMatrix = projectionStack.top() * group.modelViewMatrix;
-    group.normalMatrix              = mat3(transpose(inverse(group.modelMatrix)));
+    group.normalMatrix = mat3(transpose(inverse(group.modelMatrix)));
 }
 
-
+}

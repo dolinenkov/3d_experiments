@@ -1,12 +1,14 @@
 #pragma once
-#include "config.hh"
+#include <xrndr/config.hh>
+
+namespace xrndr
+{
 
 /*
     an alternative for std::stack<> providing more convenient interface:
     - added 'reserve' method for memory reallocation control
     - added 'clear' method
 */
-
 
 template<class T>
 class Stack
@@ -173,4 +175,6 @@ template<class T>
 inline void Stack<T>::shrinkToFit()
 {
     _imp.shrink_to_fit();
+}
+
 }

@@ -1,6 +1,8 @@
 #pragma once
-#include "config.hh"
+#include <xrndr/config.hh>
 
+namespace xrndr
+{
 
 class Program
 {
@@ -68,3 +70,5 @@ public:
 private:
     vector<GLuint> shaders;
 };
+
+}
