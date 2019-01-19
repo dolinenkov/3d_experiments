@@ -45,6 +45,8 @@ int main(int, char *[])
             else
             if (auto scene = xrndr::make_unique<xrndr::Scene>())
             {
+                glEnable(GL_DEBUG_OUTPUT);
+
                 if (GLEW_KHR_debug)
                 {
                     glDebugMessageCallback([](GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar * message, const void * userParam)

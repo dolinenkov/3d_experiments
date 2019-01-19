@@ -33,6 +33,7 @@ Scene::Scene()
     VerticeFormat geometryPassVerticeFormat;
     geometryPassVerticeFormat.position = firstPassProgram->findAttribute("a_Position");
     geometryPassVerticeFormat.texture = firstPassProgram->findAttribute("a_Texture");
+    geometryPassVerticeFormat.normal = firstPassProgram->findAttribute("a_Normal");
 
     VerticeFormat nontexturedGeometryVerticeFormat;
     nontexturedGeometryVerticeFormat.position = nontexturedGeometryProgram->findAttribute("a_Position");
@@ -40,8 +41,10 @@ Scene::Scene()
     //
 
     light = make_shared<Light>();
-    light->color = vec3(1.0f, 1.0f, 1.0f);
-    light->position = vec3(0.0f, 2.0f, 1.0f);
+    light->color = vec3(1.0f, 1.0f, 0.0f);
+    light->position = vec3(0.0f, 0.0f, -1.0f);
+
+    lightPhase = 0.0f;
 
     //
 
@@ -54,14 +57,21 @@ Scene::Scene()
     cubeModel->loadFromFile("resources/models/cube.obj", geometryPassVerticeFormat);
     cubeModel->setPosition(vec3(1.0f, 0.0f, 5.0f));
 
+    terrainModel = make_shared<Model>();
+    terrainModel->loadFromFile("resources/models/terrain.obj", geometryPassVerticeFormat);
+    terrainModel->setScale(vec3(10.0f, 1.0f, 10.0f));
+    terrainModel->setPosition(vec3(0.0f, -2.0f, 0.0f));
+
     lightModel = make_shared<Model>();
     lightModel->loadFromFile("resources/models/cube.obj", nontexturedGeometryVerticeFormat);
-    lightModel->setPosition(light->position);
+    lightModel->setScale(vec3(0.2f, 0.2f, 0.2f));
+
+
 
     //
 
     camera = make_shared<Camera>();
-    camera->setPosition(vec3(0.0f, 0.0f, 0.0f));
+    camera->setPosition(vec3(0.0f, 0.0f, 0.5f));
     camera->setFrontVector(vec3(0.0f, 0.0f, 1.0f)); // look along +z axis, +x is forwarded to the left, +y is forwarded upwards
 
     projection = make_shared<Projection>();
@@ -72,9 +82,6 @@ Scene::Scene()
 
     (DepthTestEnabled ? glEnable : glDisable)(GL_DEPTH_TEST);
     (FaceCullingEnabled ? glEnable : glDisable)(GL_CULL_FACE);
-    //glEnable(GL_DEPTH_TEST);
-    //glEnable(GL_CULL_FACE);
-    //glCullFace(GL_BACK);
 
     _updateMode();
 
@@ -86,6 +93,8 @@ Scene::~Scene()
 
 void Scene::draw()
 {
+    _update();
+
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); gl_bugcheck();
 
     _doGeometryPass();
@@ -113,6 +122,16 @@ void Scene::updateViewport(int width, int height)
     }
 }
 
+void Scene::_update()
+{
+    lightPhase += 0.01f;
+
+    if (lightPhase > glm::two_pi<float>())
+        lightPhase = 0.0f;
+
+    light->position = vec3(2.5f * cos(lightPhase), 2.5f * sin(lightPhase), 2.0f);
+}
+
 void Scene::_doGeometryPass()
 {
     auto transformProjection = matrixStackSet.transformProjection(projection->getProjectionMatrix());
@@ -126,6 +145,9 @@ void Scene::_doGeometryPass()
 
     if (sphereModel)
         _drawModel(*sphereModel);
+
+    if (terrainModel)
+        _drawModel(*terrainModel);
 }
 
 void Scene::_doDebugPass()
@@ -146,7 +168,12 @@ void Scene::_drawModel(Model & model)
 
     const auto & matrixGroup = matrixStackSet.getMatrixGroup();
 
-    firstPassProgram->setMat4("u_ModelViewProjectionMatrix", matrixGroup.modelViewProjectionMatrix);
+    firstPassProgram->setMat4("u_ModelMatrix", matrixGroup.modelMatrix);
+    firstPassProgram->setMat4("u_ViewMatrix", matrixGroup.viewMatrix);
+    firstPassProgram->setMat4("u_ProjectionMatrix", matrixGroup.projectionMatrix);
+
+    firstPassProgram->setVec3("u_LightPosition", light->position);
+    firstPassProgram->setVec3("u_LightColor", light->color);
 
     const GLint unit = 0;
     textureDiffuse->use(unit);
@@ -157,6 +184,8 @@ void Scene::_drawModel(Model & model)
 
 void Scene::_drawLight(Light & light, Model & model)
 {
+    model.setPosition(light.position);
+
     auto transformModel = matrixStackSet.transformModel(model.getModelMatrix(), true);
 
     const auto & matrixGroup = matrixStackSet.getMatrixGroup();

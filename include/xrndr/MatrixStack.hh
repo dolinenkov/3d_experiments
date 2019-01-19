@@ -65,9 +65,11 @@ private:
 
 struct MatrixGroup
 {
+    mat4 modelMatrix;
+    mat4 viewMatrix;
+    mat4 projectionMatrix;
     mat4 modelViewProjectionMatrix;
     mat4 modelViewMatrix;
-    mat4 modelMatrix;
     mat3 normalMatrix;
 };
 
@@ -111,6 +113,12 @@ class MatrixStackSet::TransformationScope
 public:
     TransformationScope(MatrixStackSet & matrixStackSet, MatrixStack & matrixStack, const mat4 & matrix, bool additive);
     ~TransformationScope();
+
+    TransformationScope(const TransformationScope &) = delete;
+    TransformationScope & operator=(const TransformationScope &) = delete;
+
+    TransformationScope(TransformationScope &&) = default;
+    TransformationScope & operator=(TransformationScope &&) = delete;
 
 private:
     void _updateGroup();

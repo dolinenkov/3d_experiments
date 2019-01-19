@@ -27,6 +27,9 @@
     <Object Include="resources\models\sphere.obj">
       <Filter>resources\models</Filter>
     </Object>
+    <Object Include="resources\models\terrain.obj">
+      <Filter>resources\models</Filter>
+    </Object>
   </ItemGroup>
   <ItemGroup>
     <None Include="resources\shaders\first_pass.frag">

@@ -144,10 +144,21 @@ void MatrixStackSet::TransformationScope::_updateGroup()
         return;
     }
 
-    group.modelMatrix = modelStack.top();
-    group.modelViewMatrix = viewStack.top() * group.modelMatrix;
-    group.modelViewProjectionMatrix = projectionStack.top() * group.modelViewMatrix;
-    group.normalMatrix = mat3(transpose(inverse(group.modelMatrix)));
+    auto model                  = modelStack.top();
+    auto view                   = viewStack.top();
+    auto projection             = projectionStack.top();
+
+    auto modelView              = view * model;
+    auto modelViewProjection    = projection * modelView;
+
+    auto normal                 = transpose(inverse(model));
+
+    group.modelMatrix               = model;
+    group.viewMatrix                = view;
+    group.projectionMatrix          = projection;
+    group.modelViewMatrix           = modelView;
+    group.modelViewProjectionMatrix = modelViewProjection;
+    group.normalMatrix              = normal;
 }
 
 }

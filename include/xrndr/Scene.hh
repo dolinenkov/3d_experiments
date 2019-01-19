@@ -27,6 +27,8 @@ public:
     void updateViewport(int width, int height);
 
 private:
+    void _update();
+
     void _doGeometryPass();
 
     void _doDebugPass();
@@ -49,11 +51,13 @@ private:
 
     shared_ptr<Texture2D>       textureDiffuse;
 
+    float                       lightPhase;
     shared_ptr<Light>           light;
 
     shared_ptr<Model>           lightModel;
     shared_ptr<Model>           sphereModel;
     shared_ptr<Model>           cubeModel;
+    shared_ptr<Model>           terrainModel;
 };
 
 }
