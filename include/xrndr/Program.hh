@@ -16,6 +16,8 @@ public:
 
     explicit Program(GLuint id);
 
+    ~Program();
+
     void use();
 
     GLint findAttribute(const char * name);

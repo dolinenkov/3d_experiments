@@ -10,6 +10,14 @@ Program::Program(GLuint id) : id(id)
     _loadActiveUniforms();
 }
 
+Program::~Program()
+{
+    if (id > 0)
+    {
+        glDeleteProgram(id); gl_bugcheck();
+    }
+}
+
 void Program::use()
 {
     glUseProgram(id); gl_bugcheck();
@@ -18,14 +26,14 @@ void Program::use()
 GLint Program::findAttribute(const char * name)
 {
     auto it = activeAttribs.find(name);
-    assert(it != activeAttribs.end());
+    //assert(it != activeAttribs.end());
     return it != activeAttribs.end() ? it->second.index : -1;
 }
 
 GLint Program::findUniform(const char * name)
 {
     auto it = activeUniforms.find(name);
-    assert(it != activeUniforms.end());
+    //assert(it != activeUniforms.end());
     return it != activeUniforms.end() ? it->second.index : -1;
 }
 
@@ -323,14 +331,14 @@ bool ProgramBuilder::_loadFile(const char * filename, vector<char> & data)
 
 GLuint ProgramBuilder::_buildShader(GLenum type, const vector<char> & data)
 {
-    GLuint shader = glCreateShader(type);
+    GLuint shader = glCreateShader(type); gl_bugcheck();
     if (shader > 0)
     {
         const GLchar * d[] = { data.data() };
         const GLint s[] = { data.size() };
-        glShaderSource(shader, 1, d, s);
+        glShaderSource(shader, 1, d, s); gl_bugcheck();
 
-        glCompileShader(shader);
+        glCompileShader(shader); gl_bugcheck();
 
         GLint status = GL_FALSE;
         glGetShaderiv(shader, GL_COMPILE_STATUS, &status);
@@ -343,7 +351,7 @@ GLuint ProgramBuilder::_buildShader(GLenum type, const vector<char> & data)
             glGetShaderInfoLog(shader, length, nullptr, log.data());
             SDL_Log("glsl compiler: %s\n", log.data());
 
-            glDeleteShader(shader);
+            glDeleteShader(shader); gl_bugcheck();
             shader = 0;
         }
     }
@@ -356,11 +364,13 @@ GLuint ProgramBuilder::_linkProgram()
     GLuint program = 0;
     if (!shaders.empty())
     {
-        program = glCreateProgram();
+        program = glCreateProgram(); gl_bugcheck();
         if (program > 0)
         {
             for (GLuint shader : shaders)
-                glAttachShader(program, shader);
+            {
+                glAttachShader(program, shader); gl_bugcheck();
+            }
 
             GLint status = GL_FALSE;
             glLinkProgram(program);
@@ -383,11 +393,13 @@ GLuint ProgramBuilder::_linkProgram()
             }
 
             for (GLuint shader : shaders)
-                glDetachShader(program, shader);
+            {
+                glDetachShader(program, shader); gl_bugcheck();
+            }
 
             if (status != GL_TRUE)
             {
-                glDeleteProgram(program);
+                glDeleteProgram(program); gl_bugcheck();
                 program = 0;
             }
         }
@@ -399,7 +411,9 @@ GLuint ProgramBuilder::_linkProgram()
 void ProgramBuilder::_cleanup()
 {
     for (GLuint shader : shaders)
-        glDeleteShader(shader);
+    {
+        glDeleteShader(shader); gl_bugcheck();
+    }
     shaders.clear();
 }
 
