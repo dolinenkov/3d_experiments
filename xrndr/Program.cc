@@ -25,20 +25,16 @@ void Program::use()
 
 GLint Program::findAttribute(const char * name)
 {
-    return glGetAttribLocation(id, name);
-
     auto it = activeAttribs.find(name);
     assert(it != activeAttribs.end());
-    return it != activeAttribs.end() ? it->second.index : -1;
+    return it != activeAttribs.end() ? it->second.location : -1;
 }
 
 GLint Program::findUniform(const char * name)
 {
-    return glGetUniformLocation(id, name);
-
     auto it = activeUniforms.find(name);
     assert(it != activeUniforms.end());
-    return it != activeUniforms.end() ? it->second.index : -1;
+    return it != activeUniforms.end() ? it->second.location : -1;
 }
 
 void Program::setFloat(const char * name, float f)
@@ -89,8 +85,10 @@ void Program::_loadActiveAttributes()
             GLenum type = 0;
             glGetActiveAttrib(id, i, maxLength, &len, &size, &type, buf.data()); gl_bugcheck();
 
-            activeAttribs.insert({ string(buf.data(), len), {i, type, size} });
-            SDL_Log("%10s (%40s:%2d) : %10s, %2d\n", "attribute", buf.data(), i, _getAttributeNameByType(type), size);
+            GLint location = (!buf.empty() && buf.front() != '\0') ? glGetAttribLocation(id, buf.data()) : -1;
+
+            activeAttribs.insert({ string(buf.data(), len), {location, type, size} });
+            SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "%10s (%40s:%2d) : %10s, %2d\n", "attribute", buf.data(), location, _getAttributeNameByType(type), size);
         }
     }
 }
@@ -113,8 +111,10 @@ void Program::_loadActiveUniforms()
             GLenum type = 0;
             glGetActiveUniform(id, i, maxLength, &len, &size, &type, buf.data()); gl_bugcheck();
 
-            activeUniforms.insert({ string(buf.data(), len), {i, type, size} });
-            SDL_Log("%10s (%40s:%2d) : %10s, %2d\n", "uniform", buf.data(), i, _getUniformNameByType(type), size);
+            GLint location = (!buf.empty() && buf.front() != '\0') ? glGetUniformLocation(id, buf.data()) : -1;
+
+            activeUniforms.insert({ string(buf.data(), len), {location, type, size} });
+            SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "%10s (%40s:%2d) : %10s, %2d\n", "uniform", buf.data(), location, _getUniformNameByType(type), size);
         }
     }
 }

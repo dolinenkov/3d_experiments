@@ -9,7 +9,7 @@ class Program
 public:
     struct Attachment
     {
-        GLint   index;
+        GLint   location;
         GLenum  type;
         GLint   size;
     };
