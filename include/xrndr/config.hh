@@ -21,6 +21,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <glm/gtx/norm.hpp>
 
 namespace xrndr
 {
@@ -43,6 +44,7 @@ using ::glm::transpose;
 using ::glm::length;
 using ::glm::half_pi;
 using ::glm::clamp;
+using ::glm::normalize;
 
 }
 
@@ -75,6 +77,8 @@ using ::std::addressof;
 using ::std::bitset;
 using ::std::move;
 using ::std::function;
+
+using Path = ::std::string; // this is going to be a separate class, but now I have no time for this
 
 }
 

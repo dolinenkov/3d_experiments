@@ -224,11 +224,14 @@
     <ClCompile Include="xrndr\Projection.cc" />
     <ClCompile Include="xrndr\Scene.cc" />
     <ClCompile Include="xrndr\Texture2D.cc" />
+    <ClCompile Include="xrndr\Texture2DLoader.cc" />
+    <ClCompile Include="xrndr\TextureCache.cc" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\xrndr\Camera.hh" />
     <ClInclude Include="include\xrndr\config.hh" />
     <ClInclude Include="include\xrndr\Light.hh" />
+    <ClInclude Include="include\xrndr\Material.hh" />
     <ClInclude Include="include\xrndr\MatrixStack.hh" />
     <ClInclude Include="include\xrndr\Mesh.hh" />
     <ClInclude Include="include\xrndr\Model.hh" />
@@ -236,6 +239,8 @@
     <ClInclude Include="include\xrndr\Projection.hh" />
     <ClInclude Include="include\xrndr\Scene.hh" />
     <ClInclude Include="include\xrndr\Texture2D.hh" />
+    <ClInclude Include="include\xrndr\Texture2DLoader.hh" />
+    <ClInclude Include="include\xrndr\TextureCache.hh" />
     <ClInclude Include="include\xrndr\VertexFormat.hh" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

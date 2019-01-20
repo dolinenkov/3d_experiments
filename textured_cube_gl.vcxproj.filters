@@ -81,6 +81,12 @@
     <ClCompile Include="xrndr\Texture2D.cc">
       <Filter>sources</Filter>
     </ClCompile>
+    <ClCompile Include="xrndr\TextureCache.cc">
+      <Filter>sources</Filter>
+    </ClCompile>
+    <ClCompile Include="xrndr\Texture2DLoader.cc">
+      <Filter>sources</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\xrndr\Camera.hh">
@@ -114,6 +120,15 @@
       <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="include\xrndr\Light.hh">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\xrndr\Material.hh">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\xrndr\TextureCache.hh">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\xrndr\Texture2DLoader.hh">
       <Filter>include</Filter>
     </ClInclude>
   </ItemGroup>

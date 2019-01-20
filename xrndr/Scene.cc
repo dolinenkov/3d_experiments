@@ -1,5 +1,5 @@
 #include <xrndr/Scene.hh>
-
+#include <xrndr/Texture2DLoader.hh>
 namespace xrndr
 {
 
@@ -11,7 +11,9 @@ Scene::Scene()
     : mode(true)
 {
     ProgramBuilder builder;
+
     Texture2DLoader loader;
+    loader.setTextureCache(&_textureCache);
 
     // programs
 
@@ -49,7 +51,7 @@ Scene::Scene()
     //
 
     sphereModel = make_shared<Model>();
-    sphereModel->loadFromFile("resources/models/sphere.obj", geometryPassVerticeFormat);
+    sphereModel->loadFromFile("resources/models/MP_US_Engi.FBX", geometryPassVerticeFormat);
     sphereModel->setPosition(vec3(-1.0f, 0.0f, 5.0f));
     sphereModel->setScale(vec3(0.05f, 0.05f, 0.05f));
 

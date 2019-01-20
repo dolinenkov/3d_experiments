@@ -7,6 +7,7 @@
 #include <xrndr/VertexFormat.hh>
 #include <xrndr/MatrixStack.hh>
 #include <xrndr/Light.hh>
+#include <xrndr/TextureCache.hh>
 
 
 namespace xrndr
@@ -42,6 +43,7 @@ private:
 private:
     bool                        mode;
     MatrixStackSet              matrixStackSet;
+    TextureCache                _textureCache;
 
     shared_ptr<Projection>      projection;
     shared_ptr<Camera>          camera;
