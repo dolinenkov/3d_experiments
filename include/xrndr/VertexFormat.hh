@@ -1,6 +1,8 @@
 #pragma once
 #include <xrndr/config.hh>
 
+namespace xrndr
+{
 
 struct Vertice
 {
@@ -18,3 +20,5 @@ struct VerticeFormat
     GLint normal   = NOT_PRESENT;
     GLint texture  = NOT_PRESENT;
 };
+
+}

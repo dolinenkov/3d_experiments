@@ -1,5 +1,7 @@
 #include <xrndr/Scene.hh>
 #include <xrndr/Texture2DLoader.hh>
+
+
 namespace xrndr
 {
 
@@ -51,7 +53,7 @@ Scene::Scene()
     //
 
     sphereModel = make_shared<Model>();
-    sphereModel->loadFromFile("resources/models/MP_US_Engi.FBX", geometryPassVerticeFormat);
+    sphereModel->loadFromFile("resources/models/sphere.obj", geometryPassVerticeFormat);
     sphereModel->setPosition(vec3(-1.0f, 0.0f, 5.0f));
     sphereModel->setScale(vec3(0.05f, 0.05f, 0.05f));
 
@@ -86,7 +88,6 @@ Scene::Scene()
     (FaceCullingEnabled ? glEnable : glDisable)(GL_CULL_FACE);
 
     _updateMode();
-
 }
 
 Scene::~Scene()
@@ -202,6 +203,5 @@ void Scene::_updateMode()
 {
     glPolygonMode(GL_FRONT_AND_BACK, mode ? GL_FILL : GL_LINE); gl_bugcheck();
 }
-
 
 }

@@ -119,6 +119,9 @@ void Mesh::draw()
     if (_vertexArrayObject > 0 && _indexCount > 0)
     {
         glBindVertexArray(_vertexArrayObject); gl_bugcheck();
+
+        // TODO: it should work without binding EBO, however, error is reported by RenderDoc - should check
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _indexBufferObject);
         glDrawElements(GL_TRIANGLES, _indexCount, GL_UNSIGNED_INT, nullptr); gl_bugcheck();
     }
 }

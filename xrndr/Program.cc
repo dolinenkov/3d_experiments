@@ -25,15 +25,19 @@ void Program::use()
 
 GLint Program::findAttribute(const char * name)
 {
+    return glGetAttribLocation(id, name);
+
     auto it = activeAttribs.find(name);
-    //assert(it != activeAttribs.end());
+    assert(it != activeAttribs.end());
     return it != activeAttribs.end() ? it->second.index : -1;
 }
 
 GLint Program::findUniform(const char * name)
 {
+    return glGetUniformLocation(id, name);
+
     auto it = activeUniforms.find(name);
-    //assert(it != activeUniforms.end());
+    assert(it != activeUniforms.end());
     return it != activeUniforms.end() ? it->second.index : -1;
 }
 
