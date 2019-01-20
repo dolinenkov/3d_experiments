@@ -20,9 +20,7 @@ void main()
 
     v_Position = vec3(worldPosition);
 
-    v_Normal = mat3(transpose(inverse(u_ModelMatrix))) * vec3(1.0, 1.0, 0.0);
-
-    //v_Normal = mat3(transpose(inverse(u_ModelMatrix))) * a_Normal;
+    v_Normal = mat3(transpose(inverse(u_ModelMatrix))) * a_Normal;
 
     v_Texture = a_Texture;
 

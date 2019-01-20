@@ -33,7 +33,7 @@ GLint Program::findAttribute(const char * name)
 GLint Program::findUniform(const char * name)
 {
     auto it = activeUniforms.find(name);
-    assert(it != activeUniforms.end());
+    //assert(it != activeUniforms.end());
     return it != activeUniforms.end() ? it->second.location : -1;
 }
 

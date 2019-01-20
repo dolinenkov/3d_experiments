@@ -32,6 +32,9 @@ Scene::Scene()
     loader.setFilename("resources/textures/container2.png");
     textureDiffuse = loader.load();
 
+    loader.setFilename("resources/textures/container2_specular.png");
+    textureSpecular = loader.load();
+
     //
 
     VerticeFormat geometryPassVerticeFormat;
@@ -45,17 +48,19 @@ Scene::Scene()
     //
 
     light = make_shared<Light>();
-    light->color = vec3(1.0f, 1.0f, 0.0f);
-    light->position = vec3(0.0f, 0.0f, -1.0f);
+    light->position     = vec3(0.0f, 0.0f, 5.0f);
+    light->color        = vec3(1.0f, 1.0f, 1.0f);
+    light->attenuation  = vec3(0.0f, 0.1f, 0.02f);
+    light->intensity    = vec3(0.1f, 0.7f, 1.0f);
 
     lightPhase = 0.0f;
 
     //
 
     sphereModel = make_shared<Model>();
-    sphereModel->loadFromFile("resources/models/sphere.obj", geometryPassVerticeFormat);
+    sphereModel->loadFromFile("resources/models/cube.obj", geometryPassVerticeFormat);
     sphereModel->setPosition(vec3(-1.0f, 0.0f, 5.0f));
-    sphereModel->setScale(vec3(0.05f, 0.05f, 0.05f));
+    //sphereModel->setScale(vec3(0.05f, 0.05f, 0.05f));
 
     cubeModel = make_shared<Model>();
     cubeModel->loadFromFile("resources/models/cube.obj", geometryPassVerticeFormat);
@@ -69,8 +74,6 @@ Scene::Scene()
     lightModel = make_shared<Model>();
     lightModel->loadFromFile("resources/models/cube.obj", nontexturedGeometryVerticeFormat);
     lightModel->setScale(vec3(0.2f, 0.2f, 0.2f));
-
-
 
     //
 
@@ -128,7 +131,6 @@ void Scene::updateViewport(int width, int height)
 void Scene::_update()
 {
     lightPhase += 0.01f;
-
     if (lightPhase > glm::two_pi<float>())
         lightPhase = 0.0f;
 
@@ -175,12 +177,19 @@ void Scene::_drawModel(Model & model)
     firstPassProgram->setMat4("u_ViewMatrix", matrixGroup.viewMatrix);
     firstPassProgram->setMat4("u_ProjectionMatrix", matrixGroup.projectionMatrix);
 
-    firstPassProgram->setVec3("u_LightPosition", light->position);
-    firstPassProgram->setVec3("u_LightColor", light->color);
+    firstPassProgram->setVec3("u_Camera.position", camera->getPosition());
 
-    const GLint unit = 0;
-    textureDiffuse->use(unit);
-    firstPassProgram->setTexture("u_DiffuseTexture", unit);
+    firstPassProgram->setVec3("u_Light.position", light->position);
+    firstPassProgram->setVec3("u_Light.color", light->color);
+    firstPassProgram->setVec3("u_Light.attenuation", light->attenuation);
+    firstPassProgram->setVec3("u_Light.intensity", light->intensity);
+
+    textureDiffuse->use(0);
+    textureSpecular->use(1);
+
+    firstPassProgram->setFloat("u_Material.shininess", 1.0f);
+    firstPassProgram->setTexture("u_Material.diffuseTexture", 0);
+    firstPassProgram->setTexture("u_Material.specularTexture", 1);
 
     model.draw();
 }
