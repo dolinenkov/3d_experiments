@@ -47,9 +47,6 @@
     <None Include="resources\shaders\nontextured_geometry.vert">
       <Filter>resources\shaders</Filter>
     </None>
-    <None Include="include\xrndr\detail\Stack.inl">
-      <Filter>include\detail</Filter>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <Image Include="resources\textures\container2.png">

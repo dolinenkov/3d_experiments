@@ -65,6 +65,7 @@ Scene::Scene()
     cubeModel = make_shared<Model>();
     cubeModel->loadFromFile("cube.obj", geometryPassVerticeFormat);
     cubeModel->setPosition(vec3(1.0f, 0.0f, 5.0f));
+    cubeModel->setRotation(vec3(0.1f, 0.2f, 0.3f));
 
     terrainModel = make_shared<Model>();
     terrainModel->loadFromFile("terrain.obj", geometryPassVerticeFormat);

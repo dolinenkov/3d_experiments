@@ -11,7 +11,7 @@ Transformation::Transformation()
 {
 }
 
-void Transformation::setPosition(vec3 position)
+void Transformation::setPosition(const vec3 & position)
 {
     if (_position != position)
     {
@@ -20,12 +20,21 @@ void Transformation::setPosition(vec3 position)
     }
 }
 
-void Transformation::setScale(vec3 scale)
+void Transformation::setScale(const vec3 & scale)
 {
     if (_scale != scale)
     {
         _dirty = true;
         _scale = scale;
+    }
+}
+
+void Transformation::setRotation(const vec3 & angles)
+{
+    if (_angles != angles)
+    {
+        _dirty = true;
+        _angles = angles;
     }
 }
 
@@ -35,7 +44,7 @@ const mat4 & Transformation::getModelMatrix()
     {
         _dirty = false;
         // Transform, rotate, scale
-        _modelMatrix = ::glm::scale(translate(mat4(), _position), _scale);
+        _modelMatrix = ::glm::scale(yawPitchRoll(_angles[0], _angles[1], _angles[2]) * translate(mat4(), _position), _scale);
     }
 
     return _modelMatrix;

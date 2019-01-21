@@ -22,6 +22,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtx/norm.hpp>
+#include <glm/gtx/euler_angles.hpp>
 
 namespace xrndr
 {
@@ -45,6 +46,7 @@ using ::glm::length;
 using ::glm::half_pi;
 using ::glm::clamp;
 using ::glm::normalize;
+using ::glm::yawPitchRoll;
 
 }
 

@@ -12,9 +12,11 @@ class Transformation
 public:
     Transformation();
 
-    void setPosition(vec3 position);
+    void setPosition(const vec3 & position);
 
-    void setScale(vec3 scale);
+    void setScale(const vec3 & scale);
+
+    void setRotation(const vec3 & angles);
 
     const mat4 & getModelMatrix();
 
@@ -22,6 +24,7 @@ private:
     bool _dirty;
     vec3 _position;
     vec3 _scale;
+    vec3 _angles;
     mat4 _modelMatrix;
 };
 
