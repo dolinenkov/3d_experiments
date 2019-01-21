@@ -44,7 +44,7 @@ void main()
     float lightDistance = length(lightVector);
 
     // ослабление света с расстоянием
-    float attenuation = 1.0 - clamp(u_Light.attenuation[0] + u_Light.attenuation[1] * lightDistance + u_Light.attenuation[2] * pow(lightDistance, 2), 0.0, 1.0);
+    float attenuation = 1.0 / (u_Light.attenuation[0] + u_Light.attenuation[1] * lightDistance + u_Light.attenuation[2] * pow(lightDistance, 2));
 
 
     vec4 diffuseTextureSample = texture(u_Material.diffuseTexture, v_Texture.st);

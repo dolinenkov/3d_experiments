@@ -50,7 +50,7 @@ Scene::Scene()
     light = make_shared<Light>();
     light->position     = vec3(0.0f, 0.0f, 5.0f);
     light->color        = vec3(1.0f, 1.0f, 1.0f);
-    light->attenuation  = vec3(0.0f, 0.1f, 0.02f);
+    light->attenuation  = vec3(1.0f, 0.09f, 0.032f);
     light->intensity    = vec3(0.1f, 0.7f, 1.0f);
 
     lightPhase = 0.0f;
