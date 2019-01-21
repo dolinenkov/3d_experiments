@@ -49,6 +49,16 @@ using ::glm::normalize;
 }
 
 
+#include <fmt/format.h>
+
+namespace xrndr
+{
+
+using ::fmt::format;
+
+}
+
+
 #include <SOIL/SOIL.h>
 
 
@@ -58,6 +68,7 @@ using ::glm::normalize;
 
 
 #include <vector>
+#include <list>
 #include <string>
 #include <map>
 #include <memory>
@@ -68,6 +79,7 @@ namespace xrndr
 {
 
 using ::std::vector;
+using ::std::list;
 using ::std::string;
 using ::std::map;
 using ::std::make_unique;

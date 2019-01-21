@@ -50,7 +50,7 @@ Assimp::Importer g_Importer;
 
 void Model::loadFromFile(const char * filename, const VerticeFormat & verticeFormat)
 {
-    auto scene = g_Importer.ReadFile(filename, aiProcessPreset_TargetRealtime_Quality | aiProcess_FlipUVs);
+    auto scene = g_Importer.ReadFile(format("resources/models/{}", filename), aiProcessPreset_TargetRealtime_Quality | aiProcess_FlipUVs);
     if (scene && scene->mRootNode)
     {
         assert((scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE) == 0);

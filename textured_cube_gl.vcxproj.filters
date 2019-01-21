@@ -19,6 +19,9 @@
     <Filter Include="include">
       <UniqueIdentifier>{70c58a74-0044-47e5-a8ac-d0a8c799d675}</UniqueIdentifier>
     </Filter>
+    <Filter Include="include\detail">
+      <UniqueIdentifier>{543f8652-3e51-44a6-bdad-9afcabc55082}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Object Include="resources\models\cube.obj">
@@ -43,6 +46,9 @@
     </None>
     <None Include="resources\shaders\nontextured_geometry.vert">
       <Filter>resources\shaders</Filter>
+    </None>
+    <None Include="include\xrndr\detail\Stack.inl">
+      <Filter>include\detail</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
@@ -130,6 +136,9 @@
     </ClInclude>
     <ClInclude Include="include\xrndr\Texture2DLoader.hh">
       <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\xrndr\detail\Stack.hh">
+      <Filter>include\detail</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

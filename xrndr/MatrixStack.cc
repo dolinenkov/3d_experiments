@@ -3,162 +3,85 @@
 namespace xrndr
 {
 
-MatrixStackSet::MatrixStackSet(const MatrixStackSetSettings & settings)
-    : _projectionStack("projection")
-    , _viewStack("view")
-    , _modelStack("model")
+MatrixStack::Settings MatrixStack::Settings::defaults()
 {
-    _projectionStack.reserve(settings.projectionMatrixStackSize);
-    _viewStack.reserve(settings.viewMatrixStackSize);
-    _modelStack.reserve(settings.modelMatrixStackSize);
-
-    _projectionStack.push(mat4());
-    _viewStack.push(mat4());
-    _modelStack.push(mat4());
-}
-
-MatrixStackSet::TransformationScope MatrixStackSet::transformProjection(const mat4 & matrix, bool additive)
-{
-    return TransformationScope(*this, _projectionStack, matrix, additive);
-}
-
-MatrixStackSet::TransformationScope MatrixStackSet::transformView(const mat4 & matrix, bool additive)
-{
-    return TransformationScope(*this, _viewStack, matrix, additive);
-}
-
-MatrixStackSet::TransformationScope MatrixStackSet::transformModel(const mat4 & matrix, bool additive)
-{
-    return TransformationScope(*this, _modelStack, matrix, additive);
-}
-
-const MatrixGroup & MatrixStackSet::getMatrixGroup()
-{
-    return _group;
+    MatrixStack::Settings settings;
+    settings.projectionStackSize = 5;
+    settings.viewStackSize = 5;
+    settings.modelStackSize = 100;
+    return settings;
 }
 
 
-//
-
-
-MatrixStack::MatrixStack(const char * name)
-    : _name(name)
+MatrixStack::MatrixStack()
+    : MatrixStack(Settings::defaults())
 {
 }
 
-bool MatrixStack::empty() const
+MatrixStack::MatrixStack(const Settings & settings)
 {
-    return _imp.empty();
+    _projection.reserve(settings.projectionStackSize);
+    _view.reserve(settings.viewStackSize);
+    _model.reserve(settings.modelStackSize);
+
+    _cache.isDirty = true;
 }
 
-const MatrixStack::Value & MatrixStack::top() const
+void MatrixStack::pushProjection(const mat4 & projection)
 {
-    return _imp.top();
+    _projection.push(projection);
+    _cache.isDirty = true;
 }
 
-MatrixStack::Value & MatrixStack::top()
+void MatrixStack::pushView(const mat4 & view)
 {
-    return _imp.top();
+    _view.push(view);
+    _cache.isDirty = true;
 }
 
-void MatrixStack::push(const Value & object)
+void MatrixStack::pushModel(const mat4 & model, bool additive)
 {
-    _imp.push(object);
-}
-
-void MatrixStack::pop()
-{
-    _imp.pop();
-}
-
-void MatrixStack::clear()
-{
-    _imp.clear();
-}
-
-void MatrixStack::reserve(size_t count)
-{
-    _imp.reserve(count);
-}
-
-void MatrixStack::shrintToFit()
-{
-    _imp.shrinkToFit();
-}
-
-
-//
-
-
-MatrixStackSet::TransformationScope::TransformationScope(MatrixStackSet & matrixStackSet, MatrixStack & matrixStack, const mat4 & matrix, bool additive)
-    : _matrixStackSet(matrixStackSet)
-    , _matrixStack(matrixStack)
-{
-    if (!additive || !matrixStack.empty())
-    {
-        if (additive)
-            _matrixStack.push(matrix * _matrixStack.top());
-        else
-            _matrixStack.push(matrix);
-
-        _updateGroup();
-    }
+    if (additive)
+        _model.push(_model.top() * model);
     else
-        SDL_LogWarn(SDL_LOG_CATEGORY_APPLICATION, "cannot apply additive transformation: stack is empty\n");
+        _model.push(model);
+
+    _cache.isDirty = true;
 }
 
-MatrixStackSet::TransformationScope::~TransformationScope()
+void MatrixStack::popProjection()
 {
-    if (!_matrixStack.empty())
-    {
-        _matrixStack.pop();
-        _updateGroup();
-    }
-    else
-        SDL_LogWarn(SDL_LOG_CATEGORY_APPLICATION, "cannot pop from stack: stack is empty\n");
-
+    _projection.pop();
+    _cache.isDirty = true;
 }
 
-void MatrixStackSet::TransformationScope::_updateGroup()
+void MatrixStack::popView()
 {
-    auto & group = _matrixStackSet._group;
-    auto & modelStack = _matrixStackSet._modelStack;
-    auto & viewStack = _matrixStackSet._viewStack;
-    auto & projectionStack = _matrixStackSet._projectionStack;
+    _view.pop();
+    _cache.isDirty = true;
+}
 
-    if (projectionStack.empty())
+void MatrixStack::popModel()
+{
+    _model.pop();
+    _cache.isDirty = true;
+}
+
+const MatrixStack::Cache & MatrixStack::getCache()
+{
+    if (_cache.isDirty)
     {
-        SDL_LogWarn(SDL_LOG_CATEGORY_APPLICATION, "cannot update matrix group: projection matrix stack is empty\n");
-        return;
+        _cache.model = _model.top();
+        _cache.view = _view.top();
+        _cache.projection = _projection.top();
+
+        _cache.modelView = _cache.view * _cache.model;
+        _cache.modelViewProjection = _cache.projection * _cache.modelView;
+
+        _cache.normal = mat3(transpose(inverse(_cache.model)));
+        _cache.isDirty = false;
     }
-
-    if (viewStack.empty())
-    {
-        SDL_LogWarn(SDL_LOG_CATEGORY_APPLICATION, "cannot update matrix group: view matrix stack is empty\n");
-        return;
-    }
-
-    if (modelStack.empty())
-    {
-        SDL_LogWarn(SDL_LOG_CATEGORY_APPLICATION, "cannot update matrix group: model matrix stack is empty\n");
-        return;
-    }
-
-    auto model                  = modelStack.top();
-    auto view                   = viewStack.top();
-    auto projection             = projectionStack.top();
-
-    auto modelView              = view * model;
-    auto modelViewProjection    = projection * modelView;
-
-    auto normal                 = transpose(inverse(model));
-
-    group.modelMatrix               = model;
-    group.viewMatrix                = view;
-    group.projectionMatrix          = projection;
-    group.modelViewMatrix           = modelView;
-    group.modelViewProjectionMatrix = modelViewProjection;
-    group.normalMatrix              = normal;
+    return _cache;
 }
 
 }

@@ -294,7 +294,7 @@ ProgramBuilder::~ProgramBuilder()
 void ProgramBuilder::addFragmentShaderFromFile(const char * filename)
 {
     vector<char> data;
-    if (_loadFile(filename, data))
+    if (_loadFile(format("resources/shaders/{}", filename).c_str(), data))
     {
         auto shader = _buildShader(GL_FRAGMENT_SHADER, data);
         if (shader > 0)
@@ -305,7 +305,7 @@ void ProgramBuilder::addFragmentShaderFromFile(const char * filename)
 void ProgramBuilder::addVertexShaderFromFile(const char * filename)
 {
     vector<char> data;
-    if (_loadFile(filename, data))
+    if (_loadFile(format("resources/shaders/{}", filename).c_str(), data))
     {
         auto shader = _buildShader(GL_VERTEX_SHADER, data);
         if (shader > 0)

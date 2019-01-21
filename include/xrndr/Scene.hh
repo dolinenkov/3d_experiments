@@ -42,7 +42,7 @@ private:
 
 private:
     bool                        mode;
-    MatrixStackSet              matrixStackSet;
+    MatrixStack                 _matrixStack;
     TextureCache                _textureCache;
 
     shared_ptr<Projection>      projection;

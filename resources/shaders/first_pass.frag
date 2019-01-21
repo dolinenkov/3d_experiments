@@ -6,6 +6,7 @@ struct Camera
     vec3 position;
 };
 
+
 struct Light
 {
     vec3 position;

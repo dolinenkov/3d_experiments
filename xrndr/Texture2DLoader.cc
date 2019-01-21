@@ -18,7 +18,7 @@ void Texture2DLoader::setTextureCache(TextureCache * textureCache)
 
 void Texture2DLoader::setFilename(const Path & path)
 {
-    _path = path;
+    _path = format("resources/textures/{}", path);
 }
 
 void Texture2DLoader::setIsSRGB(bool isSRGB)

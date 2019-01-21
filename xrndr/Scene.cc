@@ -19,20 +19,20 @@ Scene::Scene()
 
     // programs
 
-    builder.addVertexShaderFromFile("resources/shaders/first_pass.vert");
-    builder.addFragmentShaderFromFile("resources/shaders/first_pass.frag");
+    builder.addVertexShaderFromFile("first_pass.vert");
+    builder.addFragmentShaderFromFile("first_pass.frag");
     firstPassProgram = builder.build();
 
-    builder.addVertexShaderFromFile("resources/shaders/nontextured_geometry.vert");
-    builder.addFragmentShaderFromFile("resources/shaders/nontextured_geometry.frag");
+    builder.addVertexShaderFromFile("nontextured_geometry.vert");
+    builder.addFragmentShaderFromFile("nontextured_geometry.frag");
     nontexturedGeometryProgram = builder.build();
 
     // textures
 
-    loader.setFilename("resources/textures/container2.png");
+    loader.setFilename("container2.png");
     textureDiffuse = loader.load();
 
-    loader.setFilename("resources/textures/container2_specular.png");
+    loader.setFilename("container2_specular.png");
     textureSpecular = loader.load();
 
     //
@@ -58,21 +58,21 @@ Scene::Scene()
     //
 
     sphereModel = make_shared<Model>();
-    sphereModel->loadFromFile("resources/models/cube.obj", geometryPassVerticeFormat);
+    sphereModel->loadFromFile("cube.obj", geometryPassVerticeFormat);
     sphereModel->setPosition(vec3(-1.0f, 0.0f, 5.0f));
     //sphereModel->setScale(vec3(0.05f, 0.05f, 0.05f));
 
     cubeModel = make_shared<Model>();
-    cubeModel->loadFromFile("resources/models/cube.obj", geometryPassVerticeFormat);
+    cubeModel->loadFromFile("cube.obj", geometryPassVerticeFormat);
     cubeModel->setPosition(vec3(1.0f, 0.0f, 5.0f));
 
     terrainModel = make_shared<Model>();
-    terrainModel->loadFromFile("resources/models/terrain.obj", geometryPassVerticeFormat);
+    terrainModel->loadFromFile("terrain.obj", geometryPassVerticeFormat);
     terrainModel->setScale(vec3(10.0f, 1.0f, 10.0f));
     terrainModel->setPosition(vec3(0.0f, -2.0f, 0.0f));
 
     lightModel = make_shared<Model>();
-    lightModel->loadFromFile("resources/models/cube.obj", nontexturedGeometryVerticeFormat);
+    lightModel->loadFromFile("cube.obj", nontexturedGeometryVerticeFormat);
     lightModel->setScale(vec3(0.2f, 0.2f, 0.2f));
 
     //
@@ -139,9 +139,9 @@ void Scene::_update()
 
 void Scene::_doGeometryPass()
 {
-    auto transformProjection = matrixStackSet.transformProjection(projection->getProjectionMatrix());
-    auto transformView = matrixStackSet.transformView(camera->getViewMatrix());
-    auto transformModel = matrixStackSet.transformModel(mat4());
+    _matrixStack.pushProjection(projection->getProjectionMatrix());
+    _matrixStack.pushView(camera->getViewMatrix());
+    _matrixStack.pushModel(mat4(), false);
 
     firstPassProgram->use();
 
@@ -153,29 +153,37 @@ void Scene::_doGeometryPass()
 
     if (terrainModel)
         _drawModel(*terrainModel);
+
+    _matrixStack.popProjection();
+    _matrixStack.popView();
+    _matrixStack.popModel();
 }
 
 void Scene::_doDebugPass()
 {
-    auto transformProjection = matrixStackSet.transformProjection(projection->getProjectionMatrix());
-    auto transformView = matrixStackSet.transformView(camera->getViewMatrix());
-    auto transformModel = matrixStackSet.transformModel(mat4());
+    _matrixStack.pushProjection(projection->getProjectionMatrix());
+    _matrixStack.pushView(camera->getViewMatrix());
+    _matrixStack.pushModel(mat4(), false);
 
     nontexturedGeometryProgram->use();
 
     if (lightModel && light)
         _drawLight(*light, *lightModel);
+
+    _matrixStack.popProjection();
+    _matrixStack.popView();
+    _matrixStack.popModel();
 }
 
 void Scene::_drawModel(Model & model)
 {
-    auto transformModel = matrixStackSet.transformModel(model.getModelMatrix(), true);
+    _matrixStack.pushModel(model.getModelMatrix(), true);
 
-    const auto & matrixGroup = matrixStackSet.getMatrixGroup();
+    const auto & matrixGroup = _matrixStack.getCache();
 
-    firstPassProgram->setMat4("u_ModelMatrix", matrixGroup.modelMatrix);
-    firstPassProgram->setMat4("u_ViewMatrix", matrixGroup.viewMatrix);
-    firstPassProgram->setMat4("u_ProjectionMatrix", matrixGroup.projectionMatrix);
+    firstPassProgram->setMat4("u_ModelMatrix", matrixGroup.model);
+    firstPassProgram->setMat4("u_ViewMatrix", matrixGroup.view);
+    firstPassProgram->setMat4("u_ProjectionMatrix", matrixGroup.projection);
 
     firstPassProgram->setVec3("u_Camera.position", camera->getPosition());
 
@@ -192,20 +200,24 @@ void Scene::_drawModel(Model & model)
     firstPassProgram->setTexture("u_Material.specularTexture", 1);
 
     model.draw();
+
+    _matrixStack.popModel();
 }
 
 void Scene::_drawLight(Light & light, Model & model)
 {
     model.setPosition(light.position);
 
-    auto transformModel = matrixStackSet.transformModel(model.getModelMatrix(), true);
+    _matrixStack.pushModel(model.getModelMatrix(), true);
 
-    const auto & matrixGroup = matrixStackSet.getMatrixGroup();
+    const auto & matrixGroup = _matrixStack.getCache();
 
     nontexturedGeometryProgram->setVec3("u_Color", light.color);
-    nontexturedGeometryProgram->setMat4("u_ModelViewProjectionMatrix", matrixGroup.modelViewProjectionMatrix);
+    nontexturedGeometryProgram->setMat4("u_ModelViewProjectionMatrix", matrixGroup.modelViewProjection);
 
     model.draw();
+
+    _matrixStack.popModel();
 }
 
 void Scene::_updateMode()

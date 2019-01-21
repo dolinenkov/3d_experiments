@@ -7,7 +7,9 @@ namespace xrndr
 
 struct Material
 {
-    shared_ptr<Texture2D> diffuseTexture;
+    float                   shininess;
+    shared_ptr<Texture2D>   diffuseTexture;
+    shared_ptr<Texture2D>   specularTexture;
 };
 
 }
