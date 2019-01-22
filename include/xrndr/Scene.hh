@@ -51,9 +51,6 @@ private:
     shared_ptr<Program>         firstPassProgram;
     shared_ptr<Program>         nontexturedGeometryProgram;
 
-    shared_ptr<Texture2D>       textureDiffuse;
-    shared_ptr<Texture2D>       textureSpecular;
-
     float                       lightPhase;
     shared_ptr<Light>           light;
 

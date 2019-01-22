@@ -27,14 +27,6 @@ Scene::Scene()
     builder.addFragmentShaderFromFile("nontextured_geometry.frag");
     nontexturedGeometryProgram = builder.build();
 
-    // textures
-
-    loader.setFilename("container2.png");
-    textureDiffuse = loader.load();
-
-    loader.setFilename("container2_specular.png");
-    textureSpecular = loader.load();
-
     //
 
     VerticeFormat geometryPassVerticeFormat;
@@ -58,22 +50,22 @@ Scene::Scene()
     //
 
     sphereModel = make_shared<Model>();
-    sphereModel->loadFromFile("cube.obj", geometryPassVerticeFormat);
+    sphereModel->loadFromFile("sphere.obj", geometryPassVerticeFormat, loader);
     sphereModel->setPosition(vec3(-1.0f, 0.0f, 5.0f));
-    //sphereModel->setScale(vec3(0.05f, 0.05f, 0.05f));
+    sphereModel->setScale(vec3(0.05f, 0.05f, 0.05f));
 
     cubeModel = make_shared<Model>();
-    cubeModel->loadFromFile("cube.obj", geometryPassVerticeFormat);
+    cubeModel->loadFromFile("cube.obj", geometryPassVerticeFormat, loader);
     cubeModel->setPosition(vec3(1.0f, 0.0f, 5.0f));
     cubeModel->setRotation(vec3(0.1f, 0.2f, 0.3f));
 
     terrainModel = make_shared<Model>();
-    terrainModel->loadFromFile("terrain.obj", geometryPassVerticeFormat);
+    terrainModel->loadFromFile("terrain.obj", geometryPassVerticeFormat, loader);
     terrainModel->setScale(vec3(10.0f, 1.0f, 10.0f));
     terrainModel->setPosition(vec3(0.0f, -2.0f, 0.0f));
 
     lightModel = make_shared<Model>();
-    lightModel->loadFromFile("cube.obj", nontexturedGeometryVerticeFormat);
+    lightModel->loadFromFile("cube.obj", nontexturedGeometryVerticeFormat, loader);
     lightModel->setScale(vec3(0.2f, 0.2f, 0.2f));
 
     //
@@ -192,9 +184,6 @@ void Scene::_drawModel(Model & model)
     firstPassProgram->setVec3("u_Light.color", light->color);
     firstPassProgram->setVec3("u_Light.attenuation", light->attenuation);
     firstPassProgram->setVec3("u_Light.intensity", light->intensity);
-
-    textureDiffuse->use(0);
-    textureSpecular->use(1);
 
     firstPassProgram->setFloat("u_Material.shininess", 1.0f);
     firstPassProgram->setTexture("u_Material.diffuseTexture", 0);

@@ -2,6 +2,8 @@
 #include <xrndr/config.hh>
 #include <xrndr/VertexFormat.hh>
 #include <xrndr/Mesh.hh>
+#include <xrndr/Material.hh>
+#include <xrndr/Texture2DLoader.hh>
 
 
 namespace xrndr
@@ -31,19 +33,27 @@ private:
 
 class Model : public Transformation
 {
+private:
+    struct Node
+    {
+        size_t mesh;
+        size_t material;
+    };
+
 public:
-    void loadFromFile(const char * filename, const VerticeFormat & verticeFormat);
+    void loadFromFile(const char * filename, const VerticeFormat & verticeFormat, Texture2DLoader & textureLoader);
 
     void draw();
 
 private:
     unsigned int _countChildrenMeshes(const aiNode * node) const;
 
-    void _assignMesh(vector<size_t> & meshDrawOrder, size_t & index, const aiNode * node) const;
+    void _assignMesh(vector<Node> & meshDrawOrder, size_t & index, const aiNode * node) const;
 
 private:
-    vector<Mesh>   _meshes;
-    vector<size_t> _meshDrawOrder;
+    vector<Mesh>     _meshes;
+    vector<Material> _materials;
+    vector<Node>     _order;
 };
 
 }

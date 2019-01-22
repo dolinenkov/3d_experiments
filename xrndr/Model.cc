@@ -57,12 +57,41 @@ const mat4 & Transformation::getModelMatrix()
 Assimp::Importer g_Importer;
 
 
-void Model::loadFromFile(const char * filename, const VerticeFormat & verticeFormat)
+void Model::loadFromFile(const char * filename, const VerticeFormat & verticeFormat, Texture2DLoader & textureLoader)
 {
     auto scene = g_Importer.ReadFile(format("resources/models/{}", filename), aiProcessPreset_TargetRealtime_Quality | aiProcess_FlipUVs);
     if (scene && scene->mRootNode)
     {
         assert((scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE) == 0);
+
+        // materials
+
+        vector<Material> materials(scene->mNumMaterials);
+
+        for (unsigned i = 0; i < scene->mNumMaterials; ++i)
+        {
+            const auto material = scene->mMaterials[i];
+
+            if (material->GetTextureCount(aiTextureType_DIFFUSE) > 0)
+            {
+                aiString path;
+                material->GetTexture(aiTextureType_DIFFUSE, 0, &path);
+
+                textureLoader.setFilename(path.C_Str());
+                materials[i].diffuseTexture = textureLoader.load();
+            }
+
+            if (material->GetTextureCount(aiTextureType_SPECULAR) > 0)
+            {
+                aiString path;
+                material->GetTexture(aiTextureType_SPECULAR, 0, &path);
+
+                textureLoader.setFilename(path.C_Str());
+                materials[i].specularTexture = textureLoader.load();
+            }
+        }
+
+        // meshes
 
         vector<Mesh> meshes(scene->mNumMeshes);
 
@@ -116,13 +145,17 @@ void Model::loadFromFile(const char * filename, const VerticeFormat & verticeFor
             meshes[i].init(meshData);
         }
 
-        _meshes = move(meshes);
 
-        vector<size_t> meshDrawOrder(_countChildrenMeshes(scene->mRootNode));
+        vector<Node> order(_countChildrenMeshes(scene->mRootNode));
         size_t index = 0;
-        _assignMesh(meshDrawOrder, index, scene->mRootNode);
+        _assignMesh(order, index, scene->mRootNode);
 
-        _meshDrawOrder = move(meshDrawOrder);
+        for (Node & node : order)
+            node.material = scene->mMeshes[node.mesh]->mMaterialIndex;
+
+        _materials = move(materials);
+        _meshes = move(meshes);
+        _order = move(order);
     }
 
     auto err = g_Importer.GetErrorString();
@@ -134,8 +167,24 @@ void Model::loadFromFile(const char * filename, const VerticeFormat & verticeFor
 
 void Model::draw()
 {
-    for (size_t index : _meshDrawOrder)
-        _meshes[index].draw();
+    size_t material = (size_t) -1;
+
+    for (const Node & node : _order)
+    {
+        if (node.material != material)
+        {
+            // use material
+            material = node.material;
+
+            if (auto diffuse = _materials[material].diffuseTexture)
+                diffuse->use(0);
+
+            if (auto specular = _materials[material].specularTexture)
+                specular->use(1);
+        }
+
+        _meshes[node.mesh].draw();
+    }
 }
 
 unsigned int Model::_countChildrenMeshes(const aiNode * node) const
@@ -152,15 +201,15 @@ unsigned int Model::_countChildrenMeshes(const aiNode * node) const
     return childrenCount;
 }
 
-void Model::_assignMesh(vector<size_t> & meshDrawOrder, size_t & index, const aiNode * node) const
+void Model::_assignMesh(vector<Node> & order, size_t & index, const aiNode * node) const
 {
     if (node)
     {
         for (unsigned int i = 0; i < node->mNumMeshes; ++i)
-            meshDrawOrder[index++] = node->mMeshes[i];
+            order[index++].mesh = node->mMeshes[i];
 
         for (unsigned int i = 0; i < node->mNumChildren; ++i)
-            _assignMesh(meshDrawOrder, index, node->mChildren[i]);
+            _assignMesh(order, index, node->mChildren[i]);
     }
 }
 

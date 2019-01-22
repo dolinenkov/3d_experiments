@@ -2,6 +2,9 @@
 # cube.obj
 #
 
+mtllib cube.mtl
+usemtl cube
+
 o cube
 
 v -0.500000 -0.500000 0.500000
