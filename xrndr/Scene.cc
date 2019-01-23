@@ -10,7 +10,7 @@ bool FaceCullingEnabled = false;
 
 
 Scene::Scene()
-    : mode(true)
+    : _mode(true)
 {
     ProgramBuilder builder;
 
@@ -21,21 +21,21 @@ Scene::Scene()
 
     builder.addVertexShaderFromFile("first_pass.vert");
     builder.addFragmentShaderFromFile("first_pass.frag");
-    firstPassProgram = builder.build();
+    _firstPassProgram = builder.build();
 
     builder.addVertexShaderFromFile("nontextured_geometry.vert");
     builder.addFragmentShaderFromFile("nontextured_geometry.frag");
-    nontexturedGeometryProgram = builder.build();
+    _nontexturedGeometryProgram = builder.build();
 
     //
 
     VerticeFormat geometryPassVerticeFormat;
-    geometryPassVerticeFormat.position = firstPassProgram->findAttribute("a_Position");
-    geometryPassVerticeFormat.texture = firstPassProgram->findAttribute("a_Texture");
-    geometryPassVerticeFormat.normal = firstPassProgram->findAttribute("a_Normal");
+    geometryPassVerticeFormat.position = _firstPassProgram->findAttribute("a_Position");
+    geometryPassVerticeFormat.texture = _firstPassProgram->findAttribute("a_Texture");
+    geometryPassVerticeFormat.normal = _firstPassProgram->findAttribute("a_Normal");
 
     VerticeFormat nontexturedGeometryVerticeFormat;
-    nontexturedGeometryVerticeFormat.position = nontexturedGeometryProgram->findAttribute("a_Position");
+    nontexturedGeometryVerticeFormat.position = _nontexturedGeometryProgram->findAttribute("a_Position");
 
     //
 
@@ -43,7 +43,7 @@ Scene::Scene()
     _pointLights.back().position    = vec3(0.0f, 0.0f, 3.0f);
     _pointLights.back().color       = vec3(1.0f, 1.0f, 1.0f);
     _pointLights.back().attenuation = vec3(1.0f, 0.09f, 0.032f);
-    _pointLights.back().intensity   = vec3(0.0f, 0.9f, 1.0f);
+    _pointLights.back().intensity   = vec3(0.0f, 0.3f, 0.3f);
 
     _pointLights.emplace_back();
     _pointLights.back().position    = vec3(0.0f, 1.0f, -2.0f);
@@ -51,6 +51,10 @@ Scene::Scene()
     _pointLights.back().attenuation = vec3(1.0f, 0.2f, 0.05f);
     _pointLights.back().intensity   = vec3(0.0f, 0.3f, 0.5f);
 
+    _directedLights.emplace_back();
+    _directedLights.back().direction = vec3(-1.0f, 0.0f, -1.0f);
+    _directedLights.back().color     = vec3(1.0f, 1.0f, 1.0f);
+    _directedLights.back().intensity = vec3(0.0f, 0.3f, 0.5f);
 
     _lightPhase = 0.0f;
 
@@ -81,11 +85,11 @@ Scene::Scene()
 
     //
 
-    camera = make_shared<Camera>();
-    camera->setPosition(vec3(0.0f, 0.0f, 0.5f));
-    camera->setFrontVector(vec3(0.0f, 0.0f, 1.0f)); // look along +z axis, +x is forwarded to the left, +y is forwarded upwards
+    _camera = make_shared<Camera>();
+    _camera->setPosition(vec3(0.0f, 0.0f, 0.5f));
+    _camera->setFrontVector(vec3(0.0f, 0.0f, 1.0f)); // look along +z axis, +x is forwarded to the left, +y is forwarded upwards
 
-    projection = make_shared<Projection>();
+    _projection = make_shared<Projection>();
 
     //
 
@@ -114,20 +118,20 @@ void Scene::draw()
 
 void Scene::toggleMode()
 {
-    mode = !mode;
+    _mode = !_mode;
     _updateMode();
 }
 
 shared_ptr<Camera> Scene::getCamera()
 {
-    return camera;
+    return _camera;
 }
 
 void Scene::updateViewport(int width, int height)
 {
     if (width > 0 && height > 0)
     {
-        projection->makePerspective(60.0, static_cast<float>(width) / static_cast<float>(height), 0.01f, 100.0f);
+        _projection->makePerspective(60.0, static_cast<float>(width) / static_cast<float>(height), 0.01f, 100.0f);
         glViewport(0, 0, width, height);
     }
 }
@@ -143,26 +147,34 @@ void Scene::_update()
 
 void Scene::_doGeometryPass()
 {
-    _matrixStack.pushProjection(projection->getProjectionMatrix());
-    _matrixStack.pushView(camera->getViewMatrix());
+    _matrixStack.pushProjection(_projection->getProjectionMatrix());
+    _matrixStack.pushView(_camera->getViewMatrix());
     _matrixStack.pushModel(mat4(), false);
 
-    firstPassProgram->use();
+    _firstPassProgram->use();
 
-    firstPassProgram->setVec3("u_Camera.position", camera->getPosition());
+    _firstPassProgram->setVec3("u_Camera.position", _camera->getPosition());
 
-    firstPassProgram->setInt("u_PointLightsCount", _pointLights.size());
-    for (size_t i = 0; i < _pointLights.size(); ++i)
+    _firstPassProgram->setInt("u_DirectedLightsCount", _directedLights.size());
+    for (size_t i = 0; i < _directedLights.size(); ++i)
     {
-        firstPassProgram->setVec3(format("u_PointLights[{}].position", i).c_str(), _pointLights[i].position);
-        firstPassProgram->setVec3(format("u_PointLights[{}].color", i).c_str(), _pointLights[i].color);
-        firstPassProgram->setVec3(format("u_PointLights[{}].attenuation", i).c_str(), _pointLights[i].attenuation);
-        firstPassProgram->setVec3(format("u_PointLights[{}].intensity", i).c_str(), _pointLights[i].intensity);
+        _firstPassProgram->setVec3(format("u_DirectedLights[{}].direction", i).c_str(), _directedLights[i].direction);
+        _firstPassProgram->setVec3(format("u_DirectedLights[{}].color", i).c_str(), _directedLights[i].color);
+        _firstPassProgram->setVec3(format("u_DirectedLights[{}].intensity", i).c_str(), _directedLights[i].intensity);
     }
 
-    firstPassProgram->setFloat("u_Material.shininess", 1.0f);
-    firstPassProgram->setTexture("u_Material.diffuseTexture", 0);
-    firstPassProgram->setTexture("u_Material.specularTexture", 1);
+    _firstPassProgram->setInt("u_PointLightsCount", _pointLights.size());
+    for (size_t i = 0; i < _pointLights.size(); ++i)
+    {
+        _firstPassProgram->setVec3(format("u_PointLights[{}].position", i).c_str(), _pointLights[i].position);
+        _firstPassProgram->setVec3(format("u_PointLights[{}].color", i).c_str(), _pointLights[i].color);
+        _firstPassProgram->setVec3(format("u_PointLights[{}].attenuation", i).c_str(), _pointLights[i].attenuation);
+        _firstPassProgram->setVec3(format("u_PointLights[{}].intensity", i).c_str(), _pointLights[i].intensity);
+    }
+
+    _firstPassProgram->setFloat("u_Material.shininess", 1.0f);
+    _firstPassProgram->setTexture("u_Material.diffuseTexture", 0);
+    _firstPassProgram->setTexture("u_Material.specularTexture", 1);
 
     //
 
@@ -176,11 +188,11 @@ void Scene::_doGeometryPass()
 
 void Scene::_doDebugPass()
 {
-    _matrixStack.pushProjection(projection->getProjectionMatrix());
-    _matrixStack.pushView(camera->getViewMatrix());
+    _matrixStack.pushProjection(_projection->getProjectionMatrix());
+    _matrixStack.pushView(_camera->getViewMatrix());
     _matrixStack.pushModel(mat4(), false);
 
-    nontexturedGeometryProgram->use();
+    _nontexturedGeometryProgram->use();
 
     for (auto & pointLight : _pointLights)
         _drawPointLight(pointLight);
@@ -196,9 +208,9 @@ void Scene::_drawModel(Model & model)
 
     const auto & matrixGroup = _matrixStack.getCache();
 
-    firstPassProgram->setMat4("u_ModelMatrix", matrixGroup.model);
-    firstPassProgram->setMat4("u_ViewMatrix", matrixGroup.view);
-    firstPassProgram->setMat4("u_ProjectionMatrix", matrixGroup.projection);
+    _firstPassProgram->setMat4("u_ModelMatrix", matrixGroup.model);
+    _firstPassProgram->setMat4("u_ViewMatrix", matrixGroup.view);
+    _firstPassProgram->setMat4("u_ProjectionMatrix", matrixGroup.projection);
 
     model.draw();
 
@@ -213,8 +225,8 @@ void Scene::_drawPointLight(PointLight & pointLight)
 
     const auto & matrixGroup = _matrixStack.getCache();
 
-    nontexturedGeometryProgram->setVec3("u_Color", pointLight.color);
-    nontexturedGeometryProgram->setMat4("u_ModelViewProjectionMatrix", matrixGroup.modelViewProjection);
+    _nontexturedGeometryProgram->setVec3("u_Color", pointLight.color);
+    _nontexturedGeometryProgram->setMat4("u_ModelViewProjectionMatrix", matrixGroup.modelViewProjection);
 
     _lightVisualizationModel.draw();
 
@@ -223,7 +235,7 @@ void Scene::_drawPointLight(PointLight & pointLight)
 
 void Scene::_updateMode()
 {
-    glPolygonMode(GL_FRONT_AND_BACK, mode ? GL_FILL : GL_LINE); gl_bugcheck();
+    glPolygonMode(GL_FRONT_AND_BACK, _mode ? GL_FILL : GL_LINE); gl_bugcheck();
 }
 
 }

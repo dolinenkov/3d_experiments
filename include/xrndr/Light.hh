@@ -16,7 +16,6 @@ struct DirectedLight
 {
     vec3 direction;
     vec3 color;
-    vec3 attenuation;
     vec3 intensity;
 };
 

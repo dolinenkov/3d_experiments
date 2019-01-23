@@ -41,15 +41,14 @@ private:
     void _updateMode();
 
 private:
-    bool                        mode;
+    bool                        _mode;
     MatrixStack                 _matrixStack;
     TextureCache                _textureCache;
 
-    shared_ptr<Projection>      projection;
-    shared_ptr<Camera>          camera;
+    shared_ptr<Projection>      _projection;
+    shared_ptr<Camera>          _camera;
 
-    shared_ptr<Program>         firstPassProgram;
-    shared_ptr<Program>         nontexturedGeometryProgram;
+    shared_ptr<Program>         _firstPassProgram;
 
     float                       _lightPhase;
     vector<PointLight>          _pointLights;
@@ -57,6 +56,7 @@ private:
 
     vector<Model>               _models;
 
+    shared_ptr<Program>         _nontexturedGeometryProgram;
     Model                       _lightVisualizationModel;
 };
 
