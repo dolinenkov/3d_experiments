@@ -48,8 +48,8 @@ Scene::Scene()
     _pointLights.emplace_back();
     _pointLights.back().position    = vec3(0.0f, 1.0f, -2.0f);
     _pointLights.back().color       = vec3(1.0f, 0.0f, 0.0f);
-    _pointLights.back().attenuation = vec3(1.0f, 0.09f, 0.032f);
-    _pointLights.back().intensity   = vec3(0.2f, 0.3f, 0.5f);
+    _pointLights.back().attenuation = vec3(1.0f, 0.2f, 0.05f);
+    _pointLights.back().intensity   = vec3(0.0f, 0.3f, 0.5f);
 
 
     _lightPhase = 0.0f;
