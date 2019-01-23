@@ -37,6 +37,11 @@ GLint Program::findUniform(const char * name)
     return it != activeUniforms.end() ? it->second.location : -1;
 }
 
+void Program::setInt(const char * name, int i)
+{
+    glUniform1i(findUniform(name), i); gl_bugcheck();
+}
+
 void Program::setFloat(const char * name, float f)
 {
     glUniform1f(findUniform(name), f); gl_bugcheck();

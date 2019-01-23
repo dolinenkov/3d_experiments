@@ -39,34 +39,45 @@ Scene::Scene()
 
     //
 
-    light = make_shared<Light>();
-    light->position     = vec3(0.0f, 0.0f, 5.0f);
-    light->color        = vec3(1.0f, 1.0f, 1.0f);
-    light->attenuation  = vec3(1.0f, 0.09f, 0.032f);
-    light->intensity    = vec3(0.1f, 0.7f, 1.0f);
+    _pointLights.emplace_back();
+    _pointLights.back().position    = vec3(0.0f, 0.0f, 3.0f);
+    _pointLights.back().color       = vec3(1.0f, 1.0f, 1.0f);
+    _pointLights.back().attenuation = vec3(1.0f, 0.09f, 0.032f);
+    _pointLights.back().intensity   = vec3(0.0f, 0.9f, 1.0f);
 
-    lightPhase = 0.0f;
+    _pointLights.emplace_back();
+    _pointLights.back().position    = vec3(0.0f, 1.0f, -2.0f);
+    _pointLights.back().color       = vec3(1.0f, 0.0f, 0.0f);
+    _pointLights.back().attenuation = vec3(1.0f, 0.09f, 0.032f);
+    _pointLights.back().intensity   = vec3(0.2f, 0.3f, 0.5f);
+
+
+    _lightPhase = 0.0f;
 
     //
 
-    sphereModel = make_shared<Model>();
-    sphereModel->loadFromFile("sphere.obj", geometryPassVerticeFormat, loader);
-    sphereModel->setPosition(vec3(-1.0f, 0.0f, 5.0f));
-    sphereModel->setScale(vec3(0.05f, 0.05f, 0.05f));
+    _models.emplace_back();
+    _models.back().loadFromFile("sphere.obj", geometryPassVerticeFormat, loader);
+    _models.back().setPosition(vec3(-1.0f, -1.0f, 5.0f));
+    _models.back().setScale(vec3(0.05f, 0.05f, 0.05f));
 
-    cubeModel = make_shared<Model>();
-    cubeModel->loadFromFile("cube.obj", geometryPassVerticeFormat, loader);
-    cubeModel->setPosition(vec3(1.0f, 0.0f, 5.0f));
-    cubeModel->setRotation(vec3(0.1f, 0.2f, 0.3f));
+    _models.emplace_back();
+    _models.back().loadFromFile("cube.obj", geometryPassVerticeFormat, loader);
+    _models.back().setPosition(vec3(1.0f, -1.5f, 5.0f));
 
-    terrainModel = make_shared<Model>();
-    terrainModel->loadFromFile("terrain.obj", geometryPassVerticeFormat, loader);
-    terrainModel->setScale(vec3(10.0f, 1.0f, 10.0f));
-    terrainModel->setPosition(vec3(0.0f, -2.0f, 0.0f));
+    _models.emplace_back();
+    _models.back().loadFromFile("terrain.obj", geometryPassVerticeFormat, loader);
+    _models.back().setPosition(vec3(0.0f, -2.0f, 0.0f));
+    _models.back().setScale(vec3(10.0f, 1.0f, 10.0f));
 
-    lightModel = make_shared<Model>();
-    lightModel->loadFromFile("cube.obj", nontexturedGeometryVerticeFormat, loader);
-    lightModel->setScale(vec3(0.2f, 0.2f, 0.2f));
+    _models.emplace_back();
+    _models.back().loadFromFile("torus.obj", geometryPassVerticeFormat, loader);
+    _models.back().setPosition(vec3(0.0f, -1.0f, -2.0f));
+    _models.back().setScale(vec3(0.5f));
+
+
+    _lightVisualizationModel.loadFromFile("cube.obj", nontexturedGeometryVerticeFormat, loader);
+    _lightVisualizationModel.setScale(vec3(0.2f));
 
     //
 
@@ -123,11 +134,11 @@ void Scene::updateViewport(int width, int height)
 
 void Scene::_update()
 {
-    lightPhase += 0.01f;
-    if (lightPhase > glm::two_pi<float>())
-        lightPhase = 0.0f;
+    _lightPhase += 0.01f;
+    if (_lightPhase > glm::two_pi<float>())
+        _lightPhase = 0.0f;
 
-    light->position = vec3(2.5f * cos(lightPhase), 2.5f * sin(lightPhase), 2.0f);
+    _pointLights[0].position = vec3(2.5f * cos(_lightPhase), 2.5f * sin(_lightPhase), 2.0f);
 }
 
 void Scene::_doGeometryPass()
@@ -138,14 +149,25 @@ void Scene::_doGeometryPass()
 
     firstPassProgram->use();
 
-    if (cubeModel)
-        _drawModel(*cubeModel);
+    firstPassProgram->setVec3("u_Camera.position", camera->getPosition());
 
-    if (sphereModel)
-        _drawModel(*sphereModel);
+    firstPassProgram->setInt("u_PointLightsCount", _pointLights.size());
+    for (size_t i = 0; i < _pointLights.size(); ++i)
+    {
+        firstPassProgram->setVec3(format("u_PointLights[{}].position", i).c_str(), _pointLights[i].position);
+        firstPassProgram->setVec3(format("u_PointLights[{}].color", i).c_str(), _pointLights[i].color);
+        firstPassProgram->setVec3(format("u_PointLights[{}].attenuation", i).c_str(), _pointLights[i].attenuation);
+        firstPassProgram->setVec3(format("u_PointLights[{}].intensity", i).c_str(), _pointLights[i].intensity);
+    }
 
-    if (terrainModel)
-        _drawModel(*terrainModel);
+    firstPassProgram->setFloat("u_Material.shininess", 1.0f);
+    firstPassProgram->setTexture("u_Material.diffuseTexture", 0);
+    firstPassProgram->setTexture("u_Material.specularTexture", 1);
+
+    //
+
+    for (auto & m : _models)
+        _drawModel(m);
 
     _matrixStack.popProjection();
     _matrixStack.popView();
@@ -160,8 +182,8 @@ void Scene::_doDebugPass()
 
     nontexturedGeometryProgram->use();
 
-    if (lightModel && light)
-        _drawLight(*light, *lightModel);
+    for (auto & pointLight : _pointLights)
+        _drawPointLight(pointLight);
 
     _matrixStack.popProjection();
     _matrixStack.popView();
@@ -178,34 +200,23 @@ void Scene::_drawModel(Model & model)
     firstPassProgram->setMat4("u_ViewMatrix", matrixGroup.view);
     firstPassProgram->setMat4("u_ProjectionMatrix", matrixGroup.projection);
 
-    firstPassProgram->setVec3("u_Camera.position", camera->getPosition());
-
-    firstPassProgram->setVec3("u_Light.position", light->position);
-    firstPassProgram->setVec3("u_Light.color", light->color);
-    firstPassProgram->setVec3("u_Light.attenuation", light->attenuation);
-    firstPassProgram->setVec3("u_Light.intensity", light->intensity);
-
-    firstPassProgram->setFloat("u_Material.shininess", 1.0f);
-    firstPassProgram->setTexture("u_Material.diffuseTexture", 0);
-    firstPassProgram->setTexture("u_Material.specularTexture", 1);
-
     model.draw();
 
     _matrixStack.popModel();
 }
 
-void Scene::_drawLight(Light & light, Model & model)
+void Scene::_drawPointLight(PointLight & pointLight)
 {
-    model.setPosition(light.position);
+    _lightVisualizationModel.setPosition(pointLight.position);
 
-    _matrixStack.pushModel(model.getModelMatrix(), true);
+    _matrixStack.pushModel(_lightVisualizationModel.getModelMatrix(), true);
 
     const auto & matrixGroup = _matrixStack.getCache();
 
-    nontexturedGeometryProgram->setVec3("u_Color", light.color);
+    nontexturedGeometryProgram->setVec3("u_Color", pointLight.color);
     nontexturedGeometryProgram->setMat4("u_ModelViewProjectionMatrix", matrixGroup.modelViewProjection);
 
-    model.draw();
+    _lightVisualizationModel.draw();
 
     _matrixStack.popModel();
 }

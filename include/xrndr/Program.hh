@@ -24,6 +24,8 @@ public:
 
     GLint findUniform(const char * name);
 
+    void setInt(const char * name, int i);
+
     void setFloat(const char * name, float f);
 
     void setVec3(const char * name, const vec3 & vec);

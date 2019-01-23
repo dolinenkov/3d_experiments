@@ -1,5 +1,6 @@
 #version 330 core
 
+#define MAX_POINT_LIGHTS 10
 
 struct Camera
 {
@@ -7,7 +8,7 @@ struct Camera
 };
 
 
-struct Light
+struct PointLight
 {
     vec3 position;
     vec3 color; // TODO: need 3 different colors?
@@ -25,7 +26,10 @@ struct Material
 
 
 uniform Camera      u_Camera;
-uniform Light       u_Light;
+
+uniform int         u_PointLightsCount;
+uniform PointLight  u_PointLights[MAX_POINT_LIGHTS];
+
 uniform Material    u_Material;
 
 
@@ -39,35 +43,39 @@ out vec4 o_FragmentColor;
 
 void main()
 {
-    vec3 lightVector = u_Light.position - v_Position;
-
-    float lightDistance = length(lightVector);
-
-    // ослабление света с рассто€нием
-    float attenuation = 1.0 / (u_Light.attenuation[0] + u_Light.attenuation[1] * lightDistance + u_Light.attenuation[2] * pow(lightDistance, 2));
-
-
-    vec4 diffuseTextureSample = texture(u_Material.diffuseTexture, v_Texture.st);
-    vec4 specularTextureSample = texture(u_Material.specularTexture, v_Texture.st);
-
-
-    vec3 normal = normalize(v_Normal);
-    vec3 lightDirection = normalize(lightVector);
-
+    vec4 diffuseSample = texture(u_Material.diffuseTexture, v_Texture.st);
+    vec4 specularSample = texture(u_Material.specularTexture, v_Texture.st);
 
     vec3 cameraDirection = normalize(u_Camera.position - v_Position);
-    vec3 reflectedLightDirection = reflect(-lightDirection, normal);
-
+    vec3 normal = normalize(v_Normal);
 
     int convertedShininess = int(2.0 + u_Material.shininess * (256.0 - 2.0));
 
+    vec3 finalColor = vec3(0.0);
 
-    float ambientTerm = u_Light.intensity[0];
-    float diffuseTerm = u_Light.intensity[1] * max(dot(normal, lightDirection), 0.0);
-    float specularTerm = u_Light.intensity[2] * pow(max(dot(cameraDirection, reflectedLightDirection), 0.0), convertedShininess);
+    for (int i = 0; i < min(u_PointLightsCount, MAX_POINT_LIGHTS); ++i)
+    {
+        vec3 lightVector = u_PointLights[i].position - v_Position;
 
+        float lightDistance = length(lightVector);
+        vec3 lightDirection = normalize(lightVector);
 
-    vec3 finalColor = attenuation * u_Light.color * (((ambientTerm + diffuseTerm) * diffuseTextureSample.rgb) + (specularTerm * specularTextureSample.rgb));
+        // не используетс€ в модели Ѕлинна-‘онга
+        //vec3 reflectedLightDirection = reflect(-lightDirection, normal);
+
+        // ослабление света с рассто€нием
+        float attenuation = 1.0 / (u_PointLights[i].attenuation[0] + u_PointLights[i].attenuation[1] * lightDistance + u_PointLights[i].attenuation[2] * pow(lightDistance, 2));
+
+        vec3 halfwayDir = normalize(cameraDirection + lightDirection);
+
+        float ambientTerm = u_PointLights[i].intensity[0];
+
+        float diffuseTerm = u_PointLights[i].intensity[1] * max(dot(normal, lightDirection), 0.0);
+
+        float specularTerm = u_PointLights[i].intensity[2] * pow(max(dot(normal, halfwayDir), 0.0), convertedShininess);
+
+        finalColor += attenuation * u_PointLights[i].color * (((ambientTerm + diffuseTerm) * diffuseSample.rgb) + (specularTerm * specularSample.rgb));
+    }
 
     o_FragmentColor = vec4(finalColor, 1.0);
 }
