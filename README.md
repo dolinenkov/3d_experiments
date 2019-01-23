@@ -13,8 +13,8 @@ Simple realtime rendering engine written for educational purposes
 
 ## Controls
 
-W,A,S,D + mouse - moving camera
-F1 - toggle wireframe/filled polygon mode
+W,A,S,D + mouse - moving camera\
+F1 - toggle wireframe/filled polygon mode\
 Esc - exit
 
 ## Current state
