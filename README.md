@@ -19,4 +19,4 @@ Esc - exit
 
 ## Current state
 
-![current state](https://user-images.githubusercontent.com/19366691/51631480-81b03200-1f55-11e9-9ff1-dd7701c67d31.jpg)3
+![current state](https://user-images.githubusercontent.com/19366691/51631480-81b03200-1f55-11e9-9ff1-dd7701c67d31.jpg)
