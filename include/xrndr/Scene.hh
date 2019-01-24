@@ -19,6 +19,8 @@ public:
     Scene();
     ~Scene();
 
+    void update(float);
+
     void draw();
 
     void toggleMode();
@@ -28,8 +30,6 @@ public:
     void updateViewport(int width, int height);
 
 private:
-    void _update();
-
     void _doGeometryPass();
 
     void _doDebugPass();

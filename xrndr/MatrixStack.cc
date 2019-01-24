@@ -24,19 +24,19 @@ MatrixStack::MatrixStack(const Settings & settings)
     _view.reserve(settings.viewStackSize);
     _model.reserve(settings.modelStackSize);
 
-    _cache.isDirty = true;
+    _isDirty = true;
 }
 
 void MatrixStack::pushProjection(const mat4 & projection)
 {
     _projection.push(projection);
-    _cache.isDirty = true;
+    _isDirty = true;
 }
 
 void MatrixStack::pushView(const mat4 & view)
 {
     _view.push(view);
-    _cache.isDirty = true;
+    _isDirty = true;
 }
 
 void MatrixStack::pushModel(const mat4 & model, bool additive)
@@ -46,40 +46,42 @@ void MatrixStack::pushModel(const mat4 & model, bool additive)
     else
         _model.push(model);
 
-    _cache.isDirty = true;
+    _isDirty = true;
 }
 
 void MatrixStack::popProjection()
 {
     _projection.pop();
-    _cache.isDirty = true;
+    _isDirty = true;
 }
 
 void MatrixStack::popView()
 {
     _view.pop();
-    _cache.isDirty = true;
+    _isDirty = true;
 }
 
 void MatrixStack::popModel()
 {
     _model.pop();
-    _cache.isDirty = true;
+    _isDirty = true;
 }
 
 const MatrixStack::Cache & MatrixStack::getCache()
 {
-    if (_cache.isDirty)
+    if (_isDirty)
     {
-        _cache.model = _model.top();
-        _cache.view = _view.top();
-        _cache.projection = _projection.top();
+        _isDirty = false;
 
-        _cache.modelView = _cache.view * _cache.model;
-        _cache.modelViewProjection = _cache.projection * _cache.modelView;
+        _cache.model                = _model.top();
+        _cache.view                 = _view.top();
+        _cache.projection           = _projection.top();
 
-        _cache.normal = mat3(transpose(inverse(_cache.model)));
-        _cache.isDirty = false;
+        _cache.modelView            = _cache.view * _cache.model;
+        _cache.viewProjection       = _cache.projection * _cache.view;
+        _cache.modelViewProjection  = _cache.projection * _cache.modelView;
+
+        _cache.normal               = mat3(transpose(inverse(_cache.model)));
     }
     return _cache;
 }

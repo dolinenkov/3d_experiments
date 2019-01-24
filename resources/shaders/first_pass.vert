@@ -1,9 +1,9 @@
 #version 330 core
 
 
-uniform mat4 u_ProjectionMatrix;
-uniform mat4 u_ViewMatrix;
+uniform mat4 u_ViewProjectionMatrix;
 uniform mat4 u_ModelMatrix;
+uniform mat3 u_NormalMatrix;
 
 
 in vec3 a_Position;
@@ -20,9 +20,9 @@ void main()
 
     v_Position = vec3(worldPosition);
 
-    v_Normal = mat3(transpose(inverse(u_ModelMatrix))) * a_Normal;
+    v_Normal = u_NormalMatrix * a_Normal;
 
     v_Texture = a_Texture;
 
-    gl_Position = u_ProjectionMatrix * u_ViewMatrix * worldPosition;
+    gl_Position = u_ViewProjectionMatrix * worldPosition;
 }

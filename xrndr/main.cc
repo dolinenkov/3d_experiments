@@ -10,6 +10,102 @@ struct Keyboard
 };
 
 
+class FrameStats
+{
+public:
+    FrameStats()
+        : _count(0)
+        , _cur(0.0f)
+        , _min(std::numeric_limits<float>::max())
+        , _max(0.0f)
+        , _avg(0.0f)
+    {
+    }
+
+    void update(float value)
+    {
+        if (_count > 0)
+        {
+            _cur = value;
+
+            if (value < _min)
+                _min = value;
+
+            if (value > _max)
+                _max = value;
+
+        }
+
+        const float sum = _avg * _count;
+
+        ++_count;
+
+        _avg = (sum + value) / static_cast<float>(_count);
+    }
+
+    float cur() const
+    {
+        return _cur;
+    }
+
+    float min() const
+    {
+        return _min;
+    }
+
+    float max() const
+    {
+        return _max;
+    }
+
+    float avg() const
+    {
+        return _avg;
+    }
+
+private:
+    int     _count;
+    float   _cur;
+    float   _min;
+    float   _max;
+    float   _avg;
+};
+
+
+class TimeManager
+{
+public:
+    TimeManager()
+        : _freq(static_cast<double>(SDL_GetPerformanceFrequency()))
+        , _init(static_cast<double>(SDL_GetPerformanceCounter()))
+        , _last(0.0)
+        , _this(0.0)
+        , _diff(0.0)
+    {
+
+    }
+
+    void update()
+    {
+        _last = _this;
+        _this = (static_cast<double>(SDL_GetPerformanceCounter()) - _init) / _freq;
+        _diff = _this - _last;
+    }
+
+    float lastFrameTime() const
+    {
+        return _diff;
+    }
+
+private:
+    double _freq;
+    double _init;
+    double _last;
+    double _this;
+    double _diff;
+};
+
+
 int main(int, char *[])
 {
     SDL_Init(SDL_INIT_EVERYTHING);
@@ -37,6 +133,8 @@ int main(int, char *[])
             int windowHeight;
             SDL_GetWindowSize(window, &windowWidth, &windowHeight);
 
+            SDL_GL_SetSwapInterval(0);
+
             const auto glewError = glewInit();
             if (glewError != GLEW_NO_ERROR)
             {
@@ -61,8 +159,16 @@ int main(int, char *[])
 
                 SDL_Event event;
 
+                TimeManager timeManager;
+                FrameStats frameStats;
+
                 for (bool running = true; running;)
                 {
+                    timeManager.update();
+                    frameStats.update(timeManager.lastFrameTime());
+
+                    const float input_corrector = 1.0f / (60.0f * frameStats.cur());
+
                     float rx = 0.0f;
                     float ry = 0.0f;
 
@@ -102,22 +208,22 @@ int main(int, char *[])
                     auto camera = scene->getCamera();
 
                     if (keyboard.states[SDL_SCANCODE_W])
-                        camera->moveForward(0.1f);
+                        camera->moveForward(0.1f / input_corrector);
 
                     if (keyboard.states[SDL_SCANCODE_S])
-                        camera->moveForward(-0.1f);
+                        camera->moveForward(-0.1f / input_corrector);
 
                     if (keyboard.states[SDL_SCANCODE_A])
-                        camera->moveRight(-0.1f);
+                        camera->moveRight(-0.1f / input_corrector);
 
                     if (keyboard.states[SDL_SCANCODE_D])
-                        camera->moveRight(0.1f);
+                        camera->moveRight(0.1f / input_corrector);
 
                     if (keyboard.states[SDL_SCANCODE_Q])
-                        camera->moveUp(-0.1f);
+                        camera->moveUp(-0.1f / input_corrector);
 
                     if (keyboard.states[SDL_SCANCODE_E])
-                        camera->moveUp(0.1f);
+                        camera->moveUp(0.1f / input_corrector);
 
                     if (keyboard.released[SDL_SCANCODE_F1])
                         scene->toggleMode();
@@ -135,9 +241,27 @@ int main(int, char *[])
                     if (ry != 0.0f)
                         camera->turnUp(ry * -1.0f / static_cast<float>(windowHeight));
 
+                    scene->update(timeManager.lastFrameTime());
+
                     scene->draw();
 
                     SDL_GL_SwapWindow(window);
+
+                    {
+                        static int i = 0;
+                        if (++i > 500)
+                        {
+                            i = 0;
+                            SDL_LogInfo(
+                                SDL_LOG_CATEGORY_APPLICATION,
+                                "FPS: avg %5.2f\tcur %5.2f\tmin %5.2f\tmax %5.2f\n",
+                                1.0f / frameStats.avg(),
+                                1.0f / frameStats.cur(),
+                                1.0f / frameStats.max(),
+                                1.0f / frameStats.min()
+                            );
+                        }
+                    }
                 }
             }
 

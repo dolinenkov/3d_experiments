@@ -47,7 +47,7 @@ in vec3 v_Normal;
 in vec3 v_Texture;
 
 
-out vec4 o_FragmentColor;
+out vec4 o_Color;
 
 
 void main()
@@ -62,7 +62,7 @@ void main()
 
     vec3 finalColor = vec3(0.0);
 
-    for (int i = 0; i < min(u_DirectedLightsCount, MAX_DIRECTED_LIGHTS); ++i)
+    for (int i = 0; i < min(u_DirectedLightsCount, u_DirectedLights.length()); ++i)
     {
         vec3 lightDirection = normalize(-u_DirectedLights[i].direction);
         vec3 halfwayDir = normalize(cameraDirection + lightDirection);
@@ -74,7 +74,7 @@ void main()
         finalColor += u_DirectedLights[i].color * (((ambientTerm + diffuseTerm) * diffuseSample.rgb) + (specularTerm * specularSample.rgb));
     }
 
-    for (int i = 0; i < min(u_PointLightsCount, MAX_POINT_LIGHTS); ++i)
+    for (int i = 0; i < min(u_PointLightsCount, u_PointLights.length()); ++i)
     {
         vec3 lightVector = u_PointLights[i].position - v_Position;
 
@@ -91,5 +91,5 @@ void main()
         finalColor += attenuation * u_PointLights[i].color * (((ambientTerm + diffuseTerm) * diffuseSample.rgb) + (specularTerm * specularSample.rgb));
     }
 
-    o_FragmentColor = vec4(finalColor, 1.0);
+    o_Color = vec4(finalColor, 1.0);
 }

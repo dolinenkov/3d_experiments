@@ -19,11 +19,11 @@ public:
 
     struct Cache
     {
-        bool isDirty;
         mat4 model;
         mat4 view;
         mat4 projection;
         mat4 modelView;
+        mat4 viewProjection;
         mat4 modelViewProjection;
         mat3 normal;
     };
@@ -47,6 +47,7 @@ private:
     Stack<mat4> _view;
     Stack<mat4> _model;
     Cache       _cache;
+    bool        _isDirty;
 };
 
 }

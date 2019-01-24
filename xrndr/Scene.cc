@@ -105,10 +105,17 @@ Scene::~Scene()
 {
 }
 
+void Scene::update(float _s)
+{
+    _lightPhase += _s;
+    if (_lightPhase > glm::two_pi<float>())
+        _lightPhase = 0.0f;
+
+    _pointLights[0].position = vec3(2.5f * cos(_lightPhase), 2.5f * sin(_lightPhase), 2.0f);
+}
+
 void Scene::draw()
 {
-    _update();
-
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); gl_bugcheck();
 
     _doGeometryPass();
@@ -134,15 +141,6 @@ void Scene::updateViewport(int width, int height)
         _projection->makePerspective(60.0, static_cast<float>(width) / static_cast<float>(height), 0.01f, 100.0f);
         glViewport(0, 0, width, height);
     }
-}
-
-void Scene::_update()
-{
-    _lightPhase += 0.01f;
-    if (_lightPhase > glm::two_pi<float>())
-        _lightPhase = 0.0f;
-
-    _pointLights[0].position = vec3(2.5f * cos(_lightPhase), 2.5f * sin(_lightPhase), 2.0f);
 }
 
 void Scene::_doGeometryPass()
@@ -208,9 +206,13 @@ void Scene::_drawModel(Model & model)
 
     const auto & matrixGroup = _matrixStack.getCache();
 
-    _firstPassProgram->setMat4("u_ModelMatrix", matrixGroup.model);
-    _firstPassProgram->setMat4("u_ViewMatrix", matrixGroup.view);
-    _firstPassProgram->setMat4("u_ProjectionMatrix", matrixGroup.projection);
+    _firstPassProgram->setMat4("u_ModelMatrix",                 matrixGroup.model);
+    _firstPassProgram->setMat4("u_ViewMatrix",                  matrixGroup.view);
+    _firstPassProgram->setMat4("u_ProjectionMatrix",            matrixGroup.projection);
+    _firstPassProgram->setMat4("u_ModelViewMatrix",             matrixGroup.modelView);
+    _firstPassProgram->setMat4("u_ViewProjectionMatrix",        matrixGroup.viewProjection);
+    _firstPassProgram->setMat4("u_ModelViewProjectionMatrix",   matrixGroup.modelViewProjection);
+    _firstPassProgram->setMat3("u_NormalMatrix",                matrixGroup.normal);
 
     model.draw();
 
@@ -226,7 +228,14 @@ void Scene::_drawPointLight(PointLight & pointLight)
     const auto & matrixGroup = _matrixStack.getCache();
 
     _nontexturedGeometryProgram->setVec3("u_Color", pointLight.color);
+
+    _nontexturedGeometryProgram->setMat4("u_ModelMatrix",               matrixGroup.model);
+    _nontexturedGeometryProgram->setMat4("u_ViewMatrix",                matrixGroup.view);
+    _nontexturedGeometryProgram->setMat4("u_ProjectionMatrix",          matrixGroup.projection);
+    _nontexturedGeometryProgram->setMat4("u_ModelViewMatrix",           matrixGroup.modelView);
+    _nontexturedGeometryProgram->setMat4("u_ViewProjectionMatrix",      matrixGroup.viewProjection);
     _nontexturedGeometryProgram->setMat4("u_ModelViewProjectionMatrix", matrixGroup.modelViewProjection);
+    _nontexturedGeometryProgram->setMat3("u_NormalMatrix",              matrixGroup.normal);
 
     _lightVisualizationModel.draw();
 
