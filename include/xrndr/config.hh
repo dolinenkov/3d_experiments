@@ -84,6 +84,7 @@ using ::std::vector;
 using ::std::list;
 using ::std::string;
 using ::std::map;
+using ::std::unique_ptr;
 using ::std::make_unique;
 using ::std::shared_ptr;
 using ::std::make_shared;
