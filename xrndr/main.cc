@@ -94,7 +94,7 @@ public:
 
     float lastFrameTime() const
     {
-        return _diff;
+        return static_cast<float>(_diff);
     }
 
 private:
@@ -249,7 +249,7 @@ int main(int, char *[])
 
                     {
                         static int i = 0;
-                        if (++i > 500)
+                        if (++i > 1000)
                         {
                             i = 0;
                             SDL_LogInfo(
