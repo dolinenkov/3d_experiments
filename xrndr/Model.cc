@@ -90,6 +90,8 @@ void Model::loadFromFile(const char * filename, const VerticeFormat & verticeFor
                 textureLoader.setFilename(path.C_Str());
                 materials[i].specularTexture = textureLoader.load();
             }
+
+            material->Get(AI_MATKEY_SHININESS, materials[i].shininess);
         }
 
         // meshes

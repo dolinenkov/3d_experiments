@@ -54,7 +54,7 @@ Scene::Scene()
     _directedLights.emplace_back();
     _directedLights.back().direction = vec3(-1.0f, 0.0f, -1.0f);
     _directedLights.back().color     = vec3(1.0f, 1.0f, 1.0f);
-    _directedLights.back().intensity = vec3(0.0f, 0.3f, 0.5f);
+    _directedLights.back().intensity = vec3(0.0f, 0.5f, 0.5f);
 
     _lightPhase = 0.0f;
 
@@ -122,7 +122,6 @@ void Scene::draw()
 
     _matrixStack.pushProjection(_projection->getProjectionMatrix());
     _matrixStack.pushView(_camera->getViewMatrix());
-    _matrixStack.pushModel(mat4(), false);
 
     _firstPassProgram->use();
 
@@ -166,17 +165,9 @@ void Scene::draw()
         _matrixStack.popModel();
     }
 
-    _matrixStack.popProjection();
-    _matrixStack.popView();
-    _matrixStack.popModel();
-
     //
 
     _pass = RendererPass::Debug;
-
-    _matrixStack.pushProjection(_projection->getProjectionMatrix());
-    _matrixStack.pushView(_camera->getViewMatrix());
-    _matrixStack.pushModel(mat4(), false);
 
     _nontexturedGeometryProgram->use();
 
@@ -203,13 +194,13 @@ void Scene::draw()
         _matrixStack.popModel();
     }
 
-    _matrixStack.popProjection();
-    _matrixStack.popView();
-    _matrixStack.popModel();
 
     _pass = RendererPass::Postprocess;
 
     _pass = RendererPass::None;
+
+    _matrixStack.popProjection();
+    _matrixStack.popView();
 }
 
 void Scene::toggleMode()
@@ -242,15 +233,18 @@ void Scene::setMaterial(Material * material)
 
         if (material)
         {
-            _firstPassProgram->setFloat("u_Material.shininess", 1.0f /*material->shininess*/);
+            auto diffuseTexture = material->diffuseTexture;
+            auto specularTexture = material->specularTexture;
 
-            if (auto diffuse = material->diffuseTexture)
-                diffuse->use(0);
+            _firstPassProgram->setFloat("u_Material.shininess", material->shininess);
+
+            if (diffuseTexture)
+                diffuseTexture->use(0);
             else
                 Texture2D::unbind(0);
 
-            if (auto specular = material->specularTexture)
-                specular->use(1);
+            if (specularTexture)
+                specularTexture->use(1);
             else
                 Texture2D::unbind(1);
         }

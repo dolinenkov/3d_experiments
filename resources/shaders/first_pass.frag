@@ -58,7 +58,7 @@ void main()
     vec3 cameraDirection = normalize(u_Camera.position - v_Position);
     vec3 normal = normalize(v_Normal);
 
-    int convertedShininess = int(2.0 + u_Material.shininess * (256.0 - 2.0));
+    int shininess = int(u_Material.shininess);
 
     vec3 finalColor = vec3(0.0);
 
@@ -69,7 +69,7 @@ void main()
 
         float ambientTerm = u_DirectedLights[i].intensity[0];
         float diffuseTerm = u_DirectedLights[i].intensity[1] * max(dot(normal, lightDirection), 0.0);
-        float specularTerm = u_DirectedLights[i].intensity[2] * pow(max(dot(normal, halfwayDir), 0.0), convertedShininess);
+        float specularTerm = u_DirectedLights[i].intensity[2] * pow(max(dot(normal, halfwayDir), 0.0), shininess);
 
         finalColor += u_DirectedLights[i].color * (((ambientTerm + diffuseTerm) * diffuseSample.rgb) + (specularTerm * specularSample.rgb));
     }
@@ -86,7 +86,7 @@ void main()
 
         float ambientTerm = u_PointLights[i].intensity[0];
         float diffuseTerm = u_PointLights[i].intensity[1] * max(dot(normal, lightDirection), 0.0);
-        float specularTerm = u_PointLights[i].intensity[2] * pow(max(dot(normal, halfwayDir), 0.0), convertedShininess);
+        float specularTerm = u_PointLights[i].intensity[2] * pow(max(dot(normal, halfwayDir), 0.0), shininess);
 
         finalColor += attenuation * u_PointLights[i].color * (((ambientTerm + diffuseTerm) * diffuseSample.rgb) + (specularTerm * specularSample.rgb));
     }

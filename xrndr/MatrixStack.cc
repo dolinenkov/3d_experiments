@@ -41,7 +41,7 @@ void MatrixStack::pushView(const mat4 & view)
 
 void MatrixStack::pushModel(const mat4 & model, bool additive)
 {
-    if (additive)
+    if (additive && !_model.empty())
         _model.push(_model.top() * model);
     else
         _model.push(model);

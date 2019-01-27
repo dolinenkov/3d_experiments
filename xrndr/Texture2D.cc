@@ -32,5 +32,4 @@ void Texture2D::unbind(int unit)
     glBindTexture(GL_TEXTURE_2D, 0); gl_bugcheck();
 }
 
-
 }
