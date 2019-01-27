@@ -262,7 +262,8 @@ void Scene::draw()
     _postprocessProgram->use();
 
     _postprocessProgram->setTexture("u_Texture", 0);
-    _postprocessProgram->setFloat("u_Gamma", 1.0f);
+    _postprocessProgram->setFloat("u_Gamma", 2.2f);
+    _postprocessProgram->setFloat("u_Exposure", 0.1f);
 
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, _framebufferTexture);
@@ -295,7 +296,7 @@ void Scene::updateViewport(int width, int height)
         glBindFramebuffer(GL_FRAMEBUFFER, _framebuffer);
 
         glBindTexture(GL_TEXTURE_2D, _framebufferTexture);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr); gl_bugcheck();
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr); gl_bugcheck();
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); gl_bugcheck();
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR); gl_bugcheck();
 
