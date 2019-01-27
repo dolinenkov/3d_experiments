@@ -47,6 +47,12 @@
     <None Include="resources\shaders\nontextured_geometry.vert">
       <Filter>resources\shaders</Filter>
     </None>
+    <None Include="resources\shaders\postprocess.frag">
+      <Filter>resources\shaders</Filter>
+    </None>
+    <None Include="resources\shaders\postprocess.vert">
+      <Filter>resources\shaders</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Image Include="resources\textures\container2.png">

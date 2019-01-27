@@ -27,6 +27,10 @@ Scene::Scene()
     builder.addFragmentShaderFromFile("nontextured_geometry.frag");
     _nontexturedGeometryProgram = builder.build();
 
+    builder.addVertexShaderFromFile("postprocess.vert");
+    builder.addFragmentShaderFromFile("postprocess.frag");
+    _postprocessProgram = builder.build();
+
     //
 
     VerticeFormat geometryPassVerticeFormat;
@@ -36,6 +40,10 @@ Scene::Scene()
 
     VerticeFormat nontexturedGeometryVerticeFormat;
     nontexturedGeometryVerticeFormat.position = _nontexturedGeometryProgram->findAttribute("a_Position");
+
+    VerticeFormat postprocessVerticeFormat;
+    postprocessVerticeFormat.position = _postprocessProgram->findAttribute("a_Position");
+    postprocessVerticeFormat.texture = _postprocessProgram->findAttribute("a_Texture");
 
     //
 
@@ -85,6 +93,25 @@ Scene::Scene()
 
     //
 
+    const uint32_t index[] = { 0, 1, 2, 2, 3, 0 };
+
+    const Vertice vertex[] =
+    {
+        { {-1.0f, -1.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f} },
+        { {-1.0f, 1.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f} },
+        { {1.0f, 1.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {1.0f, 1.0f, 0.0f} },
+        { {1.0f, -1.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {1.0f, 0.0f, 0.0f} },
+    };
+
+    MeshData md;
+    md.format = &postprocessVerticeFormat;
+    md.vertexData = vertex;
+    md.vertexSize = 4;
+    md.indexData = index;
+    md.indexSize = 6;
+
+    _screenQuad.init(md);
+
     _camera = make_shared<Camera>();
     _camera->setPosition(vec3(0.0f, 0.0f, 0.5f));
     _camera->setFrontVector(vec3(0.0f, 0.0f, 1.0f)); // look along +z axis, +x is forwarded to the left, +y is forwarded upwards
@@ -97,10 +124,20 @@ Scene::Scene()
 
     (DepthTestEnabled ? glEnable : glDisable)(GL_DEPTH_TEST);
     (FaceCullingEnabled ? glEnable : glDisable)(GL_CULL_FACE);
+
+    glGenFramebuffers(1, &_framebuffer);
+    glGenTextures(1, &_framebufferTexture);
+    glGenRenderbuffers(1, &_framebufferRenderbuffer);
+
+    glBindFramebuffer(GL_FRAMEBUFFER, _framebuffer); gl_bugcheck();
+
+    updateViewport(1920, 1080);
 }
 
 Scene::~Scene()
 {
+    glDeleteTextures(1, &_framebufferTexture);
+    glDeleteFramebuffers(1, &_framebuffer);
 }
 
 void Scene::update(float _s)
@@ -118,7 +155,20 @@ void Scene::draw()
 
     glPolygonMode(GL_FRONT_AND_BACK, _mode ? GL_FILL : GL_LINE); gl_bugcheck();
 
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); gl_bugcheck();
+    glBindFramebuffer(GL_FRAMEBUFFER, _framebuffer);
+
+    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+    {
+        assert(false);
+    }
+    gl_bugcheck();
+
+    glEnable(GL_DEPTH_TEST); gl_bugcheck();
+    glEnable(GL_CULL_FACE); gl_bugcheck();
+    glDisable(GL_STENCIL_TEST); gl_bugcheck();
+
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT); gl_bugcheck();
+    glViewport(0, 0, _width, _height);
 
     _matrixStack.pushProjection(_projection->getProjectionMatrix());
     _matrixStack.pushView(_camera->getViewMatrix());
@@ -194,13 +244,33 @@ void Scene::draw()
         _matrixStack.popModel();
     }
 
+    _matrixStack.popProjection();
+    _matrixStack.popView();
+
 
     _pass = RendererPass::Postprocess;
 
-    _pass = RendererPass::None;
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-    _matrixStack.popProjection();
-    _matrixStack.popView();
+    glDisable(GL_DEPTH_TEST);
+    glDisable(GL_STENCIL_TEST);
+    glDisable(GL_CULL_FACE);
+
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+    glViewport(0, 0, _width, _height);
+
+    _postprocessProgram->use();
+
+    _postprocessProgram->setTexture("u_Texture", 0);
+    _postprocessProgram->setFloat("u_Gamma", 1.0f);
+
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, _framebufferTexture);
+
+    _screenQuad.draw();
+
+
+    _pass = RendererPass::None;
 }
 
 void Scene::toggleMode()
@@ -217,8 +287,27 @@ void Scene::updateViewport(int width, int height)
 {
     if (width > 0 && height > 0)
     {
+        _width = width;
+        _height = height;
+
         _projection->makePerspective(60.0, static_cast<float>(width) / static_cast<float>(height), 0.01f, 100.0f);
-        glViewport(0, 0, width, height);
+
+        glBindFramebuffer(GL_FRAMEBUFFER, _framebuffer);
+
+        glBindTexture(GL_TEXTURE_2D, _framebufferTexture);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr); gl_bugcheck();
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); gl_bugcheck();
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR); gl_bugcheck();
+
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, _framebufferTexture, 0); gl_bugcheck();
+
+        glBindRenderbuffer(GL_RENDERBUFFER, _framebufferRenderbuffer);
+        glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
+
+        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, _framebufferRenderbuffer);
+
+        glBindFramebuffer(GL_FRAMEBUFFER, 0); gl_bugcheck();
+        glViewport(0, 0, width, height); gl_bugcheck();
     }
 }
 

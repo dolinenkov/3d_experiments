@@ -71,6 +71,15 @@ private:
 
     shared_ptr<Program>         _nontexturedGeometryProgram;
     Model                       _lightVisualizationModel;
+
+    shared_ptr<Program>         _postprocessProgram;
+
+    int _width;
+    int _height;
+    GLuint _framebuffer;
+    GLuint _framebufferRenderbuffer;
+    GLuint _framebufferTexture;
+    Mesh _screenQuad;
 };
 
 }

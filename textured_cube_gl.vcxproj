@@ -191,6 +191,8 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
     </None>
+    <None Include="resources\shaders\postprocess.frag" />
+    <None Include="resources\shaders\postprocess.vert" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="resources\textures\container2.png">
