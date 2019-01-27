@@ -97,8 +97,6 @@ Scene::Scene()
 
     (DepthTestEnabled ? glEnable : glDisable)(GL_DEPTH_TEST);
     (FaceCullingEnabled ? glEnable : glDisable)(GL_CULL_FACE);
-
-    _updateMode();
 }
 
 Scene::~Scene()
@@ -116,35 +114,12 @@ void Scene::update(float _s)
 
 void Scene::draw()
 {
+    _pass = RendererPass::Geometry;
+
+    glPolygonMode(GL_FRONT_AND_BACK, _mode ? GL_FILL : GL_LINE); gl_bugcheck();
+
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); gl_bugcheck();
 
-    _doGeometryPass();
-
-    _doDebugPass();
-}
-
-void Scene::toggleMode()
-{
-    _mode = !_mode;
-    _updateMode();
-}
-
-shared_ptr<Camera> Scene::getCamera()
-{
-    return _camera;
-}
-
-void Scene::updateViewport(int width, int height)
-{
-    if (width > 0 && height > 0)
-    {
-        _projection->makePerspective(60.0, static_cast<float>(width) / static_cast<float>(height), 0.01f, 100.0f);
-        glViewport(0, 0, width, height);
-    }
-}
-
-void Scene::_doGeometryPass()
-{
     _matrixStack.pushProjection(_projection->getProjectionMatrix());
     _matrixStack.pushView(_camera->getViewMatrix());
     _matrixStack.pushModel(mat4(), false);
@@ -170,22 +145,35 @@ void Scene::_doGeometryPass()
         _firstPassProgram->setVec3(format("u_PointLights[{}].intensity", i).c_str(), _pointLights[i].intensity);
     }
 
-    _firstPassProgram->setFloat("u_Material.shininess", 1.0f);
-    _firstPassProgram->setTexture("u_Material.diffuseTexture", 0);
-    _firstPassProgram->setTexture("u_Material.specularTexture", 1);
-
     //
 
-    for (auto & m : _models)
-        _drawModel(m);
+    for (auto & model : _models)
+    {
+        _matrixStack.pushModel(model.getModelMatrix(), true);
+
+        const auto & matrixGroup = _matrixStack.getCache();
+
+        _firstPassProgram->setMat4("u_ModelMatrix", matrixGroup.model);
+        _firstPassProgram->setMat4("u_ViewMatrix", matrixGroup.view);
+        _firstPassProgram->setMat4("u_ProjectionMatrix", matrixGroup.projection);
+        _firstPassProgram->setMat4("u_ModelViewMatrix", matrixGroup.modelView);
+        _firstPassProgram->setMat4("u_ViewProjectionMatrix", matrixGroup.viewProjection);
+        _firstPassProgram->setMat4("u_ModelViewProjectionMatrix", matrixGroup.modelViewProjection);
+        _firstPassProgram->setMat3("u_NormalMatrix", matrixGroup.normal);
+
+        model.draw(*this);
+
+        _matrixStack.popModel();
+    }
 
     _matrixStack.popProjection();
     _matrixStack.popView();
     _matrixStack.popModel();
-}
 
-void Scene::_doDebugPass()
-{
+    //
+
+    _pass = RendererPass::Debug;
+
     _matrixStack.pushProjection(_projection->getProjectionMatrix());
     _matrixStack.pushView(_camera->getViewMatrix());
     _matrixStack.pushModel(mat4(), false);
@@ -193,58 +181,84 @@ void Scene::_doDebugPass()
     _nontexturedGeometryProgram->use();
 
     for (auto & pointLight : _pointLights)
-        _drawPointLight(pointLight);
+    {
+        _lightVisualizationModel.setPosition(pointLight.position);
+
+        _matrixStack.pushModel(_lightVisualizationModel.getModelMatrix(), true);
+
+        const auto & matrixGroup = _matrixStack.getCache();
+
+        _nontexturedGeometryProgram->setVec3("u_Color", pointLight.color);
+
+        _nontexturedGeometryProgram->setMat4("u_ModelMatrix", matrixGroup.model);
+        _nontexturedGeometryProgram->setMat4("u_ViewMatrix", matrixGroup.view);
+        _nontexturedGeometryProgram->setMat4("u_ProjectionMatrix", matrixGroup.projection);
+        _nontexturedGeometryProgram->setMat4("u_ModelViewMatrix", matrixGroup.modelView);
+        _nontexturedGeometryProgram->setMat4("u_ViewProjectionMatrix", matrixGroup.viewProjection);
+        _nontexturedGeometryProgram->setMat4("u_ModelViewProjectionMatrix", matrixGroup.modelViewProjection);
+        _nontexturedGeometryProgram->setMat3("u_NormalMatrix", matrixGroup.normal);
+
+        _lightVisualizationModel.draw(*this);
+
+        _matrixStack.popModel();
+    }
 
     _matrixStack.popProjection();
     _matrixStack.popView();
     _matrixStack.popModel();
+
+    _pass = RendererPass::Postprocess;
+
+    _pass = RendererPass::None;
 }
 
-void Scene::_drawModel(Model & model)
+void Scene::toggleMode()
 {
-    _matrixStack.pushModel(model.getModelMatrix(), true);
-
-    const auto & matrixGroup = _matrixStack.getCache();
-
-    _firstPassProgram->setMat4("u_ModelMatrix",                 matrixGroup.model);
-    _firstPassProgram->setMat4("u_ViewMatrix",                  matrixGroup.view);
-    _firstPassProgram->setMat4("u_ProjectionMatrix",            matrixGroup.projection);
-    _firstPassProgram->setMat4("u_ModelViewMatrix",             matrixGroup.modelView);
-    _firstPassProgram->setMat4("u_ViewProjectionMatrix",        matrixGroup.viewProjection);
-    _firstPassProgram->setMat4("u_ModelViewProjectionMatrix",   matrixGroup.modelViewProjection);
-    _firstPassProgram->setMat3("u_NormalMatrix",                matrixGroup.normal);
-
-    model.draw();
-
-    _matrixStack.popModel();
+    _mode = !_mode;
 }
 
-void Scene::_drawPointLight(PointLight & pointLight)
+shared_ptr<Camera> Scene::getCamera()
 {
-    _lightVisualizationModel.setPosition(pointLight.position);
-
-    _matrixStack.pushModel(_lightVisualizationModel.getModelMatrix(), true);
-
-    const auto & matrixGroup = _matrixStack.getCache();
-
-    _nontexturedGeometryProgram->setVec3("u_Color", pointLight.color);
-
-    _nontexturedGeometryProgram->setMat4("u_ModelMatrix",               matrixGroup.model);
-    _nontexturedGeometryProgram->setMat4("u_ViewMatrix",                matrixGroup.view);
-    _nontexturedGeometryProgram->setMat4("u_ProjectionMatrix",          matrixGroup.projection);
-    _nontexturedGeometryProgram->setMat4("u_ModelViewMatrix",           matrixGroup.modelView);
-    _nontexturedGeometryProgram->setMat4("u_ViewProjectionMatrix",      matrixGroup.viewProjection);
-    _nontexturedGeometryProgram->setMat4("u_ModelViewProjectionMatrix", matrixGroup.modelViewProjection);
-    _nontexturedGeometryProgram->setMat3("u_NormalMatrix",              matrixGroup.normal);
-
-    _lightVisualizationModel.draw();
-
-    _matrixStack.popModel();
+    return _camera;
 }
 
-void Scene::_updateMode()
+void Scene::updateViewport(int width, int height)
 {
-    glPolygonMode(GL_FRONT_AND_BACK, _mode ? GL_FILL : GL_LINE); gl_bugcheck();
+    if (width > 0 && height > 0)
+    {
+        _projection->makePerspective(60.0, static_cast<float>(width) / static_cast<float>(height), 0.01f, 100.0f);
+        glViewport(0, 0, width, height);
+    }
+}
+
+void Scene::setMaterial(Material * material)
+{
+    switch (_pass)
+    {
+    case RendererPass::Geometry:
+
+        _firstPassProgram->setTexture("u_Material.diffuseTexture", 0);
+        _firstPassProgram->setTexture("u_Material.specularTexture", 1);
+
+        if (material)
+        {
+            _firstPassProgram->setFloat("u_Material.shininess", 1.0f /*material->shininess*/);
+
+            if (auto diffuse = material->diffuseTexture)
+                diffuse->use(0);
+            else
+                Texture2D::unbind(0);
+
+            if (auto specular = material->specularTexture)
+                specular->use(1);
+            else
+                Texture2D::unbind(1);
+        }
+        break;
+
+    default:
+        break;
+    }
 }
 
 }

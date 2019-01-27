@@ -13,7 +13,26 @@
 namespace xrndr
 {
 
+class Renderer
+{
+public:
+    virtual void setMaterial(Material * material) = 0;
+
+protected:
+    virtual ~Renderer() = default;
+};
+
+enum class RendererPass
+{
+    None,
+    Geometry,
+    Debug,
+    Postprocess,
+};
+
+
 class Scene
+    : public Renderer
 {
 public:
     Scene();
@@ -30,17 +49,11 @@ public:
     void updateViewport(int width, int height);
 
 private:
-    void _doGeometryPass();
-
-    void _doDebugPass();
-
-    void _drawModel(Model & model);
-
-    void _drawPointLight(PointLight & light);
-
-    void _updateMode();
+    virtual void setMaterial(Material * material) override;
 
 private:
+    RendererPass _pass;
+
     bool                        _mode;
     MatrixStack                 _matrixStack;
     TextureCache                _textureCache;

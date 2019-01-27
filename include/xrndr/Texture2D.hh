@@ -14,6 +14,9 @@ public:
 
     void use(int unit);
 
+    static void bind(int unit, const Texture2D & texture);
+    static void unbind(int unit);
+
 public:
     GLuint name;
 };

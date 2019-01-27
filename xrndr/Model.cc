@@ -1,4 +1,5 @@
 #include <xrndr/Model.hh>
+#include <xrndr/Scene.hh>
 
 
 namespace xrndr
@@ -165,7 +166,7 @@ void Model::loadFromFile(const char * filename, const VerticeFormat & verticeFor
     g_Importer.FreeScene();
 }
 
-void Model::draw()
+void Model::draw(Renderer & renderer)
 {
     size_t material = (size_t) -1;
 
@@ -176,11 +177,7 @@ void Model::draw()
             // use material
             material = node.material;
 
-            if (auto diffuse = _materials[material].diffuseTexture)
-                diffuse->use(0);
-
-            if (auto specular = _materials[material].specularTexture)
-                specular->use(1);
+            renderer.setMaterial(_materials.data() + material);
         }
 
         _meshes[node.mesh].draw();

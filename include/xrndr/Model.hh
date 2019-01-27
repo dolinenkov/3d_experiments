@@ -30,6 +30,7 @@ private:
     mat4 _modelMatrix;
 };
 
+class Renderer;
 
 class Model : public Transformation
 {
@@ -43,7 +44,7 @@ private:
 public:
     void loadFromFile(const char * filename, const VerticeFormat & verticeFormat, Texture2DLoader & textureLoader);
 
-    void draw();
+    void draw(Renderer & renderer);
 
 private:
     unsigned int _countChildrenMeshes(const aiNode * node) const;
