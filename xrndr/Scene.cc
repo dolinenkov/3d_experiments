@@ -47,7 +47,7 @@ Scene::Scene()
     _pointLights.back().position    = vec3(0.0f, 0.0f, 3.0f);
     _pointLights.back().color       = vec3(1.0f, 1.0f, 1.0f);
     _pointLights.back().attenuation = vec3(1.0f, 0.0f, 0.3f);
-    _pointLights.back().intensity   = vec3(0.0f, 0.3f, 0.3f);
+    _pointLights.back().intensity   = vec3(0.0f, 1.0f, 1.0f);
 
     _pointLights.emplace_back();
     _pointLights.back().position    = vec3(0.0f, 1.0f, -2.0f);
@@ -257,7 +257,7 @@ void Scene::draw()
 
     _postprocessProgram->setTexture("u_Texture", 0);
     _postprocessProgram->setFloat("u_Gamma", 2.2f);
-    _postprocessProgram->setFloat("u_Exposure", 2.0f);
+    _postprocessProgram->setFloat("u_Exposure", 1.0f);
 
     glActiveTexture(GL_TEXTURE0); gl_bugcheck();
     glBindTexture(GL_TEXTURE_2D, _framebufferTexture); gl_bugcheck();

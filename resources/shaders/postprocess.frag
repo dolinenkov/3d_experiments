@@ -17,5 +17,5 @@ void main()
 
     vec3 gammaCorrectedColor = pow(toneMappedColor, vec3(1.0 / u_Gamma));
 
-    o_Color = vec4(gammaCorrectedColor, 1.0);
+    o_Color = vec4(gammaCorrectedColor, inColor.a);
 }
