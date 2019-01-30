@@ -79,7 +79,7 @@ void Model::loadFromFile(const char * filename, const VerticeFormat & verticeFor
                 material->GetTexture(aiTextureType_DIFFUSE, 0, &path);
 
                 textureLoader.setFilename(path.C_Str());
-                materials[i].diffuseTexture = textureLoader.load();
+                //materials[i].diffuseTexture = textureLoader.load();
             }
 
             if (material->GetTextureCount(aiTextureType_SPECULAR) > 0)
@@ -88,10 +88,10 @@ void Model::loadFromFile(const char * filename, const VerticeFormat & verticeFor
                 material->GetTexture(aiTextureType_SPECULAR, 0, &path);
 
                 textureLoader.setFilename(path.C_Str());
-                materials[i].specularTexture = textureLoader.load();
+                //materials[i].specularTexture = textureLoader.load();
             }
 
-            material->Get(AI_MATKEY_SHININESS, materials[i].shininess);
+            //material->Get(AI_MATKEY_SHININESS, materials[i].shininess);
         }
 
         // meshes

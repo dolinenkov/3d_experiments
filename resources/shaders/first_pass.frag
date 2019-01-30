@@ -25,9 +25,10 @@ struct DirectedLight
 
 struct Material
 {
-    float       shininess;
-    sampler2D   diffuseTexture;
-    sampler2D   specularTexture;
+    sampler2D albedo;
+    sampler2D metalness;
+    sampler2D normal;
+    sampler2D roughness;
 };
 
 
@@ -50,46 +51,103 @@ in vec3 v_Texture;
 out vec4 o_Color;
 
 
+const float PI = 4.0 * atan(1.0);
+
+
 void main()
 {
-    vec4 diffuseSample = texture(u_Material.diffuseTexture, v_Texture.st);
-    vec4 specularSample = texture(u_Material.specularTexture, v_Texture.st);
 
-    vec3 cameraDirection = normalize(u_Camera.position - v_Position);
-    vec3 normal = normalize(v_Normal);
+    vec3 albedoSample = texture(u_Material.albedo, v_Texture.st).rgb;
+    vec3 normalSample = texture(u_Material.normal, v_Texture.st).rgb;
+    float metalnessSample = texture(u_Material.metalness, v_Texture.st).r;
+    float roughnessSample = texture(u_Material.roughness, v_Texture.st).r;
 
-    int shininess = int(u_Material.shininess);
+    float alpha = roughnessSample;
+    float alpha_sq = alpha * alpha;
 
-    vec3 finalColor = vec3(0.0);
+    float k = pow(alpha + 1.0, 2.0) / 8.0;
 
-    for (int i = 0; i < min(u_DirectedLightsCount, u_DirectedLights.length()); ++i)
-    {
-        vec3 lightDirection = normalize(-u_DirectedLights[i].direction);
-        vec3 halfwayDir = normalize(cameraDirection + lightDirection);
+    vec3 L0 = vec3(0.0);
 
-        float ambientTerm = u_DirectedLights[i].intensity[0];
-        float diffuseTerm = u_DirectedLights[i].intensity[1] * max(dot(normal, lightDirection), 0.0);
-        float specularTerm = u_DirectedLights[i].intensity[2] * pow(max(dot(normal, halfwayDir), 0.0), shininess);
+    vec3 view = normalize(u_Camera.position - v_Position);
+    vec3 normal = normalize(normalSample.rgb + v_Normal);
+    float nv_dot = max(dot(normal, view), 0.0);
+    vec3 f0 = mix(vec3(0.04), albedoSample, vec3(metalnessSample));
 
-        finalColor += u_DirectedLights[i].color * (((ambientTerm + diffuseTerm) * diffuseSample.rgb) + (specularTerm * specularSample.rgb));
-    }
-
+    // point lights
     for (int i = 0; i < min(u_PointLightsCount, u_PointLights.length()); ++i)
     {
-        vec3 lightVector = u_PointLights[i].position - v_Position;
+        vec3 light = normalize(u_PointLights[i].position - v_Position);
+        vec3 halfway = normalize(view + light);
 
-        float lightDistance = length(lightVector);
-        vec3 lightDirection = normalize(lightVector);
-        vec3 halfwayDir = normalize(cameraDirection + lightDirection);
+        float attenuation = 1.0 / pow(length(u_PointLights[i].position - v_Position), 2.0);
+        vec3 radiance = u_PointLights[i].color * u_PointLights[i].intensity * attenuation;
 
-        float attenuation = 1.0 / (u_PointLights[i].attenuation[0] + u_PointLights[i].attenuation[1] * lightDistance + u_PointLights[i].attenuation[2] * pow(lightDistance, 2));
+        float hv_dot = max(dot(halfway, view), 0.0);
+        float nl_dot = max(dot(normal, light), 0.0);
+        float nh_dot = max(dot(normal, halfway), 0.0);
 
-        float ambientTerm = u_PointLights[i].intensity[0];
-        float diffuseTerm = u_PointLights[i].intensity[1] * max(dot(normal, lightDirection), 0.0);
-        float specularTerm = u_PointLights[i].intensity[2] * pow(max(dot(normal, halfwayDir), 0.0), shininess);
+        // NDF
+        float ndf_denom = 1.0 + (nh_dot * nh_dot * (alpha_sq - 1.0));
+        float ndf = alpha_sq / (PI * ndf_denom * ndf_denom);
 
-        finalColor += attenuation * u_PointLights[i].color * (((ambientTerm + diffuseTerm) * diffuseSample.rgb) + (specularTerm * specularSample.rgb));
+        // Geometry
+        float geometry_l = nl_dot / (k + (nl_dot * (1.0 - k)));
+        float geometry_v = nv_dot / (k + (nv_dot * (1.0 - k)));
+        float geometry = geometry_l * geometry_v;
+
+        // Fresnel
+        vec3 fresnel = f0 + ((vec3(1.0) - f0) * pow(1.0 - hv_dot, 5.0));
+
+        // DFG
+        vec3 dfg = fresnel * vec3(geometry * ndf);
+
+        // Cook-Torrance function
+        float cook_torrance_denom = max(4.0 * nv_dot * nl_dot, 0.001);
+        vec3 cook_torrance = dfg / cook_torrance_denom;
+
+        vec3 ks = fresnel;
+        vec3 kd = (vec3(1.0) - ks) * (1.0 - metalnessSample);
+
+        L0 += ((kd * albedoSample / PI) + cook_torrance) * radiance * nl_dot;
     }
 
-    o_Color = vec4(finalColor, 1.0);
+    // directed lights
+    for (int i = 0; i < min(u_DirectedLightsCount, u_DirectedLights.length()); ++i)
+    {
+        vec3 light = normalize(-u_DirectedLights[i].direction);
+        vec3 halfway = normalize(view + light);
+
+        vec3 radiance = u_DirectedLights[i].color * u_DirectedLights[i].intensity;
+
+        float hv_dot = max(dot(halfway, view), 0.0);
+        float nl_dot = max(dot(normal, light), 0.0);
+        float nh_dot = max(dot(normal, halfway), 0.0);
+
+        // NDF
+        float ndf_denom = 1.0 + (nh_dot * nh_dot * (alpha_sq - 1.0));
+        float ndf = alpha_sq / (PI * ndf_denom * ndf_denom);
+
+        // Geometry
+        float geometry_l = nl_dot / (k + (nl_dot * (1.0 - k)));
+        float geometry_v = nv_dot / (k + (nv_dot * (1.0 - k)));
+        float geometry = geometry_l * geometry_v;
+
+        // Fresnel
+        vec3 fresnel = f0 + ((vec3(1.0) - f0) * pow(1.0 - hv_dot, 5.0));
+
+        // DFG
+        vec3 dfg = fresnel * vec3(geometry * ndf);
+
+        // Cook-Torrance function
+        float cook_torrance_denom = max(4.0 * nv_dot * nl_dot, 0.001);
+        vec3 cook_torrance = dfg / cook_torrance_denom;
+
+        vec3 ks = fresnel;
+        vec3 kd = (vec3(1.0) - ks) * (1.0 - metalnessSample);
+
+        L0 += ((kd * albedoSample / PI) + cook_torrance) * radiance * nl_dot;
+    }
+
+    o_Color = vec4(L0 + vec3(albedoSample * 0.01), 1.0);
 }

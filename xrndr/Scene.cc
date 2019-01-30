@@ -44,23 +44,37 @@ Scene::Scene()
     //
 
     _pointLights.emplace_back();
-    _pointLights.back().position    = vec3(0.0f, 0.0f, 3.0f);
-    _pointLights.back().color       = vec3(1.0f, 1.0f, 1.0f);
-    _pointLights.back().attenuation = vec3(1.0f, 0.0f, 0.3f);
-    _pointLights.back().intensity   = vec3(0.0f, 1.0f, 1.0f);
+    _pointLights.back().position = vec3(0.0f, 0.0f, 4.0f);
+    _pointLights.back().color = vec3(0.0f, 1.0f, 0.0f);
+    _pointLights.back().attenuation = vec3(1.0f, 0.0f, 0.2f);
+    _pointLights.back().intensity = vec3(10.0f, 10.0f, 10.0f);
 
     _pointLights.emplace_back();
-    _pointLights.back().position    = vec3(0.0f, 1.0f, -2.0f);
-    _pointLights.back().color       = vec3(1.0f, 0.3f, 0.3f);
-    _pointLights.back().attenuation = vec3(1.0f, 0.0f, 0.5f);
-    _pointLights.back().intensity   = vec3(0.0f, 0.7f, 0.5f);
+    _pointLights.back().position = vec3(0.0f, 0.0f, 4.0f);
+    _pointLights.back().color = vec3(1.0f, 0.0f, 0.0f);
+    _pointLights.back().attenuation = vec3(1.0f, 0.0f, 0.2f);
+    _pointLights.back().intensity = vec3(10.0f, 10.0f, 10.0f);
 
     _directedLights.emplace_back();
     _directedLights.back().direction = vec3(-1.0f, 0.0f, -1.0f);
-    _directedLights.back().color     = vec3(1.0f, 1.0f, 1.0f);
-    _directedLights.back().intensity = vec3(0.0f, 0.2f, 0.2f);
+    _directedLights.back().color     = vec3(0.0f, 0.0f, 1.0f);
+    _directedLights.back().intensity = vec3(0.0f, 0.0f, 1.0f);
 
     _lightPhase = 0.0f;
+
+    //
+
+    loader.setFilename("rustediron2_basecolor.png");
+    _pbrMaterial.albedo = loader.load();
+
+    loader.setFilename("rustediron2_metallic.png");
+    _pbrMaterial.metalness = loader.load();
+
+    loader.setFilename("rustediron2_normal.png");
+    _pbrMaterial.normal = loader.load();
+
+    loader.setFilename("rustediron2_roughness.png");
+    _pbrMaterial.roughness = loader.load();
 
     //
 
@@ -70,19 +84,21 @@ Scene::Scene()
     _models.back().setScale(vec3(0.05f, 0.05f, 0.05f));
 
     _models.emplace_back();
-    _models.back().loadFromFile("cube.obj", geometryPassVerticeFormat, loader);
-    _models.back().setPosition(vec3(1.0f, -1.5f, 5.0f));
+    _models.back().loadFromFile("sphere.obj", geometryPassVerticeFormat, loader);
+    _models.back().setPosition(vec3(-1.0f, 1.0f, 5.0f));
+    _models.back().setScale(vec3(0.05f, 0.05f, 0.05f));
 
     _models.emplace_back();
-    _models.back().loadFromFile("terrain.obj", geometryPassVerticeFormat, loader);
-    _models.back().setPosition(vec3(0.0f, -2.0f, 0.0f));
-    _models.back().setScale(vec3(10.0f, 1.0f, 10.0f));
+    _models.back().loadFromFile("sphere.obj", geometryPassVerticeFormat, loader);
+    _models.back().setPosition(vec3(1.0f, 1.0f, 5.0f));
+    _models.back().setScale(vec3(0.05f, 0.05f, 0.05f));
 
     _models.emplace_back();
-    _models.back().loadFromFile("torus.obj", geometryPassVerticeFormat, loader);
-    _models.back().setPosition(vec3(0.0f, -1.0f, -2.0f));
-    _models.back().setScale(vec3(0.5f));
+    _models.back().loadFromFile("sphere.obj", geometryPassVerticeFormat, loader);
+    _models.back().setPosition(vec3(1.0f, -1.0f, 5.0f));
+    _models.back().setScale(vec3(0.05f, 0.05f, 0.05f));
 
+    //
 
     _lightVisualizationModel.loadFromFile("cube.obj", nontexturedGeometryVerticeFormat, loader);
     _lightVisualizationModel.setScale(vec3(0.2f));
@@ -136,10 +152,13 @@ Scene::~Scene()
 void Scene::update(float _s)
 {
     _lightPhase += _s;
+
     if (_lightPhase > glm::two_pi<float>())
         _lightPhase = 0.0f;
 
     _pointLights[0].position = vec3(2.5f * cos(_lightPhase), 2.5f * sin(_lightPhase), 2.0f);
+
+    _pointLights[1].position = vec3(2.5f * cos(-_lightPhase), 2.5f * sin(-_lightPhase), 2.0f);
 }
 
 void Scene::draw()
@@ -309,29 +328,56 @@ void Scene::updateViewport(int width, int height)
 
 void Scene::setMaterial(Material * material)
 {
+    material = &_pbrMaterial;
+
     switch (_pass)
     {
     case RendererPass::Geometry:
 
-        _firstPassProgram->setTexture("u_Material.diffuseTexture", 0);
-        _firstPassProgram->setTexture("u_Material.specularTexture", 1);
+        _firstPassProgram->setTexture("u_Material.albedo", 0);
+        _firstPassProgram->setTexture("u_Material.metalness", 1);
+        _firstPassProgram->setTexture("u_Material.normal", 2);
+        _firstPassProgram->setTexture("u_Material.roughness", 3);
+
+        /*_firstPassProgram->setTexture("u_Material.diffuseTexture", 0);
+        _firstPassProgram->setTexture("u_Material.specularTexture", 1);*/
 
         if (material)
         {
-            auto diffuseTexture = material->diffuseTexture;
-            auto specularTexture = material->specularTexture;
-
-            _firstPassProgram->setFloat("u_Material.shininess", material->shininess);
-
-            if (diffuseTexture)
-                diffuseTexture->use(0);
+            if (auto tex = material->albedo)
+                tex->use(0);
             else
                 Texture2D::unbind(0);
 
-            if (specularTexture)
-                specularTexture->use(1);
+            if (auto tex = material->metalness)
+                tex->use(1);
             else
                 Texture2D::unbind(1);
+
+            if (auto tex = material->normal)
+                tex->use(2);
+            else
+                Texture2D::unbind(2);
+
+            if (auto tex = material->roughness)
+                tex->use(3);
+            else
+                Texture2D::unbind(3);
+
+            /*auto diffuseTexture = material->diffuseTexture;
+            auto specularTexture = material->specularTexture;*/
+
+            //_firstPassProgram->setFloat("u_Material.shininess", material->shininess);
+
+            //if (diffuseTexture)
+            //    diffuseTexture->use(0);
+            //else
+            //    Texture2D::unbind(0);
+
+            //if (specularTexture)
+            //    specularTexture->use(1);
+            //else
+            //    Texture2D::unbind(1);
         }
         break;
 

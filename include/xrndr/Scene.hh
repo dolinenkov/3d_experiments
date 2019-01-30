@@ -74,6 +74,8 @@ private:
 
     shared_ptr<Program>         _postprocessProgram;
 
+    Material _pbrMaterial;
+
     int _width;
     int _height;
     GLuint _framebuffer;

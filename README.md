@@ -19,4 +19,5 @@ Esc - exit
 
 ## Current state
 
-![current state](https://user-images.githubusercontent.com/19366691/51631480-81b03200-1f55-11e9-9ff1-dd7701c67d31.jpg)
+![img1](https://user-images.githubusercontent.com/19366691/52015423-9d35b280-24ea-11e9-9701-624c24b772da.jpg)
+![img2](https://user-images.githubusercontent.com/19366691/52015424-9d35b280-24ea-11e9-8376-bd972219b0a8.jpg)
