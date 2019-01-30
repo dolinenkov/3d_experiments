@@ -77,10 +77,12 @@ void main()
     // point lights
     for (int i = 0; i < min(u_PointLightsCount, u_PointLights.length()); ++i)
     {
-        vec3 light = normalize(u_PointLights[i].position - v_Position);
+        vec3 light_raw = u_PointLights[i].position - v_Position;
+
+        vec3 light = normalize(light_raw);
         vec3 halfway = normalize(view + light);
 
-        float attenuation = 1.0 / pow(length(u_PointLights[i].position - v_Position), 2.0);
+        float attenuation = 1.0 / pow(length(light_raw), 2.0);
         vec3 radiance = u_PointLights[i].color * u_PointLights[i].intensity * attenuation;
 
         float hv_dot = max(dot(halfway, view), 0.0);
