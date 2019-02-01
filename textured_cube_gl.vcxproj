@@ -218,6 +218,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="xrndr\Camera.cc" />
+    <ClCompile Include="xrndr\json.cc" />
     <ClCompile Include="xrndr\main.cc" />
     <ClCompile Include="xrndr\MatrixStack.cc" />
     <ClCompile Include="xrndr\Mesh.cc" />
@@ -233,6 +234,7 @@
     <ClInclude Include="include\xrndr\Camera.hh" />
     <ClInclude Include="include\xrndr\config.hh" />
     <ClInclude Include="include\xrndr\detail\Stack.hh" />
+    <ClInclude Include="include\xrndr\json.hh" />
     <ClInclude Include="include\xrndr\Light.hh" />
     <ClInclude Include="include\xrndr\Material.hh" />
     <ClInclude Include="include\xrndr\MatrixStack.hh" />

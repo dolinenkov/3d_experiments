@@ -99,6 +99,9 @@ using Path = ::std::string; // this is going to be a separate class, but now I h
 }
 
 
+#include <jansson.h>
+
+
 // TODO: move this macro-shit somewhere else
 
 
