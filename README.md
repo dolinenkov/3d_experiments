@@ -10,6 +10,7 @@ Simple realtime rendering engine written for educational purposes
 - fmt
 - SOIL
 - Assimp
+- jansson
 
 ## Controls
 
