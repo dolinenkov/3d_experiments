@@ -27,17 +27,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <Object Include="resources\models\cube.obj">
-      <Filter>resources\models</Filter>
-    </Object>
-    <Object Include="resources\models\sphere.obj">
-      <Filter>resources\models</Filter>
-    </Object>
-    <Object Include="resources\models\terrain.obj">
-      <Filter>resources\models</Filter>
-    </Object>
-  </ItemGroup>
-  <ItemGroup>
     <None Include="resources\shaders\first_pass.frag">
       <Filter>resources\shaders</Filter>
     </None>
@@ -56,14 +45,30 @@
     <None Include="resources\shaders\postprocess.vert">
       <Filter>resources\shaders</Filter>
     </None>
-  </ItemGroup>
-  <ItemGroup>
-    <Image Include="resources\textures\container2.png">
-      <Filter>resources\textures</Filter>
-    </Image>
-    <Image Include="resources\textures\container2_specular.png">
-      <Filter>resources\textures</Filter>
-    </Image>
+    <None Include="resources\materials\pbr_sphere_gold.json">
+      <Filter>resources\materials</Filter>
+    </None>
+    <None Include="resources\materials\pbr_sphere_iron.json">
+      <Filter>resources\materials</Filter>
+    </None>
+    <None Include="resources\materials\pbr_sphere_leather.json">
+      <Filter>resources\materials</Filter>
+    </None>
+    <None Include="resources\materials\pbr_sphere_pvc.json">
+      <Filter>resources\materials</Filter>
+    </None>
+    <None Include="resources\models\pbr_sphere_gold.mtl">
+      <Filter>resources\models</Filter>
+    </None>
+    <None Include="resources\models\pbr_sphere_iron.mtl">
+      <Filter>resources\models</Filter>
+    </None>
+    <None Include="resources\models\pbr_sphere_leather.mtl">
+      <Filter>resources\models</Filter>
+    </None>
+    <None Include="resources\models\pbr_sphere_pvc.mtl">
+      <Filter>resources\models</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="xrndr\Camera.cc">
@@ -152,5 +157,57 @@
     <ClInclude Include="include\xrndr\json.hh">
       <Filter>include</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Object Include="resources\models\pbr_sphere_gold.obj">
+      <Filter>resources\models</Filter>
+    </Object>
+    <Object Include="resources\models\pbr_sphere_iron.obj">
+      <Filter>resources\models</Filter>
+    </Object>
+    <Object Include="resources\models\pbr_sphere_leather.obj">
+      <Filter>resources\models</Filter>
+    </Object>
+    <Object Include="resources\models\pbr_sphere_pvc.obj">
+      <Filter>resources\models</Filter>
+    </Object>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="resources\textures\pbr_sphere_gold_Albedo.png">
+      <Filter>resources\textures</Filter>
+    </Image>
+    <Image Include="resources\textures\pbr_sphere_gold_Metalness_Roughness_AO.png">
+      <Filter>resources\textures</Filter>
+    </Image>
+    <Image Include="resources\textures\pbr_sphere_gold_Normal.png">
+      <Filter>resources\textures</Filter>
+    </Image>
+    <Image Include="resources\textures\pbr_sphere_iron_Albedo.png">
+      <Filter>resources\textures</Filter>
+    </Image>
+    <Image Include="resources\textures\pbr_sphere_iron_Metalness_Roughness_AO.png">
+      <Filter>resources\textures</Filter>
+    </Image>
+    <Image Include="resources\textures\pbr_sphere_iron_Normal.png">
+      <Filter>resources\textures</Filter>
+    </Image>
+    <Image Include="resources\textures\pbr_sphere_leather_Albedo.png">
+      <Filter>resources\textures</Filter>
+    </Image>
+    <Image Include="resources\textures\pbr_sphere_leather_Metalness_Roughness_AO.png">
+      <Filter>resources\textures</Filter>
+    </Image>
+    <Image Include="resources\textures\pbr_sphere_leather_Normal.png">
+      <Filter>resources\textures</Filter>
+    </Image>
+    <Image Include="resources\textures\pbr_sphere_pvc_Albedo.png">
+      <Filter>resources\textures</Filter>
+    </Image>
+    <Image Include="resources\textures\pbr_sphere_pvc_Metalness_Roughness_AO.png">
+      <Filter>resources\textures</Filter>
+    </Image>
+    <Image Include="resources\textures\pbr_sphere_pvc_Normal.png">
+      <Filter>resources\textures</Filter>
+    </Image>
   </ItemGroup>
 </Project>
