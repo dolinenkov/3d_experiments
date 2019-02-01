@@ -1,5 +1,6 @@
 #include <xrndr/Model.hh>
 #include <xrndr/Scene.hh>
+#include <xrndr/json.hh>
 
 
 namespace xrndr
@@ -78,18 +79,45 @@ void Model::loadFromFile(const char * filename, const VerticeFormat & verticeFor
                 aiString path;
                 material->GetTexture(aiTextureType_DIFFUSE, 0, &path);
 
-                textureLoader.setFilename(path.C_Str());
-                //materials[i].diffuseTexture = textureLoader.load();
+                std::string file(path.C_Str());
+                const size_t dotPos = file.rfind('.');
+                file = file.substr(0, dotPos) + ".json";
+
+                std::vector<char> materialJson;
+
+                if (auto f = SDL_RWFromFile(format("resources/materials/{}", file).c_str(), "r"))
+                {
+                    auto s = SDL_RWsize(f);
+                    materialJson.resize(s);
+                    SDL_RWread(f, materialJson.data(), materialJson.size(), 1);
+                    SDL_RWclose(f);
+                }
+
+                json::Object materialObject(materialJson.data(), materialJson.size());
+                if (!materialObject.empty())
+                {
+                    textureLoader.setIsSRGB(true);
+                    textureLoader.setFilename(materialObject.getString("albedo"));
+                    materials[i].albedo = textureLoader.load();
+
+                    textureLoader.setIsSRGB(false);
+                    textureLoader.setFilename(materialObject.getString("normal"));
+                    materials[i].normal = textureLoader.load();
+
+                    textureLoader.setIsSRGB(false);
+                    textureLoader.setFilename(materialObject.getString("metalness_roughness_ao"));
+                    materials[i].metalnessRoughnessAO = textureLoader.load();
+                }
             }
 
-            if (material->GetTextureCount(aiTextureType_SPECULAR) > 0)
-            {
-                aiString path;
-                material->GetTexture(aiTextureType_SPECULAR, 0, &path);
+            //if (material->GetTextureCount(aiTextureType_SPECULAR) > 0)
+            //{
+            //    aiString path;
+            //    material->GetTexture(aiTextureType_SPECULAR, 0, &path);
 
-                textureLoader.setFilename(path.C_Str());
-                //materials[i].specularTexture = textureLoader.load();
-            }
+            //    textureLoader.setFilename(path.C_Str());
+            //    //materials[i].specularTexture = textureLoader.load();
+            //}
 
             //material->Get(AI_MATKEY_SHININESS, materials[i].shininess);
         }

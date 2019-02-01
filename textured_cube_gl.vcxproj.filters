@@ -22,6 +22,9 @@
     <Filter Include="include\detail">
       <UniqueIdentifier>{543f8652-3e51-44a6-bdad-9afcabc55082}</UniqueIdentifier>
     </Filter>
+    <Filter Include="resources\materials">
+      <UniqueIdentifier>{180a45d6-a138-43c8-aa8b-c1aff1fde798}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Object Include="resources\models\cube.obj">

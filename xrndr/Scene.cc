@@ -1,5 +1,6 @@
 #include <xrndr/Scene.hh>
 #include <xrndr/Texture2DLoader.hh>
+#include <xrndr/json.hh>
 
 
 namespace xrndr
@@ -45,13 +46,13 @@ Scene::Scene()
 
     _pointLights.emplace_back();
     _pointLights.back().position = vec3(0.0f, 0.0f, 4.0f);
-    _pointLights.back().color = vec3(0.0f, 1.0f, 0.0f);
+    _pointLights.back().color = vec3(1.0f, 1.0f, 1.0f);
     _pointLights.back().attenuation = vec3(1.0f, 0.0f, 0.2f);
     _pointLights.back().intensity = vec3(10.0f, 10.0f, 10.0f);
 
     _pointLights.emplace_back();
     _pointLights.back().position = vec3(0.0f, 0.0f, 4.0f);
-    _pointLights.back().color = vec3(1.0f, 0.0f, 0.0f);
+    _pointLights.back().color = vec3(1.0f, 1.0f, 1.0f);
     _pointLights.back().attenuation = vec3(1.0f, 0.0f, 0.2f);
     _pointLights.back().intensity = vec3(10.0f, 10.0f, 10.0f);
 
@@ -64,37 +65,23 @@ Scene::Scene()
 
     //
 
-    loader.setFilename("rustediron2_basecolor.png");
-    _pbrMaterial.albedo = loader.load();
-
-    loader.setFilename("rustediron2_metallic.png");
-    _pbrMaterial.metalness = loader.load();
-
-    loader.setFilename("rustediron2_normal.png");
-    _pbrMaterial.normal = loader.load();
-
-    loader.setFilename("rustediron2_roughness.png");
-    _pbrMaterial.roughness = loader.load();
-
-    //
-
     _models.emplace_back();
-    _models.back().loadFromFile("sphere.obj", geometryPassVerticeFormat, loader);
+    _models.back().loadFromFile("pbr_sphere_gold.obj", geometryPassVerticeFormat, loader);
     _models.back().setPosition(vec3(-1.0f, -1.0f, 5.0f));
     _models.back().setScale(vec3(0.05f, 0.05f, 0.05f));
 
     _models.emplace_back();
-    _models.back().loadFromFile("sphere.obj", geometryPassVerticeFormat, loader);
+    _models.back().loadFromFile("pbr_sphere_iron.obj", geometryPassVerticeFormat, loader);
     _models.back().setPosition(vec3(-1.0f, 1.0f, 5.0f));
     _models.back().setScale(vec3(0.05f, 0.05f, 0.05f));
 
     _models.emplace_back();
-    _models.back().loadFromFile("sphere.obj", geometryPassVerticeFormat, loader);
+    _models.back().loadFromFile("pbr_sphere_leather.obj", geometryPassVerticeFormat, loader);
     _models.back().setPosition(vec3(1.0f, 1.0f, 5.0f));
     _models.back().setScale(vec3(0.05f, 0.05f, 0.05f));
 
     _models.emplace_back();
-    _models.back().loadFromFile("sphere.obj", geometryPassVerticeFormat, loader);
+    _models.back().loadFromFile("pbr_sphere_pvc.obj", geometryPassVerticeFormat, loader);
     _models.back().setPosition(vec3(1.0f, -1.0f, 5.0f));
     _models.back().setScale(vec3(0.05f, 0.05f, 0.05f));
 
@@ -328,19 +315,13 @@ void Scene::updateViewport(int width, int height)
 
 void Scene::setMaterial(Material * material)
 {
-    material = &_pbrMaterial;
-
     switch (_pass)
     {
     case RendererPass::Geometry:
 
         _firstPassProgram->setTexture("u_Material.albedo", 0);
-        _firstPassProgram->setTexture("u_Material.metalness", 1);
-        _firstPassProgram->setTexture("u_Material.normal", 2);
-        _firstPassProgram->setTexture("u_Material.roughness", 3);
-
-        /*_firstPassProgram->setTexture("u_Material.diffuseTexture", 0);
-        _firstPassProgram->setTexture("u_Material.specularTexture", 1);*/
+        _firstPassProgram->setTexture("u_Material.normal", 1);
+        _firstPassProgram->setTexture("u_Material.metalnessRoughnessAO", 2);
 
         if (material)
         {
@@ -349,35 +330,15 @@ void Scene::setMaterial(Material * material)
             else
                 Texture2D::unbind(0);
 
-            if (auto tex = material->metalness)
+            if (auto tex = material->normal)
                 tex->use(1);
             else
                 Texture2D::unbind(1);
 
-            if (auto tex = material->normal)
+            if (auto tex = material->metalnessRoughnessAO)
                 tex->use(2);
             else
                 Texture2D::unbind(2);
-
-            if (auto tex = material->roughness)
-                tex->use(3);
-            else
-                Texture2D::unbind(3);
-
-            /*auto diffuseTexture = material->diffuseTexture;
-            auto specularTexture = material->specularTexture;*/
-
-            //_firstPassProgram->setFloat("u_Material.shininess", material->shininess);
-
-            //if (diffuseTexture)
-            //    diffuseTexture->use(0);
-            //else
-            //    Texture2D::unbind(0);
-
-            //if (specularTexture)
-            //    specularTexture->use(1);
-            //else
-            //    Texture2D::unbind(1);
         }
         break;
 
