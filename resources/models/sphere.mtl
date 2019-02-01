@@ -1,4 +1,0 @@
-newmtl sphere
-map_Kd blue.png
-map_Ks white.png
-Ns 100.0

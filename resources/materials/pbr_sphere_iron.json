@@ -1,0 +1,5 @@
+{
+  "albedo": "pbr_sphere_iron_Albedo.png",
+  "normal": "pbr_sphere_iron_Normal.png",
+  "metalness_roughness_ao": "pbr_sphere_iron_Metalness_Roughness_AO.png"
+}

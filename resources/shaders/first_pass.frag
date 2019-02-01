@@ -26,9 +26,8 @@ struct DirectedLight
 struct Material
 {
     sampler2D albedo;
-    sampler2D metalness;
     sampler2D normal;
-    sampler2D roughness;
+    sampler2D metalnessRoughnessAO;
 };
 
 
@@ -59,8 +58,11 @@ void main()
 
     vec3 albedoSample = texture(u_Material.albedo, v_Texture.st).rgb;
     vec3 normalSample = texture(u_Material.normal, v_Texture.st).rgb;
-    float metalnessSample = texture(u_Material.metalness, v_Texture.st).r;
-    float roughnessSample = texture(u_Material.roughness, v_Texture.st).r;
+    vec3 metalnessRoughnessOcclusionSample = texture(u_Material.metalnessRoughnessAO, v_Texture.st).rgb;
+
+    float metalnessSample = metalnessRoughnessOcclusionSample.r;
+    float roughnessSample = metalnessRoughnessOcclusionSample.g;
+    float occlusionSample = metalnessRoughnessOcclusionSample.b;
 
     float alpha = roughnessSample;
     float alpha_sq = alpha * alpha;

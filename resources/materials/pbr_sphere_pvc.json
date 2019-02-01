@@ -1,0 +1,5 @@
+{
+  "albedo": "pbr_sphere_pvc_Albedo.png",
+  "normal": "pbr_sphere_pvc_Normal.png",
+  "metalness_roughness_ao": "pbr_sphere_pvc_Metalness_Roughness_AO.png"
+}

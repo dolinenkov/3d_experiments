@@ -1,0 +1,4 @@
+newmtl pbr_sphere_iron
+map_Kd pbr_sphere_iron.png
+#map_Ks white.png
+Ns 100.0

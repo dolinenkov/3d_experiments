@@ -1,4 +1,0 @@
-newmtl terrain
-map_Kd chessboard.png
-map_Ks white.png
-Ns 100.00

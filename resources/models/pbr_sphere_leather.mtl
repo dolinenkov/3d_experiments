@@ -1,0 +1,4 @@
+newmtl pbr_sphere_leather
+map_Kd pbr_sphere_leather.png
+#map_Ks white.png
+Ns 100.0
