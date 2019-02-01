@@ -45,7 +45,7 @@ const mat4 & Transformation::getModelMatrix()
     {
         _dirty = false;
         // Transform, rotate, scale
-        _modelMatrix = ::glm::scale(yawPitchRoll(_angles[0], _angles[1], _angles[2]) * translate(mat4(), _position), _scale);
+        _modelMatrix = ::glm::scale(yawPitchRoll(_angles[0], _angles[1], _angles[2]) * translate(mat4(1.0), _position), _scale);
     }
 
     return _modelMatrix;
