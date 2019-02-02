@@ -8,6 +8,7 @@
 #include <xrndr/MatrixStack.hh>
 #include <xrndr/Light.hh>
 #include <xrndr/TextureCache.hh>
+#include <xrndr/Settings.hh>
 
 
 namespace xrndr
@@ -35,7 +36,8 @@ class Scene
     : public Renderer
 {
 public:
-    Scene();
+    explicit Scene(Settings & settings);
+
     ~Scene();
 
     void update(float);
@@ -52,7 +54,8 @@ private:
     virtual void setMaterial(Material * material) override;
 
 private:
-    RendererPass _pass;
+    Settings &                  _settings;
+    RendererPass                _pass;
 
     bool                        _mode;
     MatrixStack                 _matrixStack;

@@ -69,6 +69,7 @@
     <None Include="resources\models\pbr_sphere_pvc.mtl">
       <Filter>resources\models</Filter>
     </None>
+    <None Include="settings.json" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="xrndr\Camera.cc">
@@ -105,6 +106,9 @@
       <Filter>sources</Filter>
     </ClCompile>
     <ClCompile Include="xrndr\json.cc">
+      <Filter>sources</Filter>
+    </ClCompile>
+    <ClCompile Include="xrndr\Settings.cc">
       <Filter>sources</Filter>
     </ClCompile>
   </ItemGroup>
@@ -155,6 +159,9 @@
       <Filter>include\detail</Filter>
     </ClInclude>
     <ClInclude Include="include\xrndr\json.hh">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\xrndr\Settings.hh">
       <Filter>include</Filter>
     </ClInclude>
   </ItemGroup>

@@ -1,5 +1,6 @@
 #include <xrndr/config.hh>
 #include <xrndr/Scene.hh>
+#include <xrndr/Settings.hh>
 
 
 struct Keyboard
@@ -133,7 +134,10 @@ int main(int, char *[])
             int windowHeight;
             SDL_GetWindowSize(window, &windowWidth, &windowHeight);
 
-            SDL_GL_SetSwapInterval(0);
+            xrndr::Settings settings;
+            settings.load();
+
+            SDL_GL_SetSwapInterval(settings.vsync ? 1 : 0);
 
             const auto glewError = glewInit();
             if (glewError != GLEW_NO_ERROR)
@@ -141,7 +145,7 @@ int main(int, char *[])
                 SDL_Log("glew init: %s\n", glewGetErrorString(glewError));
             }
             else
-            if (auto scene = xrndr::make_unique<xrndr::Scene>())
+            if (auto scene = xrndr::make_unique<xrndr::Scene>(settings))
             {
                 glEnable(GL_DEBUG_OUTPUT);
 

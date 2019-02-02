@@ -259,6 +259,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
     </None>
+    <None Include="settings.json" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="xrndr\Camera.cc" />
@@ -270,6 +271,7 @@
     <ClCompile Include="xrndr\Program.cc" />
     <ClCompile Include="xrndr\Projection.cc" />
     <ClCompile Include="xrndr\Scene.cc" />
+    <ClCompile Include="xrndr\Settings.cc" />
     <ClCompile Include="xrndr\Texture2D.cc" />
     <ClCompile Include="xrndr\Texture2DLoader.cc" />
     <ClCompile Include="xrndr\TextureCache.cc" />
@@ -287,6 +289,7 @@
     <ClInclude Include="include\xrndr\Program.hh" />
     <ClInclude Include="include\xrndr\Projection.hh" />
     <ClInclude Include="include\xrndr\Scene.hh" />
+    <ClInclude Include="include\xrndr\Settings.hh" />
     <ClInclude Include="include\xrndr\Texture2D.hh" />
     <ClInclude Include="include\xrndr\Texture2DLoader.hh" />
     <ClInclude Include="include\xrndr\TextureCache.hh" />

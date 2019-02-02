@@ -6,8 +6,9 @@
 namespace xrndr
 {
 
-Scene::Scene()
-    : _mode(true)
+Scene::Scene(Settings & settings)
+    : _settings(settings)
+    , _mode(true)
 {
     ProgramBuilder builder;
 
@@ -262,7 +263,7 @@ void Scene::draw()
     _postprocessProgram->use();
 
     _postprocessProgram->setTexture("u_Texture", 0);
-    _postprocessProgram->setFloat("u_Gamma", 2.2f);
+    _postprocessProgram->setFloat("u_Gamma", _settings.gamma);
     _postprocessProgram->setFloat("u_Exposure", 1.0f);
 
     glActiveTexture(GL_TEXTURE0); gl_bugcheck();
