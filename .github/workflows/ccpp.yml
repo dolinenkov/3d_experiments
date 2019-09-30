@@ -1,0 +1,19 @@
+name: C/C++ CI
+
+on:
+  push:
+    branches:
+    - master
+
+jobs:
+  build:
+
+    runs-on: windows-latest
+    
+    steps:
+    - uses: actions/checkout@v1
+    - name: install dependencies
+      run: vcpkg install sdl2
+    - name: build
+      run: msbuild textured_cube_gl.sln
+      
