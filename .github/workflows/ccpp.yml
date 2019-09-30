@@ -13,7 +13,7 @@ jobs:
     steps:
     - uses: actions/checkout@v1
     - name: install dependencies
-      run: vcpkg install sdl2
+      run: vcpkg install sdl2 glew glm fmt soil assimp jansson
     - name: build
       run: msbuild textured_cube_gl.sln
       
