@@ -55,7 +55,7 @@ std::shared_ptr<Texture2D> Texture2D::Loader::load(const Description& descriptio
             if (!read_file(fmt::format("resources/textures/{}", description.path), encoded)) break;
             if (!decode_image(encoded, width, height, channels, decoded)) break;
 
-            context.post([texture, width, height, channels, srgb = description.srgb, decoded = std::move(decoded)]()
+            context.post([texture, width, height, channels, srgb = description.srgb, decoded]()
             {
                 GLuint handle = 0;
                 if (upload_texture(decoded, width, height, channels, srgb, handle))
@@ -97,8 +97,9 @@ bool Texture2D::Loader::decode_image(const std::vector<char>& file, uint32_t& wi
     do
     {
         int w, h, c;
-        w = h = c = 0;
-        auto img = stbi_load_from_memory(reinterpret_cast<const stbi_uc*>(file.data()), static_cast<int>(file.size()), &w, &h, &c, 4);
+        w = h = 0;
+        c = 4;
+        auto img = stbi_load_from_memory(reinterpret_cast<const stbi_uc*>(file.data()), static_cast<int>(file.size()), &w, &h, nullptr, c);
         if (!img) break;
 
         width = w;
