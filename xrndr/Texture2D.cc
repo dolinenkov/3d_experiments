@@ -98,7 +98,7 @@ bool Texture2D::Loader::decode_image(const std::vector<char>& file, uint32_t& wi
     {
         int w, h, c;
         w = h = c = 0;
-        auto img = stbi_loadf_from_memory(reinterpret_cast<const stbi_uc*>(file.data()), static_cast<int>(file.size()), &w, &h, &c, 4);
+        auto img = stbi_load_from_memory(reinterpret_cast<const stbi_uc*>(file.data()), static_cast<int>(file.size()), &w, &h, &c, 4);
         if (!img) break;
 
         width = w;
@@ -152,7 +152,7 @@ bool Texture2D::Loader::upload_texture(const std::vector<char>& image, uint32_t 
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         if (glGetError()) break;
 
-        glTexImage2D(GL_TEXTURE_2D, 0, srgb ? GL_SRGB : GL_RGBA, width, height, 0, in_format, GL_UNSIGNED_BYTE, image.data());
+        glTexImage2D(GL_TEXTURE_2D, 0, srgb ? GL_SRGB : GL_RGB, width, height, 0, in_format, GL_UNSIGNED_BYTE, image.data());
         if (glGetError()) break;
 
         glGenerateMipmap(GL_TEXTURE_2D);
