@@ -1,5 +1,5 @@
 #include <xrndr/Scene.hh>
-#include <xrndr/Texture2DLoader.hh>
+#include <xrndr/Texture2D.hh>
 #include <xrndr/json.hh>
 
 
@@ -11,9 +11,6 @@ Scene::Scene(Settings & settings)
     , _mode(true)
 {
     ProgramBuilder builder;
-
-    Texture2DLoader loader;
-    loader.setTextureCache(&_textureCache);
 
     // programs
 
@@ -67,28 +64,28 @@ Scene::Scene(Settings & settings)
     //
 
     _models.emplace_back();
-    _models.back().loadFromFile("pbr_sphere_gold.obj", geometryPassVerticeFormat, loader);
+    _models.back().loadFromFile("pbr_sphere_gold.obj", geometryPassVerticeFormat);
     _models.back().setPosition(vec3(-1.0f, -1.0f, 5.0f));
     _models.back().setScale(vec3(0.05f, 0.05f, 0.05f));
 
     _models.emplace_back();
-    _models.back().loadFromFile("pbr_sphere_iron.obj", geometryPassVerticeFormat, loader);
+    _models.back().loadFromFile("pbr_sphere_iron.obj", geometryPassVerticeFormat);
     _models.back().setPosition(vec3(-1.0f, 1.0f, 5.0f));
     _models.back().setScale(vec3(0.05f, 0.05f, 0.05f));
 
     _models.emplace_back();
-    _models.back().loadFromFile("pbr_sphere_leather.obj", geometryPassVerticeFormat, loader);
+    _models.back().loadFromFile("pbr_sphere_leather.obj", geometryPassVerticeFormat);
     _models.back().setPosition(vec3(1.0f, 1.0f, 5.0f));
     _models.back().setScale(vec3(0.05f, 0.05f, 0.05f));
 
     _models.emplace_back();
-    _models.back().loadFromFile("pbr_sphere_pvc.obj", geometryPassVerticeFormat, loader);
+    _models.back().loadFromFile("pbr_sphere_pvc.obj", geometryPassVerticeFormat);
     _models.back().setPosition(vec3(1.0f, -1.0f, 5.0f));
     _models.back().setScale(vec3(0.05f, 0.05f, 0.05f));
 
     //
 
-    _lightVisualizationModel.loadFromFile("cube.obj", nontexturedGeometryVerticeFormat, loader);
+    _lightVisualizationModel.loadFromFile("cube.obj", nontexturedGeometryVerticeFormat);
     _lightVisualizationModel.setScale(vec3(0.2f));
 
     //

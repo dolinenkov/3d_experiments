@@ -42,7 +42,7 @@ private:
     };
 
 public:
-    void loadFromFile(const char * filename, const VerticeFormat & verticeFormat, Texture2DLoader & textureLoader);
+    void loadFromFile(const char * filename, const VerticeFormat & verticeFormat);
 
     void draw(Renderer & renderer);
 

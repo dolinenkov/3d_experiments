@@ -7,7 +7,7 @@ namespace xrndr
 class ThreadPool::Impl
 {
 public:
-	asio::thread_pool thread_pool;
+	asio::thread_pool thread_pool = asio::thread_pool(128);
 };
 
 ThreadPool& ThreadPool::get()

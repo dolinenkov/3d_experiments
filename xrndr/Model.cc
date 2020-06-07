@@ -59,7 +59,7 @@ const mat4 & Transformation::getModelMatrix()
 Assimp::Importer g_Importer;
 
 
-void Model::loadFromFile(const char * filename, const VerticeFormat & verticeFormat, Texture2DLoader & textureLoader)
+void Model::loadFromFile(const char * filename, const VerticeFormat & verticeFormat)
 {
     auto scene = g_Importer.ReadFile(format("resources/models/{}", filename), aiProcessPreset_TargetRealtime_Quality | aiProcess_FlipUVs);
     if (scene && scene->mRootNode)
@@ -96,17 +96,11 @@ void Model::loadFromFile(const char * filename, const VerticeFormat & verticeFor
                 json::Object materialObject(materialJson.data(), materialJson.size());
                 if (!materialObject.empty())
                 {
-                    textureLoader.setIsSRGB(true);
-                    textureLoader.setFilename(materialObject.getString("albedo"));
-                    materials[i].albedo = textureLoader.load();
+                    materials[i].albedo = Texture2D::Loader().load(Texture2D::Description{ materialObject.getString("albedo"), true });
 
-                    textureLoader.setIsSRGB(false);
-                    textureLoader.setFilename(materialObject.getString("normal"));
-                    materials[i].normal = textureLoader.load();
+                    materials[i].normal = Texture2D::Loader().load(Texture2D::Description{ materialObject.getString("normal"), false});
 
-                    textureLoader.setIsSRGB(false);
-                    textureLoader.setFilename(materialObject.getString("metalness_roughness_ao"));
-                    materials[i].metalnessRoughnessAO = textureLoader.load();
+                    materials[i].metalnessRoughnessAO = Texture2D::Loader().load(Texture2D::Description{ materialObject.getString("metalness_roughness_ao"), false});
                 }
             }
 
@@ -198,6 +192,20 @@ void Model::loadFromFile(const char * filename, const VerticeFormat & verticeFor
 
 void Model::draw(Renderer & renderer)
 {
+    auto is_ready = [](std::shared_ptr<Texture2D> t)
+    {
+        return t && t->is_ready();
+    };
+
+    for (const auto& node : _order)
+    {
+        const auto& mat =_materials[node.material];
+        if (!is_ready(mat.albedo) || !is_ready(mat.normal) || !is_ready(mat.metalnessRoughnessAO))
+        {
+            return;
+        }
+    }
+
     size_t material = (size_t) -1;
 
     for (const Node & node : _order)

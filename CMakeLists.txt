@@ -31,7 +31,6 @@ add_executable(xrndr
     xrndr/Scene.cc
     xrndr/Settings.cc
     xrndr/Texture2D.cc
-    xrndr/Texture2DLoader.cc
     xrndr/TextureCache.cc
     xrndr/detail/stb.cc
     include/xrndr/detail/Stack.hh
@@ -48,7 +47,6 @@ add_executable(xrndr
     include/xrndr/Scene.hh
     include/xrndr/Settings.hh
     include/xrndr/Texture2D.hh
-    include/xrndr/Texture2DLoader.hh
     include/xrndr/TextureCache.hh
     include/xrndr/VertexFormat.hh
 
