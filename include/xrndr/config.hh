@@ -1,7 +1,6 @@
 #pragma once
 
-
-#include <GL/glew.h>
+#include <glad/glad.h>
 #ifdef _MSC_VER
 #pragma comment(lib, "opengl32.lib")
 #endif
@@ -9,11 +8,11 @@
 
 #include <SDL2/SDL.h>
 #ifdef _MSC_VER
-#pragma comment(linker, "/SUBSYSTEM:WINDOWS")
+//#pragma comment(linker, "/SUBSYSTEM:WINDOWS")
 #ifdef _DEBUG
-#pragma comment(lib, "SDL2maind.lib")
+//#pragma comment(lib, "SDL2maind.lib")
 #else
-#pragma comment(lib, "SDL2main.lib")
+//#pragma comment(lib, "SDL2main.lib")
 #endif
 #endif
 
@@ -61,9 +60,8 @@ using ::fmt::format;
 
 }
 
-
-#include <SOIL/SOIL.h>
-
+#include <stb_image.h>
+#include <stb_image_write.h>
 
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
@@ -120,7 +118,7 @@ inline void _check_gl_bugs(const char * file, int line)
     const auto err = glGetError();
     if (err != GL_NO_ERROR)
     {
-        SDL_Log("gl bugcheck: at %s, %d : 0x%04x : %s\n", file, line, err, glewGetErrorString(err));
+        //SDL_Log("gl bugcheck: at %s, %d : 0x%04x : %s\n", file, line, err, glewGetErrorString(err));
     #ifdef _MSC_VER
         __debugbreak();
     #endif

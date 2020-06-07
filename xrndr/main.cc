@@ -123,7 +123,7 @@ int main(int, char *[])
         SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
         SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
         SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
-        SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+        SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
         SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
         SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
         SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_DEBUG_FLAG | SDL_GL_CONTEXT_FORWARD_COMPATIBLE_FLAG);
@@ -139,18 +139,23 @@ int main(int, char *[])
 
             SDL_GL_SetSwapInterval(settings.vsync ? 1 : 0);
 
-            const auto glewError = glewInit();
-            if (glewError != GLEW_NO_ERROR)
+            auto getProcAddress = [](const char* name) {
+                return SDL_GL_GetProcAddress(name);
+            };
+
+            if (gladLoadGLLoader(getProcAddress) == 0)
             {
-                SDL_Log("glew init: %s\n", glewGetErrorString(glewError));
+                //SDL_Log("glew init: %s\n", glewGetErrorString(glewError));
             }
             else
             if (auto scene = xrndr::make_unique<xrndr::Scene>(settings))
             {
                 glEnable(GL_DEBUG_OUTPUT);
 
-                if (GLEW_KHR_debug)
+                //if (GLEW_KHR_debug)
+                if (glDebugMessageCallback)
                 {
+                    SDL_Log("KHR_debug extension present, installing callback");
                     glDebugMessageCallback([](GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar * message, const void * userParam)
                     {
                         SDL_Log("gl debug: %s\n", message);

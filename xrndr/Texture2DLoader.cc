@@ -1,5 +1,6 @@
 #include <xrndr/Texture2DLoader.hh>
 
+
 namespace xrndr
 {
 
@@ -8,6 +9,7 @@ Texture2DLoader::Texture2DLoader()
     , _isSRGB(false)
     , _width(0)
     , _height(0)
+    , _channels(0)
 {
 }
 
@@ -73,17 +75,19 @@ bool Texture2DLoader::_decode()
     {
         int width = 0;
         int height = 0;
+        int channels = 0;
 
-        auto img = SOIL_load_image_from_memory(reinterpret_cast<const unsigned char *>(_rawData.data()), _rawData.size(), &width, &height, nullptr, SOIL_LOAD_RGBA);
+        auto img = stbi_load_from_memory(reinterpret_cast<const stbi_uc*>(_rawData.data()), static_cast<int>(_rawData.size()), &width, &height, &channels, 4);
         if (img)
         {
-            _decodedData.resize(width * height * 4);
+            _decodedData.resize(width * height * channels);
             memcpy(_decodedData.data(), img, _decodedData.size());
-            SOIL_free_image_data(img);
+            stbi_image_free(img);
         }
 
         _width = width;
         _height = height;
+        _channels = channels;
         decoded = true;
     }
 
@@ -105,7 +109,21 @@ GLuint Texture2DLoader::_upload()
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR); gl_bugcheck();
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR); gl_bugcheck();
 
-            glTexImage2D(GL_TEXTURE_2D, 0, _isSRGB ? GL_SRGB : GL_RGBA, _width, _height, 0, GL_RGBA, GL_UNSIGNED_BYTE, _decodedData.data()); gl_bugcheck();
+            GLenum format = GL_RGBA;
+            switch (_channels) {
+                case 3:
+                    format = GL_RGB;
+                    break;
+
+                case 4:
+                    break;
+
+                default:
+                    assert(0);
+                    return 0;
+            }
+
+            glTexImage2D(GL_TEXTURE_2D, 0, _isSRGB ? GL_SRGB : GL_RGBA, _width, _height, 0, format, GL_UNSIGNED_BYTE, _decodedData.data()); gl_bugcheck();
             glGenerateMipmap(GL_TEXTURE_2D); gl_bugcheck();
         }
     }

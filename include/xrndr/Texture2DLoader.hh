@@ -34,6 +34,7 @@ private:
     vector<char>    _decodedData;
     uint32_t        _width;
     uint32_t        _height;
+    uint32_t        _channels;
 };
 
 }
