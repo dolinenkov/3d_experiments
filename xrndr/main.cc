@@ -1,7 +1,7 @@
 #include <xrndr/config.hh>
 #include <xrndr/Scene.hh>
 #include <xrndr/Settings.hh>
-
+#include <xrndr/async/Async.hh>
 
 struct Keyboard
 {
@@ -171,8 +171,13 @@ int main(int, char *[])
                 TimeManager timeManager;
                 FrameStats frameStats;
 
+                xrndr::ThreadPool::get();
+                xrndr::ExecutionContext::current();
+
                 for (bool running = true; running;)
                 {
+                    xrndr::ExecutionContext::current().poll();
+
                     timeManager.update();
                     frameStats.update(timeManager.lastFrameTime());
 

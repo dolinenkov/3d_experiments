@@ -51,6 +51,9 @@ add_executable(xrndr
     include/xrndr/Texture2DLoader.hh
     include/xrndr/TextureCache.hh
     include/xrndr/VertexFormat.hh
+
+    include/xrndr/async/Async.hh
+    xrndr/async/Async.cc
 )
 
 #source_group(TREE include/ PREFIX "include")
