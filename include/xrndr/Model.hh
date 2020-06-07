@@ -71,6 +71,8 @@ public:
 
     void draw(Renderer & renderer);
 
+    void setNoTextures(bool);
+
 private:
     unsigned int _countChildrenMeshes(const aiNode * node) const;
 
@@ -81,6 +83,7 @@ private:
     vector<Material> _materials;
     vector<Node> _order;
     State _state = State::Empty;
+    bool _notextures = false;
 };
 
 }

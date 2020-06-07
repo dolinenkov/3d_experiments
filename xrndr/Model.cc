@@ -60,17 +60,20 @@ bool Model::is_ready() const
 {
     if (_state == State::Ready)
     {
-        auto rdy = [](std::shared_ptr<Texture2D> t)
+        if (!_notextures)
         {
-            return t && t->is_ready();
-        };
-
-        for (const auto& node : _order)
-        {
-            const auto& mat = _materials[node.material];
-            if (!rdy(mat.albedo) || !rdy(mat.normal) || !rdy(mat.metalnessRoughnessAO))
+            auto rdy = [](std::shared_ptr<Texture2D> t)
             {
-                return false;
+                return t && t->is_ready();
+            };
+
+            for (const auto& node : _order)
+            {
+                const auto& mat = _materials[node.material];
+                if (!rdy(mat.albedo) || !rdy(mat.normal) || !rdy(mat.metalnessRoughnessAO))
+                {
+                    return false;
+                }
             }
         }
 
@@ -100,6 +103,11 @@ void Model::draw(Renderer & renderer)
 
         _meshes[node.mesh].draw();
     }
+}
+
+void Model::setNoTextures(bool b)
+{
+    _notextures = b;
 }
 
 unsigned int Model::_countChildrenMeshes(const aiNode * node) const

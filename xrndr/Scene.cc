@@ -82,6 +82,7 @@ Scene::Scene(Settings & settings)
     //
 
     _lightVisualizationModel = Model::Loader().load(Model::Description{"cube.obj"}, nontexturedGeometryVerticeFormat);
+    _lightVisualizationModel->setNoTextures(true);
     _lightVisualizationModel->setScale(vec3(0.2f));
 
     //
