@@ -1,0 +1,5 @@
+message(STATUS "searching for asio")
+add_library(asio INTERFACE)
+target_include_directories(asio INTERFACE ${CMAKE_SOURCE_DIR}/externals/asio/asio/include/)
+#target_compile_features(asio INTERFACE cxx_std_17)
+target_compile_definitions(asio INTERFACE  _WIN32_WINNT=0x0601)
