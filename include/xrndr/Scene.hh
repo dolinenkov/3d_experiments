@@ -70,10 +70,10 @@ private:
     vector<PointLight>          _pointLights;
     vector<DirectedLight>       _directedLights;
 
-    vector<Model>               _models;
+    vector<std::shared_ptr<Model>> _models;
 
     shared_ptr<Program>         _nontexturedGeometryProgram;
-    Model                       _lightVisualizationModel;
+    std::shared_ptr<Model>      _lightVisualizationModel;
 
     shared_ptr<Program>         _postprocessProgram;
 

@@ -14,7 +14,7 @@ struct MeshData
     const uint32_t *        indexData;
     size_t                  indexSize;
 
-    const VerticeFormat *   format;
+    VerticeFormat format;
 };
 
 

@@ -63,30 +63,26 @@ Scene::Scene(Settings & settings)
 
     //
 
-    _models.emplace_back();
-    _models.back().loadFromFile("pbr_sphere_gold.obj", geometryPassVerticeFormat);
-    _models.back().setPosition(vec3(-1.0f, -1.0f, 5.0f));
-    _models.back().setScale(vec3(0.05f, 0.05f, 0.05f));
+    _models.emplace_back(Model::Loader().load(Model::Description{"pbr_sphere_gold.obj"}, geometryPassVerticeFormat));
+    _models.back()->setPosition(vec3(-1.0f, -1.0f, 5.0f));
+    _models.back()->setScale(vec3(0.05f, 0.05f, 0.05f));
 
-    _models.emplace_back();
-    _models.back().loadFromFile("pbr_sphere_iron.obj", geometryPassVerticeFormat);
-    _models.back().setPosition(vec3(-1.0f, 1.0f, 5.0f));
-    _models.back().setScale(vec3(0.05f, 0.05f, 0.05f));
+    _models.emplace_back(Model::Loader().load(Model::Description{"pbr_sphere_iron.obj"}, geometryPassVerticeFormat));
+    _models.back()->setPosition(vec3(-1.0f, 1.0f, 5.0f));
+    _models.back()->setScale(vec3(0.05f, 0.05f, 0.05f));
 
-    _models.emplace_back();
-    _models.back().loadFromFile("pbr_sphere_leather.obj", geometryPassVerticeFormat);
-    _models.back().setPosition(vec3(1.0f, 1.0f, 5.0f));
-    _models.back().setScale(vec3(0.05f, 0.05f, 0.05f));
+    _models.emplace_back(Model::Loader().load(Model::Description{"pbr_sphere_leather.obj"}, geometryPassVerticeFormat));
+    _models.back()->setPosition(vec3(1.0f, 1.0f, 5.0f));
+    _models.back()->setScale(vec3(0.05f, 0.05f, 0.05f));
 
-    _models.emplace_back();
-    _models.back().loadFromFile("pbr_sphere_pvc.obj", geometryPassVerticeFormat);
-    _models.back().setPosition(vec3(1.0f, -1.0f, 5.0f));
-    _models.back().setScale(vec3(0.05f, 0.05f, 0.05f));
+    _models.emplace_back(Model::Loader().load(Model::Description{"pbr_sphere_pvc.obj"}, geometryPassVerticeFormat));
+    _models.back()->setPosition(vec3(1.0f, -1.0f, 5.0f));
+    _models.back()->setScale(vec3(0.05f, 0.05f, 0.05f));
 
     //
 
-    _lightVisualizationModel.loadFromFile("cube.obj", nontexturedGeometryVerticeFormat);
-    _lightVisualizationModel.setScale(vec3(0.2f));
+    _lightVisualizationModel = Model::Loader().load(Model::Description{"cube.obj"}, nontexturedGeometryVerticeFormat);
+    _lightVisualizationModel->setScale(vec3(0.2f));
 
     //
 
@@ -101,7 +97,7 @@ Scene::Scene(Settings & settings)
     };
 
     MeshData md;
-    md.format = &postprocessVerticeFormat;
+    md.format = postprocessVerticeFormat;
     md.vertexData = vertex;
     md.vertexSize = 4;
     md.indexData = index;
@@ -194,7 +190,7 @@ void Scene::draw()
 
     for (auto & model : _models)
     {
-        _matrixStack.pushModel(model.getModelMatrix(), true);
+        _matrixStack.pushModel(model->getModelMatrix(), true);
 
         const auto & matrixGroup = _matrixStack.getCache();
 
@@ -206,7 +202,7 @@ void Scene::draw()
         _firstPassProgram->setMat4("u_ModelViewProjectionMatrix", matrixGroup.modelViewProjection);
         _firstPassProgram->setMat3("u_NormalMatrix", matrixGroup.normal);
 
-        model.draw(*this);
+        model->draw(*this);
 
         _matrixStack.popModel();
     }
@@ -219,9 +215,9 @@ void Scene::draw()
 
     for (auto & pointLight : _pointLights)
     {
-        _lightVisualizationModel.setPosition(pointLight.position);
+        _lightVisualizationModel->setPosition(pointLight.position);
 
-        _matrixStack.pushModel(_lightVisualizationModel.getModelMatrix(), true);
+        _matrixStack.pushModel(_lightVisualizationModel->getModelMatrix(), true);
 
         const auto & matrixGroup = _matrixStack.getCache();
 
@@ -235,7 +231,7 @@ void Scene::draw()
         _nontexturedGeometryProgram->setMat4("u_ModelViewProjectionMatrix", matrixGroup.modelViewProjection);
         _nontexturedGeometryProgram->setMat3("u_NormalMatrix", matrixGroup.normal);
 
-        _lightVisualizationModel.draw(*this);
+        _lightVisualizationModel->draw(*this);
 
         _matrixStack.popModel();
     }

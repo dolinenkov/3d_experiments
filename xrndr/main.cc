@@ -150,9 +150,6 @@ int main(int, char *[])
             else
             if (auto scene = xrndr::make_unique<xrndr::Scene>(settings))
             {
-                glEnable(GL_DEBUG_OUTPUT);
-
-                //if (GLEW_KHR_debug)
                 if (glDebugMessageCallback)
                 {
                     SDL_Log("KHR_debug extension present, installing callback");
@@ -160,6 +157,7 @@ int main(int, char *[])
                     {
                         SDL_Log("gl debug: %s\n", message);
                     }, nullptr);
+                    glEnable(GL_DEBUG_OUTPUT);
                 }
 
                 scene->updateViewport(windowWidth, windowHeight);

@@ -1,5 +1,4 @@
 #include <xrndr/Texture2D.hh>
-#include <xrndr/async/Async.hh>
 
 namespace xrndr
 {
@@ -34,13 +33,17 @@ void Texture2D::unbind(int unit)
     glBindTexture(GL_TEXTURE_2D, 0); gl_bugcheck();
 }
 
-std::shared_ptr<Texture2D> Texture2D::Loader::load(Description description) const
+std::shared_ptr<Texture2D> Texture2D::Loader::load(const Description& description) const
 {
-    auto& context = ExecutionContext::current();
+    return load(description, ExecutionContext::current());
+}
 
+std::shared_ptr<Texture2D> Texture2D::Loader::load(const Description& description, ExecutionContext& context) const
+{
     auto texture = std::make_shared<Texture2D>();
     texture->_state = State::Await;
 
+    //TODO: encoded/decoded images are most likely copied here in an inefficient way. should be investigated and fixed
     ThreadPool::get().post([description, texture, &context]()
     {
         do
@@ -55,7 +58,6 @@ std::shared_ptr<Texture2D> Texture2D::Loader::load(Description description) cons
             context.post([texture, width, height, channels, srgb = description.srgb, decoded = std::move(decoded)]()
             {
                 GLuint handle = 0;
-
                 if (upload_texture(decoded, width, height, channels, srgb, handle))
                 {
                     texture->name = handle;
@@ -168,7 +170,7 @@ bool Texture2D::Loader::upload_texture(const std::vector<char>& image, uint32_t 
     return false;
 }
 
-Texture2D::Cache& Texture2D::Cache::get()
+Texture2D::Cache& Texture2D::Cache::instance()
 {
     static Texture2D::Cache cache;
     return cache;

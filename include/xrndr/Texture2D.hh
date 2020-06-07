@@ -1,5 +1,6 @@
 #pragma once
 #include <xrndr/config.hh>
+#include <xrndr/async/Async.hh>
 #include <entt/entt.hpp>
 
 namespace xrndr
@@ -24,7 +25,8 @@ public:
 
     struct Loader : entt::loader<Loader, Texture2D>
     {
-        std::shared_ptr<Texture2D> load(Description) const;
+        std::shared_ptr<Texture2D> load(const Description&) const;
+        std::shared_ptr<Texture2D> load(const Description&, ExecutionContext&) const;
 
         static bool read_file(Path, std::vector<char>&);
 
@@ -35,7 +37,7 @@ public:
 
     struct Cache : entt::cache<Texture2D>
     {
-        static Cache& get();
+        static Cache& instance();
     };
 
     Texture2D() = default;

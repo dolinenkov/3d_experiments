@@ -21,8 +21,7 @@ void Mesh::init(const MeshData & meshData)
     if (meshData.vertexData == nullptr ||
         meshData.vertexSize == 0 ||
         meshData.indexData == nullptr ||
-        meshData.indexSize == 0 ||
-        meshData.format == nullptr)
+        meshData.indexSize == 0)
     {
         assert(false);
         return;
@@ -54,43 +53,43 @@ void Mesh::init(const MeshData & meshData)
 
     _indexCount = meshData.indexSize;
 
-    if (meshData.format->position != VerticeFormat::NOT_PRESENT)
+    if (meshData.format.position != VerticeFormat::NOT_PRESENT)
     {
         glVertexAttribPointer(
-            meshData.format->position,
+            meshData.format.position,
             sizeof(Vertice::position) / sizeof(Vertice::position[0]),
             GL_FLOAT,
             GL_FALSE,
             sizeof(Vertice),
             reinterpret_cast<const void *>(offsetof(Vertice, position))); gl_bugcheck();
 
-        glEnableVertexAttribArray(meshData.format->position); gl_bugcheck();
+        glEnableVertexAttribArray(meshData.format.position); gl_bugcheck();
     }
 
-    if (meshData.format->texture != VerticeFormat::NOT_PRESENT)
+    if (meshData.format.texture != VerticeFormat::NOT_PRESENT)
     {
         glVertexAttribPointer(
-            meshData.format->texture,
+            meshData.format.texture,
             sizeof(Vertice::texture) / sizeof(Vertice::texture[0]),
             GL_FLOAT,
             GL_FALSE,
             sizeof(Vertice),
             reinterpret_cast<const void *>(offsetof(Vertice, texture))); gl_bugcheck();
 
-        glEnableVertexAttribArray(meshData.format->texture); gl_bugcheck();
+        glEnableVertexAttribArray(meshData.format.texture); gl_bugcheck();
     }
 
-    if (meshData.format->normal != VerticeFormat::NOT_PRESENT)
+    if (meshData.format.normal != VerticeFormat::NOT_PRESENT)
     {
         glVertexAttribPointer(
-            meshData.format->normal,
+            meshData.format.normal,
             sizeof(Vertice::normal) / sizeof(Vertice::normal[0]),
             GL_FLOAT,
             GL_FALSE,
             sizeof(Vertice),
             reinterpret_cast<const void *>(offsetof(Vertice, normal))); gl_bugcheck();
 
-        glEnableVertexAttribArray(meshData.format->normal); gl_bugcheck();
+        glEnableVertexAttribArray(meshData.format.normal); gl_bugcheck();
     }
 }
 

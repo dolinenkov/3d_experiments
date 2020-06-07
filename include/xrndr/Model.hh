@@ -3,8 +3,8 @@
 #include <xrndr/VertexFormat.hh>
 #include <xrndr/Mesh.hh>
 #include <xrndr/Material.hh>
-#include <xrndr/Texture2DLoader.hh>
-
+#include <xrndr/async/Async.hh>
+#include <entt/entt.hpp>
 
 namespace xrndr
 {
@@ -42,7 +42,32 @@ private:
     };
 
 public:
-    void loadFromFile(const char * filename, const VerticeFormat & verticeFormat);
+    enum class State
+    {
+        Empty,
+        Await,
+        Ready,
+        Error,
+    };
+
+    struct Description
+    {
+        Path path;
+    };
+
+    struct Loader : entt::loader<Loader, Model>
+    {
+        std::shared_ptr<Model> load(const Description&, const VerticeFormat&) const;
+        std::shared_ptr<Model> load(const Description&, const VerticeFormat&, ExecutionContext&) const;
+
+    };
+
+    struct Cache : entt::cache<Model>
+    {
+        static Cache& instance();
+    };
+
+    bool is_ready() const;
 
     void draw(Renderer & renderer);
 
@@ -52,9 +77,10 @@ private:
     void _assignMesh(vector<Node> & meshDrawOrder, size_t & index, const aiNode * node) const;
 
 private:
-    vector<Mesh>     _meshes;
+    vector<Mesh> _meshes;
     vector<Material> _materials;
-    vector<Node>     _order;
+    vector<Node> _order;
+    State _state = State::Empty;
 };
 
 }
